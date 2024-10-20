@@ -86,7 +86,7 @@ CREATE TABLE Payment (
 );
 
 -- Creating Location_Pictures table to store pictures of locations and tour guides
-CREATE TABLE Location_Pictures (
+CREATE TABLE Picture (
   picture_id INT PRIMARY KEY AUTO_INCREMENT,
   location_id INT,
   guide_id INT,  -- Adding guide_id reference
