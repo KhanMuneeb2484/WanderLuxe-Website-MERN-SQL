@@ -73,29 +73,60 @@ const loginUser = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.toString() });
   }
 };
-// Update user
 const updateUser = async (req, res) => {
-  const { userId } = req.params;
-  const { name, email, phoneNumber, role } = req.body;
+  const userId = req.user.user_id; // Get userId from the authenticated user
+  const { name, email, phone_number, role } = req.body;
 
   try {
-    // Find existing user
+    console.log("Updating userId:", userId); // Log the userId being updated
+    console.log("Update fields:", { name, email, phone_number, role }); // Log the fields to be updated
+
     const userQuery = await pool.query(
       "SELECT * FROM users WHERE user_id = $1",
       [userId]
     );
-    if (userQuery.rows.length === 0) {
+
+    if (!userQuery.rows || userQuery.rows.length === 0) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Update user
-    const updatedUserQuery = await pool.query(
-      "UPDATE users SET name = $1, email = $2, phone_number = $3, role = $4 WHERE user_id = $5 RETURNING *",
-      [name, email, phoneNumber, role, userId]
-    );
+    const updates = [];
+    const values = [];
+
+    if (name) {
+      updates.push(`name = $${updates.length + 1}`);
+      values.push(name);
+    }
+    if (email) {
+      updates.push(`email = $${updates.length + 1}`);
+      values.push(email);
+    }
+    if (phone_number) {
+      updates.push(`phone_number = $${updates.length + 1}`);
+      values.push(phone_number);
+    }
+    if (role) {
+      updates.push(`role = $${updates.length + 1}`);
+      values.push(role);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ message: "No fields to update" });
+    }
+
+    values.push(userId);
+    const updateQuery = `UPDATE users SET ${updates.join(
+      ", "
+    )} WHERE user_id = $${values.length} RETURNING *`;
+
+    console.log("Executing query:", updateQuery, "with values:", values); // Log the update query
+
+    const updatedUserQuery = await pool.query(updateQuery, values);
     const updatedUser = updatedUserQuery.rows[0];
+
     res.json(updatedUser);
   } catch (error) {
+    console.error("Error updating user:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };

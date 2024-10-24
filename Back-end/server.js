@@ -3,7 +3,6 @@ import morgan from "morgan";
 import userRoutes from "./routes/userRoutes.js"; // Assuming you're using ES6 module syntax
 import pool from "./config/db.js"; // Adjust if you're using CommonJS
 import dotenv from "dotenv";
-import initializeDatabase from "./sql/initializeDB.js";
 import checkAndInitializeDB from "./sql/initializeDB.js";
 
 dotenv.config();
