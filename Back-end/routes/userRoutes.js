@@ -10,17 +10,17 @@ import { authenticateJWT, requireRole } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 // Register a new user
-router.post("/register", registerUser);
+router.post("/register-user", registerUser);
 
 // Login user
-router.post("/login", loginUser);
+router.post("/login-user", loginUser);
 
 // Update user (requires authentication)
-router.patch("/update", authenticateJWT, updateUser);
+router.patch("/update-user", authenticateJWT, updateUser);
 
 // Delete user (requires authentication and admin role)
 router.delete(
-  "/delete/:userId",
+  "/delete-user/:userId",
   authenticateJWT,
   requireRole(["admin"]),
   deleteUser

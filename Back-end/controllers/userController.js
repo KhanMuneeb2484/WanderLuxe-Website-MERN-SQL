@@ -4,8 +4,8 @@ import pool from "../config/db.js";
 
 // Register a new user
 const registerUser = async (req, res) => {
-  const { name, email, password, phoneNumber, role } = req.body;
-
+  const { name, email, password_hash, phone_number, role } = req.body;
+  console.log(req.body);
   try {
     // Check if user already exists
     const existingUserQuery = await pool.query(
@@ -18,12 +18,12 @@ const registerUser = async (req, res) => {
 
     // Hash the password
     const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
+    const passwordHash = await bcrypt.hash(password_hash, salt);
 
     // Create user
     const newUserQuery = await pool.query(
       "INSERT INTO users (name, email, password_hash, phone_number, role) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [name, email, passwordHash, phoneNumber, role]
+      [name, email, passwordHash, phone_number, role]
     );
     const newUser = newUserQuery.rows[0];
     res.status(201).json(newUser);

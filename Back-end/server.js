@@ -3,6 +3,8 @@ import morgan from "morgan";
 import userRoutes from "./routes/userRoutes.js"; // Assuming you're using ES6 module syntax
 import pool from "./config/db.js"; // Adjust if you're using CommonJS
 import dotenv from "dotenv";
+import initializeDatabase from "./sql/initializeDB.js";
+import checkAndInitializeDB from "./sql/initializeDB.js";
 
 dotenv.config();
 
@@ -14,13 +16,17 @@ app.use("/api/users", userRoutes);
 
 app.use(morgan("dev"));
 
+await checkAndInitializeDB();
+
 const PORT = process.env.PORT;
 
 pool
   .connect()
   .then((client) => {
     app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+      console.log(
+        `Server is running on port ${PORT} and Database is connected`
+      );
     });
     client.release();
   })
