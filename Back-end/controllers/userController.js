@@ -34,7 +34,12 @@ const registerUser = async (req, res) => {
 
 // Login user
 const loginUser = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password_hash } = req.body;
+
+  // Validate request body
+  if (!email || !password_hash) {
+    return res.status(400).json({ message: "Email and password are required" });
+  }
 
   try {
     // Check if user exists
@@ -47,21 +52,27 @@ const loginUser = async (req, res) => {
     const user = userQuery.rows[0];
 
     // Check password
-    const isMatch = await bcrypt.compare(password, user.password_hash);
+    const isMatch = await bcrypt.compare(password_hash, user.password_hash);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
     // Generate JWT using secret from environment variable
-    const token = jwt.sign({ userId: user.user_id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-    res.json({ token });
+    const token = jwt.sign(
+      { userId: user.user_id, role: user.role }, // Include user role in the token for access control
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "30d", // You can adjust the expiry as needed
+      }
+    );
+
+    // Return the token in the response
+    res.status(200).json({ message: "Logged in Successfully !", token });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    console.error("Error in loginUser:", error); // Log the error for debugging
+    res.status(500).json({ message: "Server error", error: error.toString() });
   }
 };
-
 // Update user
 const updateUser = async (req, res) => {
   const { userId } = req.params;
