@@ -1,12 +1,29 @@
-// routes/userRoutes.js
-const express = require("express");
+import express from "express";
+import {
+  registerUser,
+  loginUser,
+  updateUser,
+  deleteUser,
+} from "../controllers/userController.js";
+import { authenticateJWT, requireRole } from "../middleware/authMiddleware.js";
+
 const router = express.Router();
-const userController = require("../controllers/userController");
 
-// Routes
-router.post("/register", userController.register);
-router.post("/login", userController.login);
-router.put("/update/:userId", userController.update);
-router.delete("/delete/:userId", userController.delete);
+// Register a new user
+router.post("/register", registerUser);
 
-module.exports = router;
+// Login user
+router.post("/login", loginUser);
+
+// Update user (requires authentication)
+router.patch("/update", authenticateJWT, updateUser);
+
+// Delete user (requires authentication and admin role)
+router.delete(
+  "/delete/:userId",
+  authenticateJWT,
+  requireRole(["admin"]),
+  deleteUser
+);
+
+export default router;

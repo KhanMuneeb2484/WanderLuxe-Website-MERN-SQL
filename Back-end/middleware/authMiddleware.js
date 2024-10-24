@@ -1,6 +1,6 @@
 // middleware/authMiddleware.js
 import jwt from "jsonwebtoken";
-import { pool } from "../config/db.js"; // Adjust the path to your db configuration
+import pool from "../config/db.js"; // Adjust the path to your db configuration
 
 const authenticateJWT = async (req, res, next) => {
   const authHeader = req.headers.authorization;

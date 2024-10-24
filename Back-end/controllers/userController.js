@@ -1,9 +1,9 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const pool = require("../config/db");
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import pool from "../config/db.js";
 
 // Register a new user
-exports.register = async (req, res) => {
+const registerUser = async (req, res) => {
   const { name, email, password, phoneNumber, role } = req.body;
 
   try {
@@ -33,7 +33,7 @@ exports.register = async (req, res) => {
 };
 
 // Login user
-exports.login = async (req, res) => {
+const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -52,8 +52,8 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    // Generate JWT
-    const token = jwt.sign({ userId: user.user_id }, "your_jwt_secret", {
+    // Generate JWT using secret from environment variable
+    const token = jwt.sign({ userId: user.user_id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
     res.json({ token });
@@ -63,7 +63,7 @@ exports.login = async (req, res) => {
 };
 
 // Update user
-exports.update = async (req, res) => {
+const updateUser = async (req, res) => {
   const { userId } = req.params;
   const { name, email, phoneNumber, role } = req.body;
 
@@ -90,7 +90,7 @@ exports.update = async (req, res) => {
 };
 
 // Delete user
-exports.delete = async (req, res) => {
+const deleteUser = async (req, res) => {
   const { userId } = req.params;
 
   try {
@@ -110,3 +110,5 @@ exports.delete = async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 };
+
+export { registerUser, loginUser, updateUser, deleteUser };

@@ -1,9 +1,20 @@
-// config/db.js
-const { Pool } = require("pg");
+import pg from "pg"; // Import the entire 'pg' module
+import dotenv from "dotenv";
 
-// PostgreSQL connection using URI from Supabase
+dotenv.config();
+
+const { Pool } = pg; // Destructure 'Pool' from the imported module
+
 const pool = new Pool({
   connectionString: process.env.SUPABASE_DB_URI,
 });
 
-module.exports = pool;
+pool.on("connect", () => {
+  console.log("Connected to the Supabase database");
+});
+
+pool.on("error", (err) => {
+  console.error("Error connecting to the database:", err);
+});
+
+export default pool;
