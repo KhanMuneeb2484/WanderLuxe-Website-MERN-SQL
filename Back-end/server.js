@@ -4,6 +4,7 @@ import userRoutes from "./routes/userRoutes.js"; // Assuming you're using ES6 mo
 import pool from "./config/db.js"; // Adjust if you're using CommonJS
 import dotenv from "dotenv";
 import checkAndInitializeDB from "./sql/initializeDB.js";
+import countryRoutes from "./routes/countryRoutes.js";
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ const app = express();
 app.use(express.json());
 
 app.use("/api/users", userRoutes);
+app.use("/api/countries", countryRoutes);
 
 app.use(morgan("dev"));
 

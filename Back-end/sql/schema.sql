@@ -1,7 +1,8 @@
 -- Creating Country table
 CREATE TABLE IF NOT EXISTS countries (
   country_id SERIAL PRIMARY KEY,
-  country_name VARCHAR(100) NOT NULL
+  country_name VARCHAR(100) NOT NULL,
+  country_continent TEXT NOT NULL
 );
 
 -- Creating City table
