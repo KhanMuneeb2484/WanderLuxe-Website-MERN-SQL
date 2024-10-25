@@ -5,7 +5,7 @@ import pool from "../config/db.js";
 // Register a new user
 const registerUser = async (req, res) => {
   const { name, email, password_hash, phone_number, role } = req.body;
-  console.log(req.body);
+
   try {
     // Check if user already exists
     const existingUserQuery = await pool.query(
@@ -25,7 +25,7 @@ const registerUser = async (req, res) => {
       "INSERT INTO users (name, email, password_hash, phone_number, role) VALUES ($1, $2, $3, $4, $5) RETURNING *",
       [name, email, passwordHash, phone_number, role]
     );
-    const newUser = newUserQuery.rows[0];
+    const { password_hash: _, role: __, ...newUser } = newUserQuery.rows[0]; // Exclude password_hash and role
     res.status(201).json(newUser);
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
@@ -36,13 +36,11 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { email, password_hash } = req.body;
 
-  // Validate request body
   if (!email || !password_hash) {
     return res.status(400).json({ message: "Email and password are required" });
   }
 
   try {
-    // Check if user exists
     const userQuery = await pool.query("SELECT * FROM users WHERE email = $1", [
       email,
     ]);
@@ -51,36 +49,34 @@ const loginUser = async (req, res) => {
     }
     const user = userQuery.rows[0];
 
-    // Check password
     const isMatch = await bcrypt.compare(password_hash, user.password_hash);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    // Generate JWT using secret from environment variable
     const token = jwt.sign(
-      { userId: user.user_id, role: user.role }, // Include user role in the token for access control
+      { userId: user.user_id, role: user.role },
       process.env.JWT_SECRET,
-      {
-        expiresIn: "30d", // You can adjust the expiry as needed
-      }
+      { expiresIn: "30d" }
     );
 
-    // Return the token in the response
-    res.status(200).json({ message: "Logged in Successfully !", token });
+    // Return only necessary data
+    const { password_hash: _, role: __, ...userData } = user; // Exclude password_hash and role
+    res
+      .status(200)
+      .json({ message: "Logged in Successfully!", token, user: userData });
   } catch (error) {
-    console.error("Error in loginUser:", error); // Log the error for debugging
+    console.error("Error in loginUser:", error);
     res.status(500).json({ message: "Server error", error: error.toString() });
   }
 };
+
+// Update user
 const updateUser = async (req, res) => {
-  const userId = req.user.user_id; // Get userId from the authenticated user
+  const userId = req.user.user_id;
   const { name, email, phone_number, role } = req.body;
 
   try {
-    console.log("Updating userId:", userId); // Log the userId being updated
-    console.log("Update fields:", { name, email, phone_number, role }); // Log the fields to be updated
-
     const userQuery = await pool.query(
       "SELECT * FROM users WHERE user_id = $1",
       [userId]
@@ -119,14 +115,37 @@ const updateUser = async (req, res) => {
       ", "
     )} WHERE user_id = $${values.length} RETURNING *`;
 
-    console.log("Executing query:", updateQuery, "with values:", values); // Log the update query
-
     const updatedUserQuery = await pool.query(updateQuery, values);
-    const updatedUser = updatedUserQuery.rows[0];
-
+    const {
+      password_hash: _,
+      role: __,
+      ...updatedUser
+    } = updatedUserQuery.rows[0]; // Exclude password_hash and role
     res.json(updatedUser);
   } catch (error) {
     console.error("Error updating user:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+// Get user by ID
+const getUserById = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const userQuery = await pool.query(
+      "SELECT * FROM users WHERE user_id = $1",
+      [userId]
+    );
+
+    if (!userQuery.rows || userQuery.rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const { password_hash: _, role: __, ...user } = userQuery.rows[0]; // Exclude password_hash and role
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };
@@ -147,10 +166,10 @@ const deleteUser = async (req, res) => {
 
     // Delete user
     await pool.query("DELETE FROM users WHERE user_id = $1", [userId]);
-    res.status(204).send();
+    res.status(204).json({ message: "User deleted" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
 };
 
-export { registerUser, loginUser, updateUser, deleteUser };
+export { registerUser, loginUser, updateUser, deleteUser, getUserById };
