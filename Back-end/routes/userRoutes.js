@@ -5,6 +5,8 @@ import {
   updateUser,
   deleteUser,
   getUserById,
+  getUser,
+  getAllUsers,
 } from "../controllers/userController.js";
 import { authenticateJWT, requireRole } from "../middleware/authMiddleware.js";
 
@@ -25,6 +27,18 @@ router.get(
   authenticateJWT,
   requireRole(["admin"]),
   getUserById
+);
+
+// Get user(himself)  (requires authentication)
+router.get("/get-user", authenticateJWT, getUser);
+
+// Get all users (requires authentication and admin role)
+
+router.get(
+  "/get-all-users",
+  authenticateJWT,
+  requireRole(["admin"]),
+  getAllUsers
 );
 
 // Delete user (requires authentication and admin role)
