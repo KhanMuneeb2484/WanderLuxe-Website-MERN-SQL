@@ -6,7 +6,7 @@ import {
   getCityById,
   deleteCity,
   updateCity,
-} from "../controllers/cityController";
+} from "../controllers/cityController.js";
 
 const router = express.Router();
 
@@ -38,7 +38,7 @@ router.delete(
 
 // Update city
 
-router.get(
+router.patch(
   "/update-city/:city_id",
   authenticateJWT,
   requireRole(["admin"]),

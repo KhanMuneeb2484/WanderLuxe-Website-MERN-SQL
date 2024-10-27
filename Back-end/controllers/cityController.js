@@ -33,7 +33,7 @@ const deleteCity = async (req, res) => {
     }
 
     await pool.query("DELETE FROM cities WHERE city_id = $1", [city_id]);
-    res.status(204).json({ message: "City deleted" });
+    res.status(200).json({ message: "Country deleted successfully" });
   } catch (error) {
     console.error("Error deleting city:", error);
     res.status(500).json({ message: "Server error", error });
