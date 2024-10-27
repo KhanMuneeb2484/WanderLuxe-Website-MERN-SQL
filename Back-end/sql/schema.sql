@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS countries (
 CREATE TABLE IF NOT EXISTS cities (
   city_id SERIAL PRIMARY KEY,
   city_name VARCHAR(100) NOT NULL,
-  country_id INT,
+  country_id INT NOT NULL,
   FOREIGN KEY (country_id) REFERENCES countries(country_id)
     ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS users (
   name VARCHAR(100) NOT NULL,
   email VARCHAR(100) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
-  phone_number VARCHAR(20),
+  phone_number VARCHAR(20) NOT NULL,
   role VARCHAR(50) CHECK (role IN ('admin', 'user')) NOT NULL
 );
 
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS hotels (
   hotel_id SERIAL PRIMARY KEY,
   hotel_name VARCHAR(100) NOT NULL,
-  city_id INT,
+  city_id INT NOT NULL,
   room_type VARCHAR(50),
   price DECIMAL(10, 2),
   amenities TEXT,
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS hotels (
 CREATE TABLE IF NOT EXISTS locations (
   location_id SERIAL PRIMARY KEY,
   location_name VARCHAR(100) NOT NULL,
-  city_id INT,
+  city_id INT NOT NULL,
   FOREIGN KEY (city_id) REFERENCES cities(city_id)
     ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS locations (
 CREATE TABLE IF NOT EXISTS tour_guides (
   guide_id SERIAL PRIMARY KEY,
   guide_name VARCHAR(100) NOT NULL,
-  country_id INT,
+  country_id INT NOT NULL,
   expertise TEXT,
   rating DECIMAL(3, 2),
   per_day_charge DECIMAL(10, 2),

@@ -2,7 +2,7 @@ import { authenticateJWT, requireRole } from "../middleware/authMiddleware.js";
 import express from "express";
 import {
   registerCountry,
-  getCountries,
+  getAllCountries,
   getCountryById,
   deleteCountry,
   updateCountry,
@@ -19,7 +19,7 @@ router.post(
 );
 
 // Get all countries
-router.get("/get-all-countries", authenticateJWT, getCountries);
+router.get("/get-all-countries", authenticateJWT, getAllCountries);
 
 // Get country by ID
 router.get("/get-country-by-id/:country_id", authenticateJWT, getCountryById);
@@ -33,7 +33,7 @@ router.delete(
 );
 
 //update country
-router.get(
+router.patch(
   "/update-country/:country_id",
   authenticateJWT,
   requireRole(["admin"]),
