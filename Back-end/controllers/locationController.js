@@ -1,7 +1,7 @@
 import pool from "../config/db.js";
 
 // Create a new location
-const createLocation = async (req, res) => {
+const registerLocation = async (req, res) => {
   const { location_name, city_id } = req.body;
 
   try {
@@ -10,12 +10,13 @@ const createLocation = async (req, res) => {
       [location_name, city_id]
     );
 
-    res.status(201).json(newLocation.rows[0]);
+    res.status(201).json({ message: "Location registered Succesfully" });
   } catch (error) {
     console.error("Error creating location:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };
+``;
 
 // Delete a location
 const deleteLocation = async (req, res) => {
@@ -34,7 +35,7 @@ const deleteLocation = async (req, res) => {
     await pool.query("DELETE FROM locations WHERE location_id = $1", [
       location_id,
     ]);
-    res.status(204).json({ message: "Location deleted successfully" });
+    res.status(200).json({ message: "Location deleted successfully" });
   } catch (error) {
     console.error("Error deleting location:", error);
     res.status(500).json({ message: "Server error", error });
@@ -44,9 +45,10 @@ const deleteLocation = async (req, res) => {
 // Update a location
 const updateLocation = async (req, res) => {
   const { location_id } = req.params;
-  const { location_name, city_id } = req.body;
+  const updates = req.body; // Dynamic updates from request body
 
   try {
+    // Check if the location exists
     const location = await pool.query(
       "SELECT * FROM locations WHERE location_id = $1",
       [location_id]
@@ -56,10 +58,29 @@ const updateLocation = async (req, res) => {
       return res.status(404).json({ message: "Location not found" });
     }
 
-    const updatedLocation = await pool.query(
-      "UPDATE locations SET location_name = COALESCE($1, location_name), city_id = COALESCE($2, city_id) WHERE location_id = $3 RETURNING *",
-      [location_name, city_id, location_id]
-    );
+    // Prepare dynamic SQL query for updating
+    const fields = [];
+    const values = [];
+    let index = 1;
+
+    for (const [key, value] of Object.entries(updates)) {
+      fields.push(`${key} = $${index}`);
+      values.push(value);
+      index++;
+    }
+
+    if (fields.length === 0) {
+      return res.status(400).json({ message: "No fields provided for update" });
+    }
+
+    values.push(location_id); // Add the location_id as the last parameter
+    const query = `
+        UPDATE locations 
+        SET ${fields.join(", ")} 
+        WHERE location_id = $${index} 
+        RETURNING *`;
+
+    const updatedLocation = await pool.query(query, values);
 
     res.status(200).json(updatedLocation.rows[0]);
   } catch (error) {
@@ -103,7 +124,7 @@ const getLocationById = async (req, res) => {
 
 // Export all functions
 export {
-  createLocation,
+  registerLocation,
   deleteLocation,
   updateLocation,
   getAllLocations,

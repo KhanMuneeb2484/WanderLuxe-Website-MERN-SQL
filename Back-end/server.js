@@ -1,11 +1,12 @@
 import express from "express";
 import morgan from "morgan";
-import userRoutes from "./routes/userRoutes.js"; // Assuming you're using ES6 module syntax
+import userRoutes from "./routes/userRoutes.js";
 import pool from "./config/db.js"; // Adjust if you're using CommonJS
 import dotenv from "dotenv";
 import checkAndInitializeDB from "./sql/initializeDB.js";
 import countryRoutes from "./routes/countryRoutes.js";
 import cityRoutes from "./routes/cityRoutes.js";
+import locationRoutes from "./routes/locationRoutes.js";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/countries", countryRoutes);
 app.use("/api/cities", cityRoutes);
+app.use("/api/locations", locationRoutes);
 
 app.use(morgan("dev"));
 
