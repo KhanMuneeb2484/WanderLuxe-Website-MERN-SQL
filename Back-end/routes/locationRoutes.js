@@ -35,12 +35,13 @@ router.patch(
 );
 
 // Get all locations
-router.get("/get-all-locations", authenticateJWT, getAllLocations);
+router.get("/get-all-locations", getAllLocations);
 
 // Get a location by ID
 router.get(
   "/get-location-by-id/:location_id",
   authenticateJWT,
+  requireRole(["admin"]),
   getLocationById
 );
 

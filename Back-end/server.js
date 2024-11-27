@@ -7,6 +7,7 @@ import checkAndInitializeDB from "./sql/initializeDB.js";
 import countryRoutes from "./routes/countryRoutes.js";
 import cityRoutes from "./routes/cityRoutes.js";
 import locationRoutes from "./routes/locationRoutes.js";
+import tourGuideRoutes from "./routes/tourGuideRoutes.js";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/countries", countryRoutes);
 app.use("/api/cities", cityRoutes);
 app.use("/api/locations", locationRoutes);
+app.use("/api/guides", tourGuideRoutes);
 
 app.use(morgan("dev"));
 
