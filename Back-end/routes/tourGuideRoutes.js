@@ -15,20 +15,27 @@ router.post(
   authenticateJWT,
   requireRole(["admin"]),
   registerTourGuide
-); // Create a tour guide
+);
+
+// Create a tour guide
 router.patch(
   "/update-guide/:guide_id",
   authenticateJWT,
   requireRole(["admin"]),
   updateTourGuide
-); // Update a tour guide
+);
+
+// Update a tour guide
+
 router.delete(
   "/delete-guide/:guide_id",
   authenticateJWT,
   requireRole(["admin"]),
   deleteTourGuide
-); // Delete a tour guide
+);
+// Delete a tour guide
 router.get("/get-all-guides", getAllTourGuides); // Get all tour guides
+
 router.get(
   "/get-guide-by-id/:guide_id",
   authenticateJWT,

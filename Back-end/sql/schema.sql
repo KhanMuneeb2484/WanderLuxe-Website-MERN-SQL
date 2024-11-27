@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS hotels (
   room_type VARCHAR(50),
   price DECIMAL(10, 2),
   amenities TEXT,
+  number_of_rooms INT NOT NULL,
   availability BOOLEAN,
   FOREIGN KEY (city_id) REFERENCES cities(city_id)
     ON DELETE CASCADE ON UPDATE CASCADE

@@ -8,6 +8,7 @@ import countryRoutes from "./routes/countryRoutes.js";
 import cityRoutes from "./routes/cityRoutes.js";
 import locationRoutes from "./routes/locationRoutes.js";
 import tourGuideRoutes from "./routes/tourGuideRoutes.js";
+import hotelRoutes from "./routes/hotelRoutes.js";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use("/api/countries", countryRoutes);
 app.use("/api/cities", cityRoutes);
 app.use("/api/locations", locationRoutes);
 app.use("/api/guides", tourGuideRoutes);
+app.use("/api/hotels", hotelRoutes);
 
 app.use(morgan("dev"));
 
