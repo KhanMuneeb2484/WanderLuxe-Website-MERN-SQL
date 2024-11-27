@@ -1,7 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import userRoutes from "./routes/userRoutes.js";
-import pool from "./config/db.js"; // Adjust if you're using CommonJS
+import pool from "./config/db.js";
 import dotenv from "dotenv";
 import checkAndInitializeDB from "./sql/initializeDB.js";
 import countryRoutes from "./routes/countryRoutes.js";
