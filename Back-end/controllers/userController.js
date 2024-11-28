@@ -34,9 +34,9 @@ const registerUser = async (req, res) => {
 
 // Login user
 const loginUser = async (req, res) => {
-  const { email, password_hash } = req.body;
+  const { email, password } = req.body;
 
-  if (!email || !password_hash) {
+  if (!email || !password) {
     return res.status(400).json({ message: "Email and password are required" });
   }
 
@@ -49,7 +49,7 @@ const loginUser = async (req, res) => {
     }
     const user = userQuery.rows[0];
 
-    const isMatch = await bcrypt.compare(password_hash, user.password_hash);
+    const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
