@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { Button, Dropdown } from "react-bootstrap";
 
-const AdminPage = () => {
+const Admin = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -111,4 +111,4 @@ const AdminPage = () => {
   );
 };
 
-export default AdminPage;
+export default Admin;

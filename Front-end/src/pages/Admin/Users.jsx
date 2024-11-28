@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Table, Button, Container, Alert } from "react-bootstrap";
+import { Table, Button, Container, Alert, Dropdown } from "react-bootstrap";
 import { AuthContext } from "../../context/AuthContext";
+import { Link } from "react-router-dom";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
 
   useEffect(() => {
     const token = localStorage.getItem("token");

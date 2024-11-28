@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Admin from "./pages/Admin/Admin";
 import Users from "./pages/Admin/Users";
+import Acountries from "./pages/Admin/Acountries";
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/admin/admin" element={<Admin />} />
         <Route path="/admin/users" element={<Users />} />
+        <Route path="/admin/acountries" element={<Acountries />} />
       </Routes>
       <Footer />
     </div>
