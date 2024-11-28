@@ -4,31 +4,15 @@ import { AuthContext } from "./context/AuthContext";
 import UserHeader from "./components/Header";
 import AdminHeader from "./components/AdminHeader";
 import Footer from "./components/Footer";
-
-// User Pages
-import UserHome from "./pages/User/UserHome";
-import UserAbout from "./pages/User/UserAbout";
-import UserCities from "./pages/User/UserCities";
-import UserCountries from "./pages/User/UserCountries";
-import UserContact from "./pages/User/UserContact";
-import UserDashboard from "./pages/User/UserDashboard";
-import UserPackages from "./pages/User/UserPackages";
-import UserBookings from "./pages/User/UserBookings";
-import UserServices from "./pages/User/UserServices";
-
-// Admin Pages
-import AdminHome from "./pages/Admin/AdminHome";
-import AdminBookings from "./pages/Admin/AdminBookings";
-import AdminCities from "./pages/Admin/AdminCities";
-import AdminCountries from "./pages/Admin/AdminCountries";
-import AdminHotels from "./pages/Admin/AdminHotels";
-import AdminPackages from "./pages/Admin/AdminPackages";
-import AdminTourguides from "./pages/Admin/AdminTourguides";
-import AdminUsers from "./pages/Admin/AdminUsers";
-
-// Auth Pages
+import Home from "./pages/User/UserHome";
+import About from "./pages/User/UserAbout";
+import Services from "./pages/User/UserServices";
+import Packages from "./pages/User/UserPackages";
+import Destination from "./pages/User/UserDestination";
+import Booking from "./pages/User/Booking";
 import Login from "./pages/Login";
-
+import Contact from "./pages/User/UserContact";
+import Dashboard from "./pages/User/UserDashboard";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const App = () => {
