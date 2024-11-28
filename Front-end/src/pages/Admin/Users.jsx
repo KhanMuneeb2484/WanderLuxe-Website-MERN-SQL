@@ -29,7 +29,8 @@ const Users = () => {
       );
       if (response.ok) {
         const data = await response.json();
-        setUsers(data.users || []);
+        console.log("Fetched users:", data);
+        setUsers(data); // Update with the actual array returned
       } else {
         const errorText = await response.text();
         setErrorMessage(errorText || "Failed to fetch users.");
@@ -57,7 +58,7 @@ const Users = () => {
         }
       );
       if (response.ok) {
-        setUsers(users.filter((user) => user.id !== userId));
+        setUsers(users.filter((user) => user.user_id !== userId));
       } else {
         const errorText = await response.text();
         setErrorMessage(errorText || "Failed to delete user.");
@@ -89,13 +90,13 @@ const Users = () => {
         <tbody>
           {users && users.length > 0 ? (
             users.map((user) => (
-              <tr key={user.id}>
-                <td>{user.id}</td>
+              <tr key={user.user_id}>
+                <td>{user.user_id}</td>
                 <td>{user.name}</td>
                 <td>{user.email}</td>
-                <td>{user.phoneNumber}</td>
+                <td>{user.phone_number}</td>
                 <td>
-                  <Button variant="danger" onClick={() => deleteUser(user.id)}>
+                  <Button variant="danger" onClick={() => deleteUser(user.user_id)}>
                     Delete
                   </Button>
                 </td>
