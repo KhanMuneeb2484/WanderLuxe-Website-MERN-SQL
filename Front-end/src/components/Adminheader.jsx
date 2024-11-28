@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import "./Header.css";
 
-const Header = () => {
+const Adminheader = () => {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [navbarClass, setNavbarClass] = useState("navbar-darkgrey-translucent");
@@ -215,4 +215,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default Adminheader;
