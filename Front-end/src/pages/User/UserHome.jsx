@@ -10,7 +10,7 @@ import {
   ProgressBar,
 } from "react-bootstrap";
 
-export default function Home() {
+export default function UserHome() {
   return (
     <>
       {/* Hero Header Section */}

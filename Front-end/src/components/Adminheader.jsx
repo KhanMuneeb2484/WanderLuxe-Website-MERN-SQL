@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { Modal, Button, Form, Dropdown } from "react-bootstrap";
 import { FaGoogle, FaFacebookF } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext"; // Corrected path
+import { AuthContext } from "../context/AuthContext";
 import "./Header.css";
 
 const Header = () => {
