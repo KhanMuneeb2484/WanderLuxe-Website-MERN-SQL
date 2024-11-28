@@ -9,11 +9,13 @@ import cityRoutes from "./routes/cityRoutes.js";
 import locationRoutes from "./routes/locationRoutes.js";
 import tourGuideRoutes from "./routes/tourGuideRoutes.js";
 import hotelRoutes from "./routes/hotelRoutes.js";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 app.use("/api/users", userRoutes);
