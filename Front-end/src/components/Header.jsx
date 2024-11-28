@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import React, { useState, useEffect, useContext } from "react";
+import { Modal, Button, Form, Dropdown } from "react-bootstrap";
 import { FaGoogle, FaFacebookF } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext"; // Assuming AuthContext exists to manage user authentication state
 import "./Header.css";
 
 const Header = () => {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [navbarClass, setNavbarClass] = useState("navbar-darkgrey-translucent");
+  const { user, logout } = useContext(AuthContext); // Use AuthContext to get user info and logout function
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,7 +26,7 @@ const Header = () => {
   const handleCloseRegister = () => setShowRegisterModal(false);
   const handleLoginRedirect = () => {
     handleCloseRegister();
-    window.location.href = "/Login";
+    navigate("/login");
   };
   const handleCheckboxChange = (e) => {
     setAgreeTerms(e.target.checked);
@@ -69,19 +72,42 @@ const Header = () => {
                 Contact
               </Link>
             </div>
-            <Button
-              variant="warning"
-              className="rounded-pill py-2 px-4 ms-3"
-              onClick={handleShowRegister}
-            >
-              Register
-            </Button>
-            <Link
-              to="/Login"
-              className="btn btn-outline-light rounded-pill py-2 px-4 ms-3"
-            >
-              Login
-            </Link>
+            {user ? (
+              <div className="d-flex align-items-center ms-3">
+                <Dropdown align="end">
+                  <Dropdown.Toggle variant="light" id="dropdown-basic">
+                    <img
+                      src={user.profilePicture || "/default-profile.png"}
+                      alt="Profile"
+                      style={{ width: "30px", borderRadius: "50%" }}
+                    />
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu>
+                    <Dropdown.Item onClick={() => navigate("/dashboard")}>
+                      View Profile
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={logout}>Logout</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </div>
+            ) : (
+              <>
+                <Button
+                  variant="warning"
+                  className="rounded-pill py-2 px-4 ms-3"
+                  onClick={handleShowRegister}
+                >
+                  Register
+                </Button>
+                <Link
+                  to="/Login"
+                  className="btn btn-outline-light rounded-pill py-2 px-4 ms-3"
+                >
+                  Login
+                </Link>
+              </>
+            )}
           </div>
         </nav>
       </div>

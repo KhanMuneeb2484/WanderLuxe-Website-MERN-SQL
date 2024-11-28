@@ -1,188 +1,126 @@
-import React, { useState } from "react";
-import { Button, Form, Container, Row, Col, Modal } from "react-bootstrap";
-import { FaGoogle } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import React, { useState, useContext, useEffect } from "react";
+import { Button, Form, Container, Alert } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import { jwtDecode } from "jwt-decode";
+
+const API_URL = "http://localhost:3000/api/users/login-user";
 
 const Login = () => {
-  const [rememberMe, setRememberMe] = useState(false);
-  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login, logout, isAuthenticated } = useContext(AuthContext); // Get login, logout, and isAuthenticated from AuthContext
+  const navigate = useNavigate();
 
-  const handleRememberMeChange = () => {
-    setRememberMe(!rememberMe);
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/"); // Redirect to homepage if already logged in
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  const handleForgotPasswordClick = () => {
-    setShowForgotPasswordModal(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setErrorMessage("");
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const token = data.token;
+        const decodedToken = jwtDecode(token);
+        const userData = {
+          email: decodedToken.email,
+          role: decodedToken.role,
+          profilePicture: "/default-profile.png",
+        };
+        login(userData); // Save user data and token
+        localStorage.setItem("token", token); // Store token in localStorage
+        navigate(decodedToken.role === "admin" ? "/admin/admin" : "/"); // Redirect to appropriate page
+      } else {
+        const errorText = await response.text();
+        setErrorMessage(
+          errorText || "Invalid email or password. Please try again."
+        );
+      }
+    } catch (error) {
+      console.error("Error occurred during login:", error);
+      setErrorMessage("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleCloseForgotPassword = () => {
-    setShowForgotPasswordModal(false);
-  };
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      logout(); // Log out the user when the page is refreshed or closed
+      localStorage.removeItem("token"); // Remove token from localStorage on logout
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [logout]);
 
   return (
-    <Container className="login-container mt-5">
-      <Row className="align-items-center justify-content-center">
-        <Col lg={6} className="p-5">
-          <h2 className="mb-4 fw-bold">Welcome back</h2>
-          <p className="mb-4 text-muted">Please enter your details</p>
-          <Form>
-            <Form.Group controlId="formEmail" className="mb-3">
-              <Form.Label>Email address</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="Enter your email"
-                className="p-3 border-0 shadow-sm"
-              />
-            </Form.Group>
-            <Form.Group controlId="formPassword" className="mb-3">
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Enter your password"
-                className="p-3 border-0 shadow-sm"
-              />
-            </Form.Group>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <Form.Check
-                type="checkbox"
-                label="Remember for 30 days"
-                checked={rememberMe}
-                onChange={handleRememberMeChange}
-              />
-              <span
-                className="text-decoration-none text-primary"
-                style={{ cursor: "pointer" }}
-                onClick={handleForgotPasswordClick}
-              >
-                Forgot password?
-              </span>
-            </div>
-            <Button
-              variant="primary"
-              className="w-100 py-3 mb-4 fw-bold shadow-lg"
-            >
-              Sign in
-            </Button>
-          </Form>
-          <Button
-            variant="outline-danger"
-            className="rounded-pill p-3 mb-2 w-100 shadow-sm d-flex align-items-center justify-content-center"
-            onClick={() =>
-              (window.location.href = "https://accounts.google.com")
-            }
-          >
-            <FaGoogle size={20} className="me-2" /> Sign in with Google
-          </Button>
-          <div className="text-center mt-4">
-            <p className="fw-bold">
-              Don't have an account?{" "}
-              <Link to="/Register" className="text-primary">
-                Sign up
-              </Link>
-            </p>
-          </div>
-        </Col>
-        <Col lg={6} className="d-none d-lg-block bg-light-purple">
-          <div className="d-flex align-items-center justify-content-center h-100">
-            <img
-              src="/assets/img/login-illustration.svg"
-              alt="login illustration"
-              className="img-fluid"
-              style={{ width: "80%" }}
-            />
-          </div>
-        </Col>
-      </Row>
-
-      {/* Forgot Password Modal */}
-      <Modal
-        show={showForgotPasswordModal}
-        onHide={handleCloseForgotPassword}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Forgot Password</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p className="text-muted mb-4">
-            Enter your email address to reset your password.
-          </p>
-          <Form>
-            <Form.Group controlId="forgotPasswordEmail" className="mb-3">
-              <Form.Control
-                type="email"
-                placeholder="Enter your email"
-                className="p-3 border-0 shadow-sm"
-              />
-            </Form.Group>
-            <Button variant="primary" className="w-100 py-3 fw-bold shadow-lg">
-              Send Reset Link
-            </Button>
-          </Form>
-        </Modal.Body>
-      </Modal>
+    <Container className="mt-5" style={{ maxWidth: "500px" }}>
+      <h2 className="mb-4 text-center">Login</h2>
+      {errorMessage && (
+        <Alert variant="danger" className="text-center">
+          {errorMessage}
+        </Alert>
+      )}
+      <Form onSubmit={handleSubmit}>
+        <Form.Group controlId="email" className="mb-3">
+          <Form.Label>Email address</Form.Label>
+          <Form.Control
+            type="email"
+            name="email"
+            placeholder="Enter your email"
+            value={formData.email}
+            onChange={handleInputChange}
+            required
+            disabled={isSubmitting}
+          />
+        </Form.Group>
+        <Form.Group controlId="password" className="mb-4">
+          <Form.Label>Password</Form.Label>
+          <Form.Control
+            type="password"
+            name="password"
+            placeholder="Enter your password"
+            value={formData.password}
+            onChange={handleInputChange}
+            required
+            disabled={isSubmitting}
+          />
+        </Form.Group>
+        <Button
+          variant="primary"
+          type="submit"
+          className="w-100"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Signing in..." : "Sign in"}
+        </Button>
+      </Form>
     </Container>
   );
 };
 
 export default Login;
-
-// Inline CSS
-const styles = `
-  .login-container {
-    max-width: 900px;
-    background: #ffffff;
-    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
-    border-radius: 20px;
-    overflow: hidden;
-  }
-  .bg-light-purple {
-    background: #e6e6fa;
-  }
-  h2 {
-    color: #3d3d5c;
-  }
-  .fw-bold {
-    font-weight: 700;
-  }
-  .text-primary {
-    color: #6c63ff;
-  }
-  .btn-primary {
-    background-color: #6c63ff;
-    border: none;
-    transition: background-color 0.3s ease;
-  }
-  .btn-primary:hover {
-    background-color: #574b90;
-  }
-  .btn-outline-danger {
-    border-color: #ea4335;
-    color: #ea4335;
-    transition: all 0.3s ease;
-  }
-  .btn-outline-danger:hover {
-    background-color: #ea4335;
-    color: #ffffff;
-  }
-  .rounded-pill {
-    border-radius: 50px;
-  }
-  .shadow-sm {
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  .shadow-lg {
-    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
-  }
-  .text-decoration-none {
-    text-decoration: none !important;
-  }
-  .text-muted {
-    color: #6c757d;
-  }
-`;
-
-const styleSheet = document.createElement("style");
-styleSheet.type = "text/css";
-styleSheet.innerText = styles;
-document.head.appendChild(styleSheet);

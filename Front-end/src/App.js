@@ -10,7 +10,10 @@ import Destination from "./pages/Destination";
 import Booking from "./pages/Booking";
 import Login from "./pages/Login";
 import Contact from "./pages/Contact";
+import Dashboard from "./pages/Dashboard";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Admin from "./pages/Admin/Admin";
+import Users from "./pages/Admin/Users";
 
 export default function App() {
   return (
@@ -24,8 +27,10 @@ export default function App() {
         <Route path="/destination" element={<Destination />} />
         <Route path="/booking" element={<Booking />} />
         <Route path="/login" element={<Login />} />
-
         <Route path="/contact" element={<Contact />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/admin/admin" element={<Admin />} />
+        <Route path="/admin/users" element={<Users />} />
       </Routes>
       <Footer />
     </div>
