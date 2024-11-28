@@ -2,21 +2,31 @@ import pool from "../config/db.js";
 
 // Create a new location
 const registerLocation = async (req, res) => {
-  const { location_name, city_id } = req.body;
+  const { location_name, city_id, price_per_person } = req.body;
+
+  if (!price_per_person || price_per_person <= 0) {
+    return res
+      .status(400)
+      .json({
+        message: "Price per person is required and must be greater than 0.",
+      });
+  }
 
   try {
     const newLocation = await pool.query(
-      "INSERT INTO locations (location_name, city_id) VALUES ($1, $2) RETURNING *",
-      [location_name, city_id]
+      "INSERT INTO locations (location_name, price_per_person, city_id) VALUES ($1, $2, $3) RETURNING *",
+      [location_name, price_per_person, city_id]
     );
 
-    res.status(201).json({ message: "Location registered Succesfully" });
+    res.status(201).json({
+      message: "Location registered successfully",
+      location: newLocation.rows[0],
+    });
   } catch (error) {
     console.error("Error creating location:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };
-``;
 
 // Delete a location
 const deleteLocation = async (req, res) => {

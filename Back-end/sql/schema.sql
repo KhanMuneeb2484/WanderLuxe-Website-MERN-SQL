@@ -29,8 +29,8 @@ CREATE TABLE IF NOT EXISTS hotels (
   hotel_id SERIAL PRIMARY KEY,
   hotel_name VARCHAR(100) NOT NULL,
   city_id INT NOT NULL,
-  room_type VARCHAR(50),
-  price DECIMAL(10, 2),
+  room_type VARCHAR(50) NOT NULL,
+  price DECIMAL(10, 2) NOT NULL,
   amenities TEXT,
   number_of_rooms INT NOT NULL,
   availability BOOLEAN,
@@ -93,24 +93,28 @@ CREATE TABLE IF NOT EXISTS package_locations (
   package_location_id SERIAL PRIMARY KEY,
   package_city_id INT NOT NULL,
   location_id INT NOT NULL,
-  location_cost DECIMAL(10, 2) NOT NULL,
+  total_price DECIMAL(10, 2) NOT NULL,  -- Price for the total number of people
   FOREIGN KEY (package_city_id) REFERENCES package_cities(package_city_id)
     ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (location_id) REFERENCES locations(location_id)
     ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+
+
 CREATE TABLE IF NOT EXISTS package_hotels (
   package_hotel_id SERIAL PRIMARY KEY,
   package_city_id INT NOT NULL,
   hotel_id INT NOT NULL,
-  number_of_rooms INT NOT NULL,
+  num_rooms INT NOT NULL,
   hotel_cost DECIMAL(10, 2) NOT NULL,
+  days_stayed INT NOT NULL, -- Days stayed at the hotel (should match `days_stayed` from `package_cities`)
   FOREIGN KEY (package_city_id) REFERENCES package_cities(package_city_id)
     ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (hotel_id) REFERENCES hotels(hotel_id)
     ON DELETE CASCADE ON UPDATE CASCADE
 );
+
 
 
 -- Creating Booking table
