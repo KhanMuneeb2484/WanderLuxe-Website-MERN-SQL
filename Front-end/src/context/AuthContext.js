@@ -14,18 +14,18 @@ export const AuthProvider = ({ children }) => {
 
   const login = (userData) => {
     localStorage.setItem("user", JSON.stringify(userData));
-    localStorage.setItem("token", userData.token);
     setUser(userData);
   };
 
   const logout = () => {
     localStorage.removeItem("user");
-    localStorage.removeItem("token");
     setUser(null);
   };
 
+  const isAdmin = user?.role === "admin";
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, isAdmin, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

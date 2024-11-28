@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext"; // Corrected path
 import {
   Container,
   Row,
@@ -15,7 +15,7 @@ const API_URL_UPDATE = "http://localhost:3000/api/users/update-user";
 const API_URL_GET_USER = "http://localhost:3000/api/users/get-user";
 const API_URL_UPDATE_PICTURE = "http://localhost:3000/api/users/update-picture";
 
-const Dashboard = () => {
+const UserDashboard = () => {
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
@@ -44,23 +44,12 @@ const Dashboard = () => {
 
       const data = await response.json();
 
-      // Log the entire response for debugging
-      console.log("User data response:", data);
-
-      // Check if response is OK and has data that we need
       if (response.ok) {
-        // Adjust based on actual structure of the response
-        if (data.name && data.email) {
-          setUserData(data);
-          setFormData({ name: data.name, email: data.email });
-          setProfilePicture(data.profilePicture);
-        } else {
-          console.error("Unexpected response format:", data);
-          navigate("/login");
-        }
+        setUserData(data);
+        setFormData({ name: data.name, email: data.email });
+        setProfilePicture(data.profilePicture);
       } else {
-        console.error("Failed to fetch user data:", data.message);
-        logout(); // Log the user out if the token is not valid
+        logout();
         navigate("/login");
       }
     } catch (error) {
@@ -93,18 +82,8 @@ const Dashboard = () => {
 
       const data = await response.json();
 
-      // Log the response for debugging purposes
-      console.log("Update profile response:", data);
-
       if (response.ok) {
-        // Adjust based on actual response structure
-        if (data.name && data.email) {
-          setUserData(data);
-        } else if (data.user) {
-          setUserData(data.user);
-        } else {
-          console.error("Unexpected response format:", data);
-        }
+        setUserData(data);
         setIsEditing(false);
       } else {
         console.error("Failed to update profile:", data.message);
@@ -211,4 +190,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default UserDashboard;

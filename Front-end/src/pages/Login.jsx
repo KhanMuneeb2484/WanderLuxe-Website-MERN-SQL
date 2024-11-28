@@ -1,23 +1,15 @@
-import React, { useState, useContext, useEffect } from "react";
-import { Button, Form, Container, Alert } from "react-bootstrap";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { Form, Button, Container, Alert } from "react-bootstrap";
 import { AuthContext } from "../context/AuthContext";
-import { jwtDecode } from "jwt-decode";
 
-const API_URL = "http://localhost:3000/api/users/login-user";
+const API_URL = "http://localhost:3000/api/users/login-user"; // Replace with your actual API URL
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errorMessage, setErrorMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login, logout, isAuthenticated } = useContext(AuthContext); // Get login, logout, and isAuthenticated from AuthContext
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/"); // Redirect to homepage if already logged in
-    }
-  }, [isAuthenticated, navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -26,7 +18,6 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setErrorMessage("");
 
     try {
@@ -40,83 +31,54 @@ const Login = () => {
 
       if (response.ok) {
         const data = await response.json();
-        const token = data.token;
-        const decodedToken = jwtDecode(token);
         const userData = {
-          email: decodedToken.email,
-          role: decodedToken.role,
-          profilePicture: "/default-profile.png",
+          email: data.email,
+          role: data.role,
+          token: data.token,
         };
-        login(userData); // Save user data and token
-        localStorage.setItem("token", token); // Store token in localStorage
-        navigate(decodedToken.role === "admin" ? "/admin/admin" : "/"); // Redirect to appropriate page
+        console.log(userData.role);
+        login(userData); // Save user data in context
+
+        navigate(userData.role === "admin" ? "/AdminHome" : "/"); // Redirect based on role
       } else {
-        const errorText = await response.text();
-        setErrorMessage(
-          errorText || "Invalid email or password. Please try again."
-        );
+        const error = await response.text();
+        setErrorMessage(error || "Invalid email or password.");
       }
     } catch (error) {
-      console.error("Error occurred during login:", error);
+      console.error("Login error:", error);
       setErrorMessage("Something went wrong. Please try again.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      logout(); // Log out the user when the page is refreshed or closed
-      localStorage.removeItem("token"); // Remove token from localStorage on logout
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [logout]);
-
   return (
     <Container className="mt-5" style={{ maxWidth: "500px" }}>
-      <h2 className="mb-4 text-center">Login</h2>
-      {errorMessage && (
-        <Alert variant="danger" className="text-center">
-          {errorMessage}
-        </Alert>
-      )}
+      <h2 className="text-center mb-4">Login</h2>
+      {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="email" className="mb-3">
           <Form.Label>Email address</Form.Label>
           <Form.Control
             type="email"
             name="email"
-            placeholder="Enter your email"
             value={formData.email}
             onChange={handleInputChange}
+            placeholder="Enter email"
             required
-            disabled={isSubmitting}
           />
         </Form.Group>
-        <Form.Group controlId="password" className="mb-4">
+        <Form.Group controlId="password" className="mb-3">
           <Form.Label>Password</Form.Label>
           <Form.Control
             type="password"
             name="password"
-            placeholder="Enter your password"
             value={formData.password}
             onChange={handleInputChange}
+            placeholder="Enter password"
             required
-            disabled={isSubmitting}
           />
         </Form.Group>
-        <Button
-          variant="primary"
-          type="submit"
-          className="w-100"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Signing in..." : "Sign in"}
+        <Button type="submit" variant="primary" className="w-100">
+          Login
         </Button>
       </Form>
     </Container>

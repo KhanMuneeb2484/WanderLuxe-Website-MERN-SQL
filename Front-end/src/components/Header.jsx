@@ -2,14 +2,14 @@ import React, { useState, useEffect, useContext } from "react";
 import { Modal, Button, Form, Dropdown } from "react-bootstrap";
 import { FaGoogle, FaFacebookF } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext"; // Assuming AuthContext exists to manage user authentication state
+import { AuthContext } from "../context/AuthContext"; // Corrected path
 import "./Header.css";
 
 const Header = () => {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [navbarClass, setNavbarClass] = useState("navbar-darkgrey-translucent");
-  const { user, logout } = useContext(AuthContext); // Use AuthContext to get user info and logout function
+  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
