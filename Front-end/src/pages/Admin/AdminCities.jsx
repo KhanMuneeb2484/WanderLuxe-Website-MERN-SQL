@@ -42,6 +42,38 @@ const AdminCities = () => {
     }
   };
 
+
+  const handleSaveNewCity = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+  
+    try {
+        const response = await fetch("http://localhost:3000/api/cities/register-city", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          city_name: modalData.name, 
+          country_id: modalData.id, 
+        }),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        setCities([...cities, data]); // Update city list with new city
+        handleCloseModal();
+      } else {
+        setErrorMessage("Failed to add city. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error adding city:", error);
+      setErrorMessage("An error occurred while adding the city.");
+    }
+  };
+  
+
   // Handle delete city action
   const handleDelete = async (cityId) => {
     const token = localStorage.getItem("token");
@@ -50,7 +82,7 @@ const AdminCities = () => {
     }
     try {
       const response = await fetch(
-        `http://localhost:3000/api/cities/${cityId}`,
+        `http://localhost:3000/api/cities/delete-city/${cityId}`,
         {
           method: "DELETE",
           headers: {
@@ -82,7 +114,7 @@ const AdminCities = () => {
     setShowModal(false);
     setModalData({ name: "", id: null });
   };
-
+  
   // Save new or updated city
   const handleSaveCity = async () => {
     const token = localStorage.getItem("token");
@@ -91,7 +123,7 @@ const AdminCities = () => {
     }
     const method = modalData.id ? "PUT" : "POST";
     const url = modalData.id
-      ? `http://localhost:3000/api/cities/${modalData.id}`
+      ? `http://localhost:3000/api/cities/update-city/${modalData.id}`
       : "http://localhost:3000/api/cities";
     try {
       const response = await fetch(url, {
@@ -140,6 +172,7 @@ const AdminCities = () => {
         <thead>
           <tr>
             <th>ID</th>
+            <th>country ID</th>
             <th>Name</th>
             <th>Actions</th>
           </tr>
@@ -149,6 +182,7 @@ const AdminCities = () => {
             cities.map((city) => (
               <tr key={city.city_id}>
                 <td>{city.city_id}</td>
+                <td>{city.country_id}</td>
                 <td>{city.city_name}</td>
                 <td>
                   <Button
@@ -180,18 +214,31 @@ const AdminCities = () => {
       {/* Modal for Add/Edit */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>{modalData.id ? "Edit City" : "Add City"}</Modal.Title>
+          <Modal.Title>
+            {modalData.id ? "Edit city" : "Add city"}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
-            <Form.Group controlId="formCityName">
+            <Form.Group controlId="formCountryName">
               <Form.Label>City Name</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter city name"
+                placeholder="Enter country name"
                 value={modalData.name}
                 onChange={(e) =>
                   setModalData({ ...modalData, name: e.target.value })
+                }
+              />
+            </Form.Group>
+            <Form.Group controlId="formCountryId">
+              <Form.Label>Country id</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Enter country id"
+                value={modalData.id}
+                onChange={(e) =>
+                  setModalData({ ...modalData, id: e.target.value })
                 }
               />
             </Form.Group>
@@ -201,9 +248,15 @@ const AdminCities = () => {
           <Button variant="secondary" onClick={handleCloseModal}>
             Close
           </Button>
-          <Button variant="primary" onClick={handleSaveCity}>
-            Save Changes
-          </Button>
+          {/* {modalData.id ? ( */}
+            <Button variant="primary" onClick={handleSaveCity}>
+              Save Changes
+            </Button>
+        {/* //    ) : ( */}
+            <Button variant="success" onClick={handleSaveNewCity}>
+              Save New City
+            </Button>
+           {/* )} */}
         </Modal.Footer>
       </Modal>
     </Container>
