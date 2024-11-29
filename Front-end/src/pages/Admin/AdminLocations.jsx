@@ -2,11 +2,11 @@ import React, { useEffect, useState, useContext } from "react";
 import { Table, Button, Container, Alert, Form, Modal } from "react-bootstrap";
 import { AuthContext } from "../../context/AuthContext";
 
-const AdminCities = () => {
-  const [cities, setCities] = useState([]);
+const AdminLocations = () => {
+  const [locations, setLocations] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [modalData, setModalData] = useState({ name: "", id: null });
+  const [modalData, setModalData] = useState({ name: "", id: null, latitude: "", longitude: "" });
   const { user, logout } = useContext(AuthContext);
 
   useEffect(() => {
@@ -14,12 +14,12 @@ const AdminCities = () => {
     if (!token) {
       return;
     }
-    fetchCities(token);
+    fetchLocations(token);
   }, []);
 
-  const fetchCities = async (token) => {
+  const fetchLocations = async (token) => {
     try {
-      const response = await fetch("http://localhost:3000/api/cities", {
+      const response = await fetch("http://localhost:3000/api/locations", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -28,25 +28,25 @@ const AdminCities = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        setCities(data.cities || []);
+        setLocations(data.locations || []);
       } else {
         const errorText = await response.text();
-        setErrorMessage(errorText || "Failed to fetch cities.");
+        setErrorMessage(errorText || "Failed to fetch locations.");
       }
     } catch (error) {
-      console.error("Error fetching cities:", error);
+      console.error("Error fetching locations:", error);
       setErrorMessage("Something went wrong. Please try again.");
     }
   };
 
-  const handleDelete = async (cityId) => {
+  const handleDelete = async (locationId) => {
     const token = localStorage.getItem("token");
     if (!token) {
       return;
     }
     try {
       const response = await fetch(
-        `http://localhost:3000/api/cities/${cityId}`,
+        `http://localhost:3000/api/locations/${locationId}`,
         {
           method: "DELETE",
           headers: {
@@ -56,36 +56,36 @@ const AdminCities = () => {
         }
       );
       if (response.ok) {
-        setCities(cities.filter((city) => city.id !== cityId));
+        setLocations(locations.filter((location) => location.id !== locationId));
       } else {
         const errorText = await response.text();
-        setErrorMessage(errorText || "Failed to delete city.");
+        setErrorMessage(errorText || "Failed to delete location.");
       }
     } catch (error) {
-      console.error("Error deleting city:", error);
+      console.error("Error deleting location:", error);
       setErrorMessage("Something went wrong. Please try again.");
     }
   };
 
-  const handleShowModal = (city = { name: "", id: null }) => {
-    setModalData(city);
+  const handleShowModal = (location = { name: "", id: null, latitude: "", longitude: "" }) => {
+    setModalData(location);
     setShowModal(true);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setModalData({ name: "", id: null });
+    setModalData({ name: "", id: null, latitude: "", longitude: "" });
   };
 
-  const handleSaveCity = async () => {
+  const handleSaveLocation = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
       return;
     }
     const method = modalData.id ? "PUT" : "POST";
     const url = modalData.id
-      ? `http://localhost:3000/api/cities/${modalData.id}`
-      : "http://localhost:3000/api/cities";
+      ? `http://localhost:3000/api/locations/${modalData.id}`
+      : "http://localhost:3000/api/locations";
     try {
       const response = await fetch(url, {
         method,
@@ -93,67 +93,77 @@ const AdminCities = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name: modalData.name }),
+        body: JSON.stringify({
+          name: modalData.name,
+          latitude: modalData.latitude,
+          longitude: modalData.longitude
+        }),
       });
 
       if (response.ok) {
         const data = await response.json();
         if (modalData.id) {
-          setCities(
-            cities.map((city) =>
-              city.id === modalData.id ? { ...city, name: modalData.name } : city
+          setLocations(
+            locations.map((location) =>
+              location.id === modalData.id
+                ? { ...location, name: modalData.name, latitude: modalData.latitude, longitude: modalData.longitude }
+                : location
             )
           );
         } else {
-          setCities([...cities, data.city]);
+          setLocations([...locations, data.location]);
         }
         handleCloseModal();
       } else {
         const errorText = await response.text();
-        setErrorMessage(errorText || "Failed to save city.");
+        setErrorMessage(errorText || "Failed to save location.");
       }
     } catch (error) {
-      console.error("Error saving city:", error);
+      console.error("Error saving location:", error);
       setErrorMessage("Something went wrong. Please try again.");
     }
   };
 
   return (
     <Container className="mt-5">
-      <h2 className="text-center mb-4">City Management</h2>
+      <h2 className="text-center mb-4">Location Management</h2>
       {errorMessage && (
         <Alert variant="danger" className="text-center">
           {errorMessage}
         </Alert>
       )}
       <Button className="mb-3" onClick={() => handleShowModal()}>
-        Add City
+        Add Location
       </Button>
       <Table striped bordered hover>
         <thead>
           <tr>
             <th>ID</th>
             <th>Name</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {cities && cities.length > 0 ? (
-            cities.map((city) => (
-              <tr key={city.id}>
-                <td>{city.id}</td>
-                <td>{city.name}</td>
+          {locations && locations.length > 0 ? (
+            locations.map((location) => (
+              <tr key={location.id}>
+                <td>{location.id}</td>
+                <td>{location.name}</td>
+                <td>{location.latitude}</td>
+                <td>{location.longitude}</td>
                 <td>
                   <Button
                     variant="warning"
                     className="me-2"
-                    onClick={() => handleShowModal(city)}
+                    onClick={() => handleShowModal(location)}
                   >
                     Edit
                   </Button>
                   <Button
                     variant="danger"
-                    onClick={() => handleDelete(city.id)}
+                    onClick={() => handleDelete(location.id)}
                   >
                     Delete
                   </Button>
@@ -162,8 +172,8 @@ const AdminCities = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="3" className="text-center">
-                No cities found.
+              <td colSpan="5" className="text-center">
+                No locations found.
               </td>
             </tr>
           )}
@@ -173,18 +183,40 @@ const AdminCities = () => {
       {/* Modal for Add/Edit */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>{modalData.id ? "Edit City" : "Add City"}</Modal.Title>
+          <Modal.Title>{modalData.id ? "Edit Location" : "Add Location"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
-            <Form.Group controlId="formCityName">
-              <Form.Label>City Name</Form.Label>
+            <Form.Group controlId="formLocationName">
+              <Form.Label>Location Name</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter city name"
+                placeholder="Enter location name"
                 value={modalData.name}
                 onChange={(e) =>
                   setModalData({ ...modalData, name: e.target.value })
+                }
+              />
+            </Form.Group>
+            <Form.Group controlId="formLatitude">
+              <Form.Label>Latitude</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Enter latitude"
+                value={modalData.latitude}
+                onChange={(e) =>
+                  setModalData({ ...modalData, latitude: e.target.value })
+                }
+              />
+            </Form.Group>
+            <Form.Group controlId="formLongitude">
+              <Form.Label>Longitude</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Enter longitude"
+                value={modalData.longitude}
+                onChange={(e) =>
+                  setModalData({ ...modalData, longitude: e.target.value })
                 }
               />
             </Form.Group>
@@ -194,7 +226,7 @@ const AdminCities = () => {
           <Button variant="secondary" onClick={handleCloseModal}>
             Close
           </Button>
-          <Button variant="primary" onClick={handleSaveCity}>
+          <Button variant="primary" onClick={handleSaveLocation}>
             Save Changes
           </Button>
         </Modal.Footer>
@@ -203,4 +235,4 @@ const AdminCities = () => {
   );
 };
 
-export default AdminCities;
+export default AdminLocations;

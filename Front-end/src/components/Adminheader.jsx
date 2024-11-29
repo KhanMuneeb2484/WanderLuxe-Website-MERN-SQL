@@ -55,21 +55,18 @@ const Adminheader = () => {
           </button>
           <div className="collapse navbar-collapse" id="navbarCollapse">
             <div className="navbar-nav ms-auto py-0">
-      
-              <Link to="/About" className="nav-item nav-link text-white">
-                About
+              {/* New links for Country, City, and Location */}
+              <Link to="/User" className="nav-item nav-link text-white">
+                Users
               </Link>
-              <Link to="/Packages" className="nav-item nav-link text-white">
-                Packages
+              <Link to="/AdminCountries" className="nav-item nav-link text-white">
+                Countries
               </Link>
-              <Link to="/Destination" className="nav-item nav-link text-white">
-                Destination
+              <Link to="/AdminCities" className="nav-item nav-link text-white">
+                City
               </Link>
-              <Link to="/Booking" className="nav-item nav-link text-white">
-                Booking
-              </Link>
-              <Link to="/Contact" className="nav-item nav-link text-white">
-                Contact
+              <Link to="/AdminLocation" className="nav-item nav-link text-white">
+                Location
               </Link>
             </div>
             {user ? (
