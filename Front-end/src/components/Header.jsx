@@ -1,14 +1,23 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Modal, Button, Form, Dropdown } from "react-bootstrap";
+import { Modal, Button, Form, Dropdown, Alert } from "react-bootstrap";
 import { FaGoogle, FaFacebookF } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext"; // Corrected path
+import axios from "axios";
 import "./Header.css";
 
 const Header = () => {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [navbarClass, setNavbarClass] = useState("navbar-darkgrey-translucent");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phoneNumber: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [errorMessage, setErrorMessage] = useState("");
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -28,8 +37,47 @@ const Header = () => {
     handleCloseRegister();
     navigate("/login");
   };
+
   const handleCheckboxChange = (e) => {
     setAgreeTerms(e.target.checked);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validation
+    if (formData.password !== formData.confirmPassword) {
+      setErrorMessage("Passwords do not match.");
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:3000/api/users/register-user", {
+        ...formData,
+        password_hash: formData.password, // Backend expects password_hash
+        role: "user", // Hardcoded role
+      });
+
+      if (response.data) {
+        // Successfully registered
+        setShowRegisterModal(false); // Close the modal
+        navigate("/login"); // Redirect to login page
+      } else {
+        // Handle registration failure
+        setErrorMessage(response.data.message || "Registration failed.");
+      }
+    } catch (error) {
+      // Handle error (network issues, server errors, etc.)
+      setErrorMessage("An error occurred. Please try again.");
+    }
   };
 
   return (
@@ -127,11 +175,19 @@ const Header = () => {
               Receive our exclusive travel deals now!
             </p>
           </div>
-          <Form>
+          {errorMessage && (
+            <Alert variant="danger">
+              {errorMessage}
+            </Alert>
+          )}
+          <Form onSubmit={handleSubmit}>
             <Form.Group controlId="formName" className="mb-3">
               <Form.Control
                 type="text"
                 placeholder="Name"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
                 className="p-3 border-0 shadow-sm"
               />
             </Form.Group>
@@ -139,6 +195,9 @@ const Header = () => {
               <Form.Control
                 type="email"
                 placeholder="Email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
                 className="p-3 border-0 shadow-sm"
               />
             </Form.Group>
@@ -146,6 +205,9 @@ const Header = () => {
               <Form.Control
                 type="text"
                 placeholder="Phone Number"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleInputChange}
                 className="p-3 border-0 shadow-sm"
               />
             </Form.Group>
@@ -153,6 +215,9 @@ const Header = () => {
               <Form.Control
                 type="password"
                 placeholder="Password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
                 className="p-3 border-0 shadow-sm"
               />
             </Form.Group>
@@ -160,6 +225,9 @@ const Header = () => {
               <Form.Control
                 type="password"
                 placeholder="Confirm Password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
                 className="p-3 border-0 shadow-sm"
               />
             </Form.Group>
@@ -174,6 +242,7 @@ const Header = () => {
               variant="primary"
               className="w-100 py-3 mb-4 fw-bold shadow"
               disabled={!agreeTerms}
+              type="submit"
             >
               Submit
             </Button>
@@ -206,10 +275,10 @@ const Header = () => {
               Already have an account?{" "}
               <span
                 className="text-primary"
-                style={{ cursor: "pointer" }}
                 onClick={handleLoginRedirect}
+                style={{ cursor: "pointer" }}
               >
-                Login here
+                Login
               </span>
             </p>
           </div>
