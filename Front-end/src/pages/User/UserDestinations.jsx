@@ -8,7 +8,7 @@ function Destinations() {
 
   // Retrieve the token from localStorage
   const bearerToken = localStorage.getItem("token");
-
+  console.log(bearerToken)
   // Use navigate for programmatic navigation
   const navigate = useNavigate();
 
@@ -34,6 +34,7 @@ function Destinations() {
         }
 
         const data = await response.json();
+        console.log(data)
         setCountries(data); // Set the countries data to state
       } catch (error) {
         setError(error.message); // Set the error message if something goes wrong

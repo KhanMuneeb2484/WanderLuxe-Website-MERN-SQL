@@ -65,7 +65,6 @@ const Header = () => {
         password_hash: formData.password, // Backend expects password_hash
         role: "user", // Hardcoded role
       });
-
       if (response.data) {
         // Successfully registered
         setShowRegisterModal(false); // Close the modal

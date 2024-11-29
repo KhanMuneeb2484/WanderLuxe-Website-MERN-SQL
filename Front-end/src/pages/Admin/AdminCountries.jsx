@@ -19,7 +19,7 @@ const AdminCountries = () => {
 
   const fetchCountries = async (token) => {
     try {
-      const response = await fetch("http://localhost:3000/api/countries", {
+      const response = await fetch("http://localhost:3000/api/countries/get-all-countries", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -28,6 +28,7 @@ const AdminCountries = () => {
       });
       if (response.ok) {
         const data = await response.json();
+        console.log(data)
         setCountries(data.countries || []);
       } else {
         const errorText = await response.text();
