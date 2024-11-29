@@ -5,7 +5,7 @@ import { Container, Row, Col, Form, Button } from "react-bootstrap";
 const Contact = () => {
   return (
     <Container className="py-5">
-      <div className="text-center mb-5">
+      <div className="text-center mb-5 mt-5">
         <h2 className="display-4">Get in Touch</h2>
       </div>
       <Row className="text-center mb-5">
