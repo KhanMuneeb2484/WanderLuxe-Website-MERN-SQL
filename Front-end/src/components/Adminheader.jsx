@@ -65,7 +65,7 @@ const Adminheader = () => {
               <Link to="/AdminCities" className="nav-item nav-link text-white">
                 City
               </Link>
-              <Link to="/AdminLocation" className="nav-item nav-link text-white">
+              <Link to="/AdminLocations" className="nav-item nav-link text-white">
                 Location
               </Link>
             </div>

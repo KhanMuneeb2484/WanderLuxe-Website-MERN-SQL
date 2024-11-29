@@ -19,8 +19,10 @@ import UserBookings from "./pages/User/UserBookings";
 import CityPage from "./pages/User/CityPage";
 import AdminCountries  from "./pages/Admin/AdminCountries";
 import AdminCities  from "./pages/Admin/AdminCities";
+import AdminLocations  from "./pages/Admin/AdminLocations";
 
 import "bootstrap/dist/css/bootstrap.min.css";
+
 
 const App = () => {
   const { user } = useContext(AuthContext); // Access user context
@@ -42,6 +44,7 @@ const App = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/AdminCountries" element={<AdminCountries />} />
         <Route path="/AdminCities" element={<AdminCities />} />
+        <Route path="/AdminLocations" element={<AdminLocations />} />
         <Route path="/Booking" element={<UserBookings />} />
         <Route path="/cities/:countryId" element={<CityPage />} />
         <Route path="*" element={<Navigate to="/" />} />
