@@ -5,6 +5,7 @@ import {
   deleteHotel,
   getAllHotels,
   getHotelById,
+  getHotelsByCityId,
 } from "../controllers/hotelController.js";
 import { authenticateJWT, requireRole } from "../middleware/authMiddleware.js";
 
@@ -39,5 +40,7 @@ router.get(
   requireRole(["admin"]),
   getHotelById
 ); // Get a hotel by ID
+
+router.get("/get-hotels-by-cityId/:city_id", getHotelsByCityId);
 
 export default router;
