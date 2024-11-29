@@ -173,7 +173,7 @@ const getPackageById = async (req, res) => {
   const { package_id } = req.params; // Get package_id from route parameter
 
   try {
-    // Retrieve the main package details
+    // Retrieve the main package details including the new columns
     const packageQuery = await pool.query(
       `SELECT * FROM packages WHERE package_id = $1`,
       [package_id]
@@ -232,7 +232,11 @@ const getPackageById = async (req, res) => {
 
     // Prepare the full package details response
     const fullPackageDetails = {
-      package: packageDetails,
+      package: {
+        ...packageDetails,
+        num_people: packageDetails.num_people, // Include number of people
+        total_days_stayed: packageDetails.total_days_stayed, // Include total days stayed
+      },
       cities: citiesQuery.rows,
       guide: guideDetails, // Include guide details if available
     };
@@ -307,7 +311,7 @@ const deletePackageById = async (req, res) => {
 // Get all tour packages
 const getAllPackages = async (req, res) => {
   try {
-    // Fetch all packages with their basic details
+    // Fetch all packages with their basic details, including total price and guide info
     const packageQuery = await pool.query(`
       SELECT 
         p.package_id,
@@ -315,6 +319,8 @@ const getAllPackages = async (req, res) => {
         p.country_id,
         p.guide_id,
         p.total_price,
+        p.num_people,               -- Include number of people
+        p.total_days_stayed,        -- Include total days stayed
         c.country_name,
         g.guide_name,
         g.per_day_charge
