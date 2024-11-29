@@ -3,30 +3,58 @@ import React, { createContext, useState, useEffect } from "react";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null); // Stores user details
+  const [token, setToken] = useState(null); // Stores JWT token
 
+  // Login function
+  const login = (data) => {
+    try {
+      // Update user and token in state
+      setUser({
+        user_id: data.user_id,
+        name: data.name,
+        email: data.email,
+        role: data.role,
+      });
+      setToken(data.token);
+
+      // Persist data in localStorage
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          user_id: data.user_id,
+          name: data.name,
+          email: data.email,
+          role: data.role,
+        })
+      );
+      localStorage.setItem("token", data.token);
+    } catch (error) {
+      console.error("Error during login:", error);
+    }
+  };
+
+  // Logout function
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+  };
+
+  // Restore state from localStorage on load
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      setUser(JSON.parse(userData));
+    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
+
+    if (storedUser && storedToken) {
+      setUser(JSON.parse(storedUser));
+      setToken(storedToken);
     }
   }, []);
 
-  const login = (userData) => {
-    localStorage.setItem("user", JSON.stringify(userData));
-    setUser(userData);
-    console.log("UserDATA",userData)
-  };
-
-  const logout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
-  };
-
-  const isAdmin = user?.role === "admin";
-
   return (
-    <AuthContext.Provider value={{ user, isAdmin, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

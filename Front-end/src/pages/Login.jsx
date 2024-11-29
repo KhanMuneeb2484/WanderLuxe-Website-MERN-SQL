@@ -18,7 +18,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage("");
+    setErrorMessage(""); // Reset error message before each attempt
 
     try {
       const response = await fetch(API_URL, {
@@ -31,18 +31,23 @@ const Login = () => {
 
       if (response.ok) {
         const data = await response.json();
+        console.log("API Response:", data); // Debugging the full response
+
         const userData = {
+          user_id: data.user.user_id,
+          name: data.user.name,
           email: data.user.email,
           role: data.user.role,
           token: data.token,
         };
-        console.log(userData.role);
+
         login(userData); // Save user data in context
 
-        navigate(userData.role === "admin" ? "/AdminHome" : "/"); // Redirect based on role
+        // Navigate based on user role
+        navigate(userData.role === "admin" ? "/AdminHome" : "/");
       } else {
-        const error = await response.text();
-        setErrorMessage(error || "Invalid email or password.");
+        const error = await response.json();
+        setErrorMessage(error.message || "Invalid email or password.");
       }
     } catch (error) {
       console.error("Login error:", error);
