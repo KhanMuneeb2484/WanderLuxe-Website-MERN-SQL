@@ -217,7 +217,7 @@ export default function UserHome() {
           <div className="row g-4">
             <div className="col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
               <div className="process-step rounded shadow p-4 text-center">
-                <div className="process-icon bg-primary text-white rounded-circle mb-4 d-flex align-items-center justify-content-center">
+                <div className="process-icon bg-primary text-white px-2 py-2 rounded rounded-lg mb-4 d-flex align-items-center justify-content-center">
                   <i className="fa fa-2x fa-globe"></i>
                 </div>
                 <h5>Select Country</h5>
@@ -226,7 +226,7 @@ export default function UserHome() {
             </div>
             <div className="col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
               <div className="process-step rounded shadow p-4 text-center">
-                <div className="process-icon bg-primary text-white rounded-circle mb-4 d-flex align-items-center justify-content-center">
+                <div className="process-icon bg-primary text-white px-2 py-2 rounded rounded-lg mb-4 d-flex align-items-center justify-content-center">
                   <i className="fa fa-2x fa-city"></i>
                 </div>
                 <h5>Select City</h5>
@@ -235,7 +235,7 @@ export default function UserHome() {
             </div>
             <div className="col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
               <div className="process-step rounded shadow p-4 text-center">
-                <div className="process-icon bg-primary text-white rounded-circle mb-4 d-flex align-items-center justify-content-center">
+                <div className="process-icon bg-primary text-white px-2 py-2 rounded rounded-lg mb-4 d-flex align-items-center justify-content-center">
                   <i className="fa fa-2x fa-user-tie"></i>
                 </div>
                 <h5>Optional Tour Guide</h5>
@@ -247,7 +247,7 @@ export default function UserHome() {
             </div>
             <div className="col-lg-4 wow fadeInUp" data-wow-delay="0.7s">
               <div className="process-step rounded shadow p-4 text-center">
-                <div className="process-icon bg-primary text-white rounded-circle mb-4 d-flex align-items-center justify-content-center">
+                <div className="process-icon bg-primary text-white px-2 py-2 rounded rounded-lg mb-4 d-flex align-items-center justify-content-center">
                   <i className="fa fa-2x fa-hotel"></i>
                 </div>
                 <h5>Select Hotels and Locations</h5>
@@ -259,7 +259,7 @@ export default function UserHome() {
             </div>
             <div className="col-lg-4 wow fadeInUp" data-wow-delay="0.9s">
               <div className="process-step rounded shadow p-4 text-center">
-                <div className="process-icon bg-primary text-white rounded-circle mb-4 d-flex align-items-center justify-content-center">
+                <div className="process-icon bg-primary text-white px-2 py-2 rounded rounded-lg mb-4 d-flex align-items-center justify-content-center">
                   <i className="fa fa-2x fa-user-circle"></i>
                 </div>
                 <h5>Create Account</h5>
@@ -271,13 +271,13 @@ export default function UserHome() {
             </div>
             <div className="col-lg-4 wow fadeInUp" data-wow-delay="1.1s">
               <div className="process-step rounded shadow p-4 text-center">
-                <div className="process-icon bg-primary text-white rounded-circle mb-4 d-flex align-items-center justify-content-center">
+                <div className="process-icon bg-primary text-white px-2 py-2 rounded rounded-lg mb-4 d-flex align-items-center justify-content-center">
                   <i className="fa fa-2x fa-credit-card"></i>
                 </div>
                 <h5>Make Payment</h5>
                 <p>
                   Book and pay for the entire package, including hotels,
-                  locations, and guides, via a secure gateway.
+                  locations, and guides.
                 </p>
               </div>
             </div>
