@@ -238,4 +238,165 @@ const getPackageById = async (req, res) => {
   }
 };
 
-export { createPackage, getPackageById };
+// Delete a package by ID
+const deletePackageById = async (req, res) => {
+  const { package_id } = req.params; // Get package_id from route parameters
+
+  try {
+    // Check if the package exists
+    const packageExists = await pool.query(
+      `SELECT * FROM packages WHERE package_id = $1`,
+      [package_id]
+    );
+
+    if (packageExists.rowCount === 0) {
+      return res.status(404).json({ message: "Package not found" });
+    }
+
+    // Start a transaction to ensure consistent deletion
+    await pool.query("BEGIN");
+
+    // Delete related data from package_locations
+    await pool.query(
+      `DELETE FROM package_locations
+       WHERE package_city_id IN (
+         SELECT package_city_id FROM package_cities WHERE package_id = $1
+       )`,
+      [package_id]
+    );
+
+    // Delete related data from package_hotels
+    await pool.query(
+      `DELETE FROM package_hotels
+       WHERE package_city_id IN (
+         SELECT package_city_id FROM package_cities WHERE package_id = $1
+       )`,
+      [package_id]
+    );
+
+    // Delete related data from package_cities
+    await pool.query(`DELETE FROM package_cities WHERE package_id = $1`, [
+      package_id,
+    ]);
+
+    // Finally, delete the package itself
+    await pool.query(`DELETE FROM packages WHERE package_id = $1`, [
+      package_id,
+    ]);
+
+    // Commit the transaction
+    await pool.query("COMMIT");
+
+    res.status(200).json({ message: "Package deleted successfully" });
+  } catch (error) {
+    // Rollback the transaction in case of an error
+    await pool.query("ROLLBACK");
+    console.error("Error deleting package:", error);
+    res.status(500).json({ message: "Error deleting package", error });
+  }
+};
+
+// Get all tour packages
+const getAllPackages = async (req, res) => {
+  try {
+    // Fetch all packages with their basic details
+    const packageQuery = await pool.query(`
+      SELECT 
+        p.package_id,
+        p.user_id,
+        p.country_id,
+        p.guide_id,
+        p.total_price,
+        c.country_name,
+        g.guide_name,
+        g.per_day_charge
+      FROM packages p
+      LEFT JOIN countries c ON p.country_id = c.country_id
+      LEFT JOIN tour_guides g ON p.guide_id = g.guide_id
+    `);
+
+    const packages = packageQuery.rows;
+
+    // If no packages are found, return an empty response
+    if (packages.length === 0) {
+      return res
+        .status(200)
+        .json({ message: "No packages found", packages: [] });
+    }
+
+    // For each package, fetch its associated cities, locations, and hotels
+    for (const pkg of packages) {
+      const { package_id } = pkg;
+
+      // Fetch cities associated with the package
+      const citiesQuery = await pool.query(
+        `
+        SELECT 
+          pc.package_city_id,
+          pc.city_id,
+          pc.days_stayed,
+          pc.city_cost,
+          ci.city_name
+        FROM package_cities pc
+        LEFT JOIN cities ci ON pc.city_id = ci.city_id
+        WHERE pc.package_id = $1
+      `,
+        [package_id]
+      );
+
+      const cities = citiesQuery.rows;
+
+      // Fetch locations and hotels for each city
+      for (const city of cities) {
+        const { package_city_id } = city;
+
+        // Fetch locations for the city
+        const locationsQuery = await pool.query(
+          `
+          SELECT 
+            pl.location_id,
+            l.location_name,
+            pl.total_price AS location_price
+          FROM package_locations pl
+          LEFT JOIN locations l ON pl.location_id = l.location_id
+          WHERE pl.package_city_id = $1
+        `,
+          [package_city_id]
+        );
+
+        city.locations = locationsQuery.rows;
+
+        // Fetch hotels for the city
+        const hotelsQuery = await pool.query(
+          `
+          SELECT 
+            ph.hotel_id,
+            h.hotel_name,
+            ph.num_rooms,
+            ph.hotel_cost,
+            ph.days_stayed
+          FROM package_hotels ph
+          LEFT JOIN hotels h ON ph.hotel_id = h.hotel_id
+          WHERE ph.package_city_id = $1
+        `,
+          [package_city_id]
+        );
+
+        city.hotels = hotelsQuery.rows;
+      }
+
+      // Attach cities to the package
+      pkg.cities = cities;
+    }
+
+    // Return all packages with details
+    res
+      .status(200)
+      .json({ message: "Packages retrieved successfully", packages });
+  } catch (error) {
+    console.error("Error fetching packages:", error);
+    res.status(500).json({ message: "Error fetching packages", error });
+  }
+};
+
+export { createPackage, getPackageById, deletePackageById, getAllPackages };
