@@ -17,17 +17,6 @@ const createPackage = async (req, res) => {
       return res.status(400).json({ message: "Cities data is required" });
     }
 
-    // Insert into packages table with initial total_price of 0 and num_people
-    const newPackageQuery = await pool.query(
-      `INSERT INTO packages (user_id, country_id, guide_id, total_price, num_people)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [user_id, country_id, guide_id || null, 0, num_people] // Start with a price of 0 and include num_people
-    );
-    const package_id = newPackageQuery.rows[0].package_id;
-
-    let totalPrice = 0;
-    console.log("Starting total price:", totalPrice);
-
     // Calculate total days stayed
     let totalDaysStayed = 0; // Initialize the totalDaysStayed
 
@@ -42,6 +31,34 @@ const createPackage = async (req, res) => {
 
       // Add the days_stayed for the current city to totalDaysStayed
       totalDaysStayed += days_stayed;
+    }
+
+    // Ensure totalDaysStayed is calculated correctly
+    if (totalDaysStayed <= 0) {
+      return res
+        .status(400)
+        .json({ message: "Total days stayed must be greater than 0" });
+    }
+
+    // Insert into packages table with initial total_price of 0 and num_people
+    const newPackageQuery = await pool.query(
+      `INSERT INTO packages (user_id, country_id, guide_id, total_price, num_people, total_days_stayed)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [user_id, country_id, guide_id || null, 0, num_people, totalDaysStayed] // Include totalDaysStayed here
+    );
+    const package_id = newPackageQuery.rows[0].package_id;
+
+    let totalPrice = 0;
+    console.log("Starting total price:", totalPrice);
+
+    // Iterate over cities to calculate city cost and add to total price
+    for (const city of cities) {
+      const { city_id, days_stayed, locations, hotels } = city;
+
+      // Validate city_id, locations, and hotels data
+      if (!city_id || !days_stayed) {
+        return res.status(400).json({ message: "Missing city details" });
+      }
 
       // Insert city into package_cities with initial city_cost of 0
       const cityResult = await pool.query(
