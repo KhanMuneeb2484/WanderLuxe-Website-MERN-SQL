@@ -116,12 +116,27 @@ function HotelPage() {
                     {/* Placeholder image, replace it with dynamic images later */}
                     <img
                       className="img-fluid card-img-top"
-                      src="./placeholder.jpeg"
-                      alt='asd'
+                      src="placeholder-hotel.jpeg"
+                      alt={hotel.hotel_name}
                     />
                   </div>
                   <div className="text-center p-4">
                     <h3 className="mb-3">{hotel.hotel_name}</h3>
+                    <p className="mb-2"><strong>Room Type:</strong> {hotel.room_type}</p>
+                    <p className="mb-2"><strong>Price:</strong> ${hotel.price} per night</p>
+                    <p className="mb-2"><strong>Amenities:</strong> {hotel.amenities}</p>
+                    <p className="mb-2">
+                      <strong>Availability:</strong>{" "}
+                      {hotel.availability ? "Available" : "Not Available"}
+                    </p>
+                    <p className="mb-2"><strong>Rooms Available:</strong> {hotel.number_of_rooms}</p>
+                    <a
+                      href={`/book-hotel/${hotel.hotel_id}`}
+                      className="btn btn-sm btn-primary"
+                      style={{ borderRadius: "30px" }}
+                    >
+                      Book Now
+                    </a>
                   </div>
                 </div>
               </div>
