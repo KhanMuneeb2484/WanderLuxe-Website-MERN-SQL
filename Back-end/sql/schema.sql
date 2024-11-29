@@ -149,6 +149,7 @@ CREATE TABLE IF NOT EXISTS pictures (
   location_id INT,
   guide_id INT,
   country_id INT,
+  city_id INT,  -- New column for city_id
   picture_url VARCHAR(255),
   alt_text VARCHAR(255),
   FOREIGN KEY (location_id) REFERENCES locations(location_id)
@@ -156,5 +157,7 @@ CREATE TABLE IF NOT EXISTS pictures (
   FOREIGN KEY (guide_id) REFERENCES tour_guides(guide_id)
     ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (country_id) REFERENCES countries(country_id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (city_id) REFERENCES cities(city_id)  -- Adding foreign key for city_id
     ON DELETE CASCADE ON UPDATE CASCADE
 );
