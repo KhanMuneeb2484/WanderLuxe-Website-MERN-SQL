@@ -142,6 +142,13 @@ const Header = () => {
                 className="p-3 border-0 shadow-sm"
               />
             </Form.Group>
+            <Form.Group controlId="formPhoneNumber" className="mb-3">
+              <Form.Control
+                type="text"
+                placeholder="Phone Number"
+                className="p-3 border-0 shadow-sm"
+              />
+            </Form.Group>
             <Form.Group controlId="formPassword" className="mb-3">
               <Form.Control
                 type="password"
