@@ -61,7 +61,7 @@ const loginUser = async (req, res) => {
     );
 
     // Return only necessary data
-    const { password_hash: _, role: __, ...userData } = user; // Exclude password_hash and role
+    const { password_hash: _, ...userData } = user; // Exclude password_hash and role
     res
       .status(200)
       .json({ message: "Logged in Successfully!", token, user: userData });

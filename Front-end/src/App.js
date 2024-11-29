@@ -1,13 +1,12 @@
-import React, { useContext }  from "react";
+import React, { useContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import UserHeader from "./components/Header";
+import AdminHeader from "./components/Adminheader";
 import Footer from "./components/Footer";
 import Home from "./pages/User/UserHome";
 import About from "./pages/User/UserAbout";
 import Services from "./pages/User/UserServices";
 import Packages from "./pages/User/UserPackages";
-import Destinations from "./pages/User/UserDestinations";
-// import Destination from "./pages/User/UserDestination";
 import Booking from "./pages/User/UserBookings";
 import { AuthContext } from "./context/AuthContext";
 
@@ -17,16 +16,16 @@ import Dashboard from "./pages/User/UserDashboard";
 import Cities from "./pages/User/UserCities";
 import Countries from "./pages/User/UserCountries";
 import UserBookings from "./pages/User/UserBookings";
-import AdminHeader from "./components/Adminheader";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const App = () => {
-  const { user, isAdmin } = useContext(AuthContext);
+  const { user } = useContext(AuthContext); // Access user context
   return (
-    
     <div>
-       <UserHeader /> {/* Use UserHeader for all users */}
+      {/* Conditionally render AdminHeader or UserHeader */}
+      {user?.role === "admin" ? <AdminHeader /> : <UserHeader />}
+      
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />

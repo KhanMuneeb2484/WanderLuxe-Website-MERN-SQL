@@ -32,8 +32,8 @@ const Login = () => {
       if (response.ok) {
         const data = await response.json();
         const userData = {
-          email: data.email,
-          role: data.role,
+          email: data.user.email,
+          role: data.user.role,
           token: data.token,
         };
         console.log(userData.role);

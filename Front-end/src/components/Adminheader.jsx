@@ -12,6 +12,8 @@ const Adminheader = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  console.log("Logged in user's role:", user?.role); 
+
   useEffect(() => {
     const handleScroll = () => {
       setNavbarClass(
@@ -41,7 +43,7 @@ const Adminheader = () => {
           style={{ background: "rgba(33, 37, 41, 0.85)" }}
         >
           <Link to="/" className="navbar-brand p-0">
-            <h1 className="text-white m-0">Wander Luxe</h1>
+            <h1 className="text-white m-0">Admin Wander Luxe</h1>
           </Link>
           <button
             className="navbar-toggler"
