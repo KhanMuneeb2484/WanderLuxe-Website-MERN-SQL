@@ -41,7 +41,6 @@ const Packages = () => {
 
   // Fetch guides for selected country
   const fetchGuides = async (countryId) => {
-    console.log("countryId", countryId);
     try {
       const response = await fetch(
         `http://localhost:3000/api/guides/get-guides-by-countryId/${countryId}`,
@@ -172,10 +171,10 @@ const Packages = () => {
     if (isChecked) fetchHotels(cityId);
   };
 
-  const handleHotelSelection = (cityId, hotelId) => {
+  const handleHotelSelection = (cityId, hotelId, numRooms) => {
     setSelectedHotels((prev) => ({
       ...prev,
-      [cityId]: hotelId,
+      [cityId]: { hotel_id: hotelId, num_rooms: numRooms },
     }));
   };
 
@@ -188,18 +187,28 @@ const Packages = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const packageData = {
       country_id: selectedCountry,
       guide_id: selectedGuide,
-      number_of_persons: numberOfPersons,
+      num_people: numberOfPersons,
       cities: selectedCities.map((cityId) => ({
         city_id: cityId,
-        locations: selectedLocations[cityId] || [],
-        hotel_id: selectedHotels[cityId] || [],
-        days: daysPerCity[cityId] || 0, // Add days to the package data
+        days_stayed: parseInt(daysPerCity[cityId]) || 1,
+        locations: (selectedLocations[cityId] || []).map((locationId) => ({
+          location_id: locationId,
+        })),
+        hotels: [
+          {
+            hotel_id: selectedHotels[cityId]?.hotel_id || null,
+            num_rooms: parseInt(selectedHotels[cityId]?.num_rooms) || 1,
+          },
+        ],
       })),
     };
+
     console.log("Submitting package:", packageData);
+
     try {
       const response = await fetch("http://localhost:3000/api/packages/create-package", {
         method: "POST",
@@ -209,6 +218,7 @@ const Packages = () => {
         },
         body: JSON.stringify(packageData),
       });
+
       if (response.ok) {
         const data = await response.json();
         alert(`Package created successfully: ${data.package_id}`);
@@ -261,87 +271,114 @@ const Packages = () => {
       </div>
       <div className="mb-3">
         <label>Number of persons:</label>
-        <input type="number" 
-        min="1"
-        className="form-control"
-        value={numberOfPersons}
-        onChange={(e) => setNumberOfPersons(e.target.valueAsNumber)}
+        <input
+          type="number"
+          min="1"
+          className="form-control"
+          value={numberOfPersons}
+          onChange={(e) => setNumberOfPersons(parseInt(e.target.value))}
         />
       </div>
-      {/* Cities */}
-      <div className="mb-3">
-        <label>Select Cities:</label>
+      {/* Cities Selection */}
+      <div>
+        <h4>Select Cities:</h4>
         {cities.map((city) => (
           <div key={city.city_id} className="form-check">
             <input
               type="checkbox"
-              value={city.city_id}
               className="form-check-input"
-              onChange={(e) =>
-                handleCitySelection(city.city_id, e.target.checked)
-              }
+              id={`city-${city.city_id}`}
+              checked={selectedCities.includes(city.city_id)}
+              onChange={(e) => handleCitySelection(city.city_id, e.target.checked)}
             />
-            <label>{city.city_name}</label>
-            {/* Number of days input */}
-            {selectedCities.includes(city.city_id) && (
-              <div className="mb-2">
-                <label>Number of days in {city.city_name}:</label>
+            <label className="form-check-label" htmlFor={`city-${city.city_id}`}>
+              {city.city_name}
+            </label>
+          </div>
+        ))}
+      </div>
+      {/* Locations and Hotels */}
+      {selectedCities.map((cityId) => (
+        <div key={cityId} className="mt-3">
+          <h5>City: {cities.find((city) => city.city_id === cityId)?.city_name}</h5>
+          {/* Days Stayed */}
+          <div className="mb-3">
+            <label>Days to stay:</label>
+            <input
+              type="number"
+              min="1"
+              className="form-control"
+              value={daysPerCity[cityId] || ""}
+              onChange={(e) => handleDaysChange(cityId, parseInt(e.target.value))}
+            />
+          </div>
+          {/* Locations */}
+          <h6>Select Locations:</h6>
+          {locations[cityId]?.map((location) => (
+            <div key={location.location_id} className="form-check">
+              <input
+                type="checkbox"
+                className="form-check-input"
+                id={`location-${cityId}-${location.location_id}`}
+                checked={
+                  selectedLocations[cityId]?.includes(location.location_id) || false
+                }
+                onChange={(e) =>
+                  handleLocationSelection(
+                    cityId,
+                    location.location_id,
+                    e.target.checked
+                  )
+                }
+              />
+              <label
+                className="form-check-label"
+                htmlFor={`location-${cityId}-${location.location_id}`}
+              >
+                {location.location_name}
+              </label>
+            </div>
+          ))}
+          {/* Hotels */}
+          <h6>Select Hotel:</h6>
+          {hotels[cityId]?.map((hotel) => (
+            <div key={hotel.hotel_id} className="form-check">
+              <input
+                type="radio"
+                name={`hotel-${cityId}`}
+                className="form-check-input"
+                id={`hotel-${cityId}-${hotel.hotel_id}`}
+                onChange={(e) =>
+                  handleHotelSelection(cityId, hotel.hotel_id, 1)
+                }
+              />
+              <label
+                className="form-check-label"
+                htmlFor={`hotel-${cityId}-${hotel.hotel_id}`}
+              >
+                {hotel.hotel_name}
+              </label>
+              <div>
+                <label>Number of rooms:</label>
                 <input
                   type="number"
                   min="1"
                   className="form-control"
-                  value={daysPerCity[city.city_id] || 1}
-                  onChange={(e) => handleDaysChange(city.city_id, e.target.value)}
+                  onChange={(e) =>
+                    handleHotelSelection(
+                      cityId,
+                      hotel.hotel_id,
+                      parseInt(e.target.value) || 1
+                    )
+                  }
                 />
               </div>
-            )}
-          </div>
-        ))}
-      </div>
-      {/* Locations */}
-      {Object.entries(locations).map(([cityId, cityLocations]) => (
-        <div key={cityId}>
-          <h4>Locations in {cities.find((city) => city.city_id === parseInt(cityId))?.city_name}</h4>
-          {cityLocations.map((location) => (
-            <div key={location.location_id} className="form-check">
-              <input
-                type="checkbox"
-                value={location.location_id}
-                className="form-check-input"
-                onChange={(e) =>
-                  handleLocationSelection(cityId, location.location_id, e.target.checked)
-                }
-              />
-              <label>{location.location_name}</label>
             </div>
           ))}
         </div>
       ))}
-      {/* Hotels */}
-      {Object.entries(hotels).map(([cityId, cityHotels]) => (
-        <div key={cityId}>
-          <h4>Hotels in {cities.find((city) => city.city_id === parseInt(cityId))?.city_name}</h4>
-          {Array.isArray(cityHotels) ? (
-            cityHotels.map((hotel) => (
-              <div key={hotel.hotel_id} className="form-check">
-                <input
-                  type="radio"
-                  name={`hotel-${cityId}`} // Group radio buttons by city
-                  value={hotel.hotel_id}
-                  className="form-check-input"
-                  onChange={() => handleHotelSelection(cityId, hotel.hotel_id)}
-                />
-                <label>{hotel.hotel_name}</label>
-              </div>
-            ))
-          ) : (
-            <p>No hotels available for this city yet.</p>
-          )}
-        </div>
-      ))}
-
       <button type="submit" className="btn btn-primary mt-3">
-        Create Package
+        Submit Package
       </button>
     </form>
   );
