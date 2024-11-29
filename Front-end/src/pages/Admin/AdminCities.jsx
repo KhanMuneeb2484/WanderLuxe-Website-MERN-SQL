@@ -4,21 +4,22 @@ import { AuthContext } from "../../context/AuthContext";
 
 const AdminCities = () => {
   const [cities, setCities] = useState([]);
+  const [countries, setCountries] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [modalData, setModalData] = useState({ name: "", id: null });
+  const [isEditing, setIsEditing] = useState(false);
+  const [modalData, setModalData] = useState({ name: "", countryId: "" ,id: null});
   const { user, logout } = useContext(AuthContext);
 
-  // Fetch cities on component mount
+  // Fetch cities and countries on component mount
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      return;
+    if (token) {
+      fetchCities(token);
+      fetchCountries(token);
     }
-    fetchCities(token);
   }, []);
 
-  // Fetch all cities from the server
   const fetchCities = async (token) => {
     try {
       const response = await fetch("http://localhost:3000/api/cities/get-all-cities", {
@@ -31,55 +32,64 @@ const AdminCities = () => {
       if (response.ok) {
         const data = await response.json();
         setCities(data || []);
-        console.log(data);
       } else {
         const errorText = await response.text();
         setErrorMessage(errorText || "Failed to fetch cities.");
       }
     } catch (error) {
-      console.error("Error fetching cities:", error);
       setErrorMessage("Something went wrong. Please try again.");
     }
   };
 
-
-  const handleSaveNewCity = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-  
+  const fetchCountries = async (token) => {
     try {
-        const response = await fetch("http://localhost:3000/api/cities/register-city", {
+      const response = await fetch("http://localhost:3000/api/countries/get-all-countries", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setCountries(data || []);
+      } else {
+        setErrorMessage("Failed to fetch countries. Please try again.");
+      }
+    } catch (error) {
+      setErrorMessage("Something went wrong. Please try again.");
+    }
+  };
+
+  const handleNewCity = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch("http://localhost:3000/api/cities/register-city", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          city_name: modalData.name, 
-          country_id: modalData.id, 
+          city_name: modalData.name,
+          country_id: modalData.countryId,
         }),
       });
-  
+
       if (response.ok) {
-        const data = await response.json();
-        setCities([...cities, data]); // Update city list with new city
+        const newCity = await response.json();
+        setCities([...cities, newCity]);
         handleCloseModal();
       } else {
-        setErrorMessage("Failed to add city. Please try again.");
+        setErrorMessage("Failed to add new city.");
       }
     } catch (error) {
-      console.error("Error adding city:", error);
-      setErrorMessage("An error occurred while adding the city.");
+      setErrorMessage("Something went wrong. Please try again.");
     }
   };
-  
 
-  // Handle delete city action
   const handleDelete = async (cityId) => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      return;
-    }
     try {
       const response = await fetch(
         `http://localhost:3000/api/cities/delete-city/${cityId}`,
@@ -92,69 +102,66 @@ const AdminCities = () => {
         }
       );
       if (response.ok) {
-        setCities(cities.filter((city) => city.city_id !== cityId)); // fixed key to city_id
+        setCities(cities.filter((city) => city.city_id !== cityId));
       } else {
-        const errorText = await response.text();
-        setErrorMessage(errorText || "Failed to delete city.");
+        setErrorMessage("Failed to delete city.");
       }
     } catch (error) {
-      console.error("Error deleting city:", error);
       setErrorMessage("Something went wrong. Please try again.");
     }
   };
 
-  // Show modal for adding or editing city
-  const handleShowModal = (city = { name: "", id: null }) => {
-    setModalData({ name: city.city_name || "", id: city.city_id || null }); // handle city_name and city_id
-    setShowModal(true);
-  };
-
-  // Close modal
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setModalData({ name: "", id: null });
-  };
-  
-  // Save new or updated city
-  const handleSaveCity = async () => {
+  const handleEditCity = async () => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      return;
-    }
-    const method = modalData.id ? "PUT" : "POST";
-    const url = modalData.id
-      ? `http://localhost:3000/api/cities/update-city/${modalData.id}`
-      : "http://localhost:3000/api/cities";
     try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name: modalData.name }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (modalData.id) {
-          setCities(
-            cities.map((city) =>
-              city.city_id === modalData.id ? { ...city, city_name: modalData.name } : city
-            )
-          );
-        } else {
-          setCities([...cities, data.city]);
+      const response = await fetch(
+        `http://localhost:3000/api/cities/update-city/${modalData.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ city_name: modalData.name, country_id: modalData.countryId }), // Correct keys
         }
+      );
+  
+      if (response.ok) {
+        const updatedCity = await response.json(); // Ensure response is parsed as JSON
+        setCities(
+          cities.map((city) =>
+            city.city_id === updatedCity.city_id
+              ? {
+                  ...city,
+                  city_name: updatedCity.city_name,
+                  country_id: updatedCity.country_id,
+                }
+              : city
+          )
+        );
         handleCloseModal();
       } else {
         const errorText = await response.text();
-        setErrorMessage(errorText || "Failed to save city.");
+        setErrorMessage(errorText || "Failed to update city.");
       }
     } catch (error) {
-      console.error("Error saving city:", error);
       setErrorMessage("Something went wrong. Please try again.");
     }
+  };
+  
+  const handleShowModal = (city = { city_name: "", country_id: "" }) => {
+    setIsEditing(!!city.city_id);
+    setModalData({
+      name: city.city_name || "",
+      countryId: city.country_id || countries[0]?.id || "",
+      id: city.city_id || "",
+    });
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setModalData({ name: "", countryId: "", id: "" });
   };
 
   return (
@@ -172,13 +179,13 @@ const AdminCities = () => {
         <thead>
           <tr>
             <th>ID</th>
-            <th>country ID</th>
+            <th>Country</th>
             <th>Name</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {cities && cities.length > 0 ? (
+          {cities.length > 0 ? (
             cities.map((city) => (
               <tr key={city.city_id}>
                 <td>{city.city_id}</td>
@@ -194,7 +201,7 @@ const AdminCities = () => {
                   </Button>
                   <Button
                     variant="danger"
-                    onClick={() => handleDelete(city.city_id)} // fixed city_id
+                    onClick={() => handleDelete(city.city_id)}
                   >
                     Delete
                   </Button>
@@ -203,7 +210,7 @@ const AdminCities = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="3" className="text-center">
+              <td colSpan="4" className="text-center">
                 No cities found.
               </td>
             </tr>
@@ -211,52 +218,53 @@ const AdminCities = () => {
         </tbody>
       </Table>
 
-      {/* Modal for Add/Edit */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>
-            {modalData.id ? "Edit city" : "Add city"}
-          </Modal.Title>
+          <Modal.Title>{isEditing ? "Edit City" : "Add City"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
-            <Form.Group controlId="formCountryName">
-              <Form.Label>City Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter country name"
-                value={modalData.name}
-                onChange={(e) =>
-                  setModalData({ ...modalData, name: e.target.value })
-                }
-              />
-            </Form.Group>
-            <Form.Group controlId="formCountryId">
-              <Form.Label>Country id</Form.Label>
-              <Form.Control
-                type="number"
-                placeholder="Enter country id"
-                value={modalData.id}
-                onChange={(e) =>
-                  setModalData({ ...modalData, id: e.target.value })
-                }
-              />
-            </Form.Group>
-          </Form>
+        <Form>
+  <Form.Group controlId="formCityName">
+    <Form.Label>City Name</Form.Label>
+    <Form.Control
+      type="text"
+      value={modalData.name}
+      onChange={(e) =>
+        setModalData({ ...modalData, name: e.target.value })
+      }
+    />
+  </Form.Group>
+
+  {!isEditing && (
+    <Form.Group controlId="formCountrySelect">
+      <Form.Label>Country</Form.Label>
+      <Form.Control
+        as="select"
+        value={modalData.countryId}
+        onChange={(e) =>
+          setModalData({ ...modalData, countryId: e.target.value })
+        }
+      >
+        {countries.map((country) => (
+          <option key={country.country_id} value={country.country_id}>
+            {country.country_name}
+          </option>
+        ))}
+      </Form.Control>
+    </Form.Group>
+  )}
+</Form>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseModal}>
             Close
           </Button>
-          {/* {modalData.id ? ( */}
-            <Button variant="primary" onClick={handleSaveCity}>
-              Save Changes
-            </Button>
-        {/* //    ) : ( */}
-            <Button variant="success" onClick={handleSaveNewCity}>
-              Save New City
-            </Button>
-           {/* )} */}
+          <Button
+            variant="primary"
+            onClick={isEditing ? handleEditCity : handleNewCity}
+          >
+            Save Changes
+          </Button>
         </Modal.Footer>
       </Modal>
     </Container>
