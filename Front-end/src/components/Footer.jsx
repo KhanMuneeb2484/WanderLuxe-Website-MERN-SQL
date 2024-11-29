@@ -56,8 +56,8 @@ const Footer = () => {
       </div>
       <div className="footer-bottom">
         <p>
-          © 2023 Pakistan Travel. All rights reserved. Designed and developed by{" "}
-          <a href="https://suavesolutions.com">Suave Solutions</a>
+          © 2024 Wander Luxe. All rights reserved. Designed and developed by{" "}
+          <a href="https://suavesolutions.com">Muneeb Ullah</a>
         </p>
       </div>
     </footer>
