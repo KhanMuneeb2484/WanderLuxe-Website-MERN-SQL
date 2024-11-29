@@ -201,20 +201,25 @@ const AdminLocations = () => {
                 <td>{location.location_name}</td>
                 <td>{location.price_per_person}</td>
                 <td>
-                  <Button
-                    variant="warning"
-                    className="me-2"
-                    onClick={() => handleShowModal(location)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="danger"
-                    onClick={() => handleShowDeleteModal(location.location_id)}
-                  >
-                    Delete
-                  </Button>
-                </td>
+  <div className="d-flex justify-content-between w-51">
+    <Button
+      variant="warning"
+      className="me-3"
+      onClick={() => handleShowModal(location)}
+    >
+      Edit
+    </Button>
+    <Button
+      variant="danger"
+      onClick={() => handleShowDeleteModal(location.location_id)}
+    >
+      Delete
+    </Button>
+  </div>
+</td>
+
+
+               
               </tr>
             ))
           ) : (
