@@ -5,6 +5,7 @@ import {
   updateLocation,
   getAllLocations,
   getLocationById,
+  getLocationsByCityId,
 } from "../controllers/locationController.js";
 import { authenticateJWT, requireRole } from "../middleware/authMiddleware.js";
 
@@ -44,5 +45,8 @@ router.get(
   requireRole(["admin"]),
   getLocationById
 );
+
+// Get locations by city ID
+router.get("/get-locations-by-cityId/:city_id", getLocationsByCityId);
 
 export default router;

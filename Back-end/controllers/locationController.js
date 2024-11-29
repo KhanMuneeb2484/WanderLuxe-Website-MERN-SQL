@@ -5,11 +5,9 @@ const registerLocation = async (req, res) => {
   const { location_name, city_id, price_per_person } = req.body;
 
   if (!price_per_person || price_per_person <= 0) {
-    return res
-      .status(400)
-      .json({
-        message: "Price per person is required and must be greater than 0.",
-      });
+    return res.status(400).json({
+      message: "Price per person is required and must be greater than 0.",
+    });
   }
 
   try {
@@ -132,6 +130,29 @@ const getLocationById = async (req, res) => {
   }
 };
 
+// Get locations by city ID
+const getLocationsByCityId = async (req, res) => {
+  const { city_id } = req.params;
+
+  try {
+    const locations = await pool.query(
+      "SELECT * FROM locations WHERE city_id = $1",
+      [city_id]
+    );
+
+    if (locations.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No locations found for this city" });
+    }
+
+    res.status(200).json(locations.rows);
+  } catch (error) {
+    console.error("Error fetching locations:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
 // Export all functions
 export {
   registerLocation,
@@ -139,4 +160,5 @@ export {
   updateLocation,
   getAllLocations,
   getLocationById,
+  getLocationsByCityId,
 };
