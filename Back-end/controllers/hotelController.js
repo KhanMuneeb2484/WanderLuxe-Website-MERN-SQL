@@ -156,4 +156,32 @@ const getHotelById = async (req, res) => {
   }
 };
 
-export { registerHotel, updateHotel, deleteHotel, getAllHotels, getHotelById };
+// Get hotels by City ID
+const getHotelsByCityId = async (req, res) => {
+  const { city_id } = req.params;
+
+  try {
+    const hotelsQuery = await pool.query(
+      `SELECT * FROM hotels WHERE city_id = $1`,
+      [city_id]
+    );
+
+    if (hotelsQuery.rows.length === 0) {
+      return res.status(404).json({ message: "No hotels found in this city" });
+    }
+
+    res.status(200).json(hotelsQuery.rows);
+  } catch (error) {
+    console.error("Error fetching hotels:", error);
+    res.status(500).json({ message: "Error fetching hotels", error });
+  }
+};
+
+export {
+  registerHotel,
+  updateHotel,
+  deleteHotel,
+  getAllHotels,
+  getHotelById,
+  getHotelsByCityId,
+};
