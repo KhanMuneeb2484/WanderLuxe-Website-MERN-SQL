@@ -126,12 +126,18 @@ const deleteHotel = async (req, res) => {
   }
 };
 
-// Get all hotels
+// Get all hotels with associated city names
 const getAllHotels = async (req, res) => {
   try {
-    const allHotelsQuery = await pool.query("SELECT * FROM hotels");
+    const allHotelsQuery = await pool.query(
+      `SELECT h.*, c.city_name
+       FROM hotels h
+       JOIN cities c ON h.city_id = c.city_id`
+    );
+
     res.status(200).json(allHotelsQuery.rows);
   } catch (error) {
+    console.error("Error fetching hotels:", error);
     res.status(500).json({ message: "Error fetching hotels", error });
   }
 };
