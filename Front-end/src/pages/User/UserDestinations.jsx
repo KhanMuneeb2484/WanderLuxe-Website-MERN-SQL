@@ -17,8 +17,11 @@ function Destinations() {
         return; // Exit early if no token is found
       }
 
+      console.log(bearerToken);
+
+
       try {
-        const response = await fetch("api/countries/get-all-countries", {
+        const response = await fetch("http://localhost:3000/api/countries/get-all-countries", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
