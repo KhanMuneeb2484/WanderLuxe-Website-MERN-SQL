@@ -108,7 +108,7 @@ function Destinations() {
                     <h3 className="mb-3">{country.country_name}</h3>
                     <a
                       href="#"
-                      className="btn btn-sm btn-primary"
+                      className="btn btn-sm btn-primary py-2 px-3"
                       style={{ borderRadius: "30px" }}
                     >
                       Explore

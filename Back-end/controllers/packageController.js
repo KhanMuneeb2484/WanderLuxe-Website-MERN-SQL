@@ -66,7 +66,7 @@ const createPackage = async (req, res) => {
           }
 
           const locationPrice =
-            locationData.rows[0].price_per_person * num_people * days_stayed;
+            locationData.rows[0].price_per_person * num_people;
           console.log(`Location price for city ${city_id}:`, locationPrice);
           cityCost += locationPrice;
 
