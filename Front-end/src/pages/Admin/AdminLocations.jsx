@@ -7,12 +7,14 @@ const AdminLocations = () => {
   const [cities, setCities] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // For confirmation dialog
   const [modalData, setModalData] = useState({
     location_name: "",
     price_per_person: "",
     city_id: "",
     id: null,
   });
+  const [locationToDelete, setLocationToDelete] = useState(null); // Store the location to delete
   const { user, logout } = useContext(AuthContext);
 
   useEffect(() => {
@@ -86,6 +88,7 @@ const AdminLocations = () => {
       );
       if (response.ok) {
         setLocations(locations.filter((location) => location.id !== locationId));
+        setShowDeleteModal(false); // Close confirmation dialog after delete
       } else {
         const errorText = await response.text();
         setErrorMessage(errorText || "Failed to delete location.");
@@ -158,6 +161,16 @@ const AdminLocations = () => {
     }
   };
 
+  const handleShowDeleteModal = (locationId) => {
+    setLocationToDelete(locationId); // Store the location to delete
+    setShowDeleteModal(true); // Show confirmation modal
+  };
+
+  const handleCloseDeleteModal = () => {
+    setShowDeleteModal(false); // Close confirmation dialog
+    setLocationToDelete(null); // Clear the location to delete
+  };
+
   return (
     <Container className="mt-5">
       <h2 className="text-center mb-4">Location Management</h2>
@@ -197,7 +210,7 @@ const AdminLocations = () => {
                   </Button>
                   <Button
                     variant="danger"
-                    onClick={() => handleDelete(location.location_id)}
+                    onClick={() => handleShowDeleteModal(location.location_id)}
                   >
                     Delete
                   </Button>
@@ -221,7 +234,7 @@ const AdminLocations = () => {
         </Modal.Header>
         <Modal.Body>
           <Form>
-          <Form.Group controlId="formCityId">
+            <Form.Group controlId="formCityId">
               <Form.Label>City</Form.Label>
               <Form.Control
                 as="select"
@@ -253,7 +266,7 @@ const AdminLocations = () => {
               <Form.Label>Price Per Session</Form.Label>
               <Form.Control
                 type="number"
-                placeholder="Enter price"
+                placeholder="Enter price per session"
                 value={modalData.price_per_person}
                 onChange={(e) =>
                   setModalData({ ...modalData, price_per_person: e.target.value })
@@ -267,7 +280,26 @@ const AdminLocations = () => {
             Close
           </Button>
           <Button variant="primary" onClick={handleSaveLocation}>
-            Save Changes
+            Save Location
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Confirmation Delete Modal */}
+      <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to delete this location?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseDeleteModal}>
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => handleDelete(locationToDelete)}
+          >
+            Delete
           </Button>
         </Modal.Footer>
       </Modal>

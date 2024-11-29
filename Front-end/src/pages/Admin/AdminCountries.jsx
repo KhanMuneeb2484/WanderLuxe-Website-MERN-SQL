@@ -6,7 +6,9 @@ const AdminCountries = () => {
   const [countries, setCountries] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [modalData, setModalData] = useState({ name: "", continent: "", id: null });
+  const [countryToDelete, setCountryToDelete] = useState(null); // To store the country being deleted
   const { user, logout } = useContext(AuthContext);
 
   useEffect(() => {
@@ -43,13 +45,13 @@ const AdminCountries = () => {
     }
   };
 
-  const handleDelete = async (countryId) => {
+  const handleDelete = async () => {
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token || !countryToDelete) return;
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/countries/delete-country/${countryId}`,
+        `http://localhost:3000/api/countries/delete-country/${countryToDelete}`,
         {
           method: "DELETE",
           headers: {
@@ -60,7 +62,8 @@ const AdminCountries = () => {
       );
 
       if (response.ok) {
-        setCountries(countries.filter((country) => country.country_id !== countryId));
+        setCountries(countries.filter((country) => country.country_id !== countryToDelete));
+        setShowConfirmDeleteModal(false); // Close the confirmation modal
       } else {
         setErrorMessage("Failed to delete country. Please try again.");
       }
@@ -190,6 +193,32 @@ const AdminCountries = () => {
                 <td>{country.country_name}</td>
                 <td>{country.country_continent}</td>
                 <td>
+  <div className="d-flex justify-content-between w-50">
+    <Button
+      variant="warning"
+      className="me-3"
+      onClick={() =>
+        handleShowModal({
+          country_id: country.country_id,
+          country_name: country.country_name,
+          country_continent: country.country_continent,
+        })
+      }
+    >
+      Edit
+    </Button>
+    <Button
+      variant="danger"
+      onClick={() => {
+        setCountryToDelete(country.country_id); // Set country for deletion
+        setShowConfirmDeleteModal(true); // Show confirmation modal
+      }}
+    >
+      Delete
+    </Button>
+  </div>
+</td>
+                {/* <td>
                   <Button
                     variant="warning"
                     className="me-2"
@@ -205,11 +234,14 @@ const AdminCountries = () => {
                   </Button>
                   <Button
                     variant="danger"
-                    onClick={() => handleDelete(country.country_id)}
+                    onClick={() => {
+                      setCountryToDelete(country.country_id); // Set country for deletion
+                      setShowConfirmDeleteModal(true); // Show confirmation modal
+                    }}
                   >
                     Delete
                   </Button>
-                </td>
+                </td> */}
               </tr>
             ))
           ) : (
@@ -221,6 +253,24 @@ const AdminCountries = () => {
           )}
         </tbody>
       </Table>
+
+      {/* Confirmation Modal for Deletion */}
+      <Modal show={showConfirmDeleteModal} onHide={() => setShowConfirmDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Are you sure you want to delete this country?</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowConfirmDeleteModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleDelete}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {/* Modal for Add/Edit */}
       <Modal show={showModal} onHide={handleCloseModal}>
@@ -264,8 +314,8 @@ const AdminCountries = () => {
               Save Changes
             </Button>
           ) : (
-            <Button variant="success" onClick={handleSaveNewCountry}>
-              Save New Country
+            <Button variant="primary" onClick={handleSaveNewCountry}>
+              Save Country
             </Button>
           )}
         </Modal.Footer>

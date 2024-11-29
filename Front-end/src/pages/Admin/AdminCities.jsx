@@ -8,7 +8,9 @@ const AdminCities = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [modalData, setModalData] = useState({ name: "", countryId: "" ,id: null});
+  const [modalData, setModalData] = useState({ name: "", countryId: "", id: null });
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false); // Confirmation modal state
+  const [cityToDelete, setCityToDelete] = useState(null); // Store city to be deleted
   const { user, logout } = useContext(AuthContext);
 
   // Fetch cities and countries on component mount
@@ -88,44 +90,53 @@ const AdminCities = () => {
     }
   };
 
-  const handleDelete = async (cityId) => {
+  const handleDeleteCityConfirmation = (cityId) => {
+    setCityToDelete(cityId); // Set the city to delete
+    setShowDeleteConfirmModal(true); // Show the confirmation modal
+  };
+
+  const handleDelete = async () => {
     const token = localStorage.getItem("token");
+    if (!cityToDelete) return;
+
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/cities/delete-city/${cityId}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`http://localhost:3000/api/cities/delete-city/${cityToDelete}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
-        setCities(cities.filter((city) => city.city_id !== cityId));
+        setCities(cities.filter((city) => city.city_id !== cityToDelete));
+        setShowDeleteConfirmModal(false); // Close the confirmation modal
       } else {
         setErrorMessage("Failed to delete city.");
+        setShowDeleteConfirmModal(false); // Close the confirmation modal
       }
     } catch (error) {
       setErrorMessage("Something went wrong. Please try again.");
+      setShowDeleteConfirmModal(false); // Close the confirmation modal
     }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteConfirmModal(false); // Close the confirmation modal without deleting
+    setCityToDelete(null); // Reset cityToDelete
   };
 
   const handleEditCity = async () => {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/cities/update-city/${modalData.id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ city_name: modalData.name, country_id: modalData.countryId }), // Correct keys
-        }
-      );
-  
+      const response = await fetch(`http://localhost:3000/api/cities/update-city/${modalData.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ city_name: modalData.name, country_id: modalData.countryId }), // Correct keys
+      });
+
       if (response.ok) {
         const updatedCity = await response.json(); // Ensure response is parsed as JSON
         setCities(
@@ -148,7 +159,7 @@ const AdminCities = () => {
       setErrorMessage("Something went wrong. Please try again.");
     }
   };
-  
+
   const handleShowModal = (city = { city_name: "", country_id: "" }) => {
     setIsEditing(!!city.city_id);
     setModalData({
@@ -192,20 +203,23 @@ const AdminCities = () => {
                 <td>{city.country_id}</td>
                 <td>{city.city_name}</td>
                 <td>
-                  <Button
-                    variant="warning"
-                    className="me-2"
-                    onClick={() => handleShowModal(city)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="danger"
-                    onClick={() => handleDelete(city.city_id)}
-                  >
-                    Delete
-                  </Button>
-                </td>
+  <div className="d-flex justify-content-between w-50">
+    <Button
+      variant="warning"
+      className="me-3"
+      onClick={() => handleShowModal(city)}
+    >
+      Edit
+    </Button>
+    <Button
+      variant="danger"
+      onClick={() => handleDeleteCityConfirmation(city.city_id)}
+    >
+      Delete
+    </Button>
+  </div>
+</td>
+
               </tr>
             ))
           ) : (
@@ -218,52 +232,68 @@ const AdminCities = () => {
         </tbody>
       </Table>
 
+      {/* Confirmation Modal */}
+      <Modal show={showDeleteConfirmModal} onHide={handleCancelDelete}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to delete this city?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCancelDelete}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleDelete}>
+            Yes, Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>{isEditing ? "Edit City" : "Add City"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        <Form>
-  <Form.Group controlId="formCityName">
-    <Form.Label>City Name</Form.Label>
-    <Form.Control
-      type="text"
-      value={modalData.name}
-      onChange={(e) =>
-        setModalData({ ...modalData, name: e.target.value })
-      }
-    />
-  </Form.Group>
+          <Form>
+            <Form.Group controlId="formCityName">
+              <Form.Label>City Name</Form.Label>
+              <Form.Control
+                type="text"
+                value={modalData.name}
+                onChange={(e) =>
+                  setModalData({ ...modalData, name: e.target.value })
+                }
+              />
+            </Form.Group>
 
-  {!isEditing && (
-    <Form.Group controlId="formCountrySelect">
-      <Form.Label>Country</Form.Label>
-      <Form.Control
-        as="select"
-        value={modalData.countryId}
-        onChange={(e) =>
-          setModalData({ ...modalData, countryId: e.target.value })
-        }
-      >
-        {countries.map((country) => (
-          <option key={country.country_id} value={country.country_id}>
-            {country.country_name}
-          </option>
-        ))}
-      </Form.Control>
-    </Form.Group>
-  )}
-</Form>
+            {!isEditing && (
+              <Form.Group controlId="formCountry">
+                <Form.Label>Country</Form.Label>
+                <Form.Control
+                  as="select"
+                  value={modalData.countryId}
+                  onChange={(e) =>
+                    setModalData({ ...modalData, countryId: e.target.value })
+                  }
+                >
+                  {countries.map((country) => (
+                    <option key={country.country_id} value={country.country_id}>
+                      {country.country_name}
+                    </option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+            )}
+          </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseModal}>
             Close
           </Button>
           <Button
-            variant="primary"
+            variant={isEditing ? "success" : "primary"}
             onClick={isEditing ? handleEditCity : handleNewCity}
           >
-            Save Changes
+            {isEditing ? "Update" : "Add"}
           </Button>
         </Modal.Footer>
       </Modal>
