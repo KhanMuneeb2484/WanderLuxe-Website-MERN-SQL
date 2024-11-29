@@ -6,6 +6,7 @@ import Home from "./pages/User/UserHome";
 import About from "./pages/User/UserAbout";
 import Services from "./pages/User/UserServices";
 import Packages from "./pages/User/UserPackages";
+import Destinations from "./pages/User/UserDestinations";
 // import Destination from "./pages/User/UserDestination";
 import Booking from "./pages/User/UserBookings";
 import { AuthContext } from "./context/AuthContext";
@@ -33,6 +34,8 @@ const App = () => {
         <Route path="/countries" element={<Countries />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/packages" element={<Packages />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/Destination" element={<Destinations />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/Booking" element={<UserBookings />} />
