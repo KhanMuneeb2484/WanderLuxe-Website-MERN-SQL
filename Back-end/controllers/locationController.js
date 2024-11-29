@@ -97,12 +97,16 @@ const updateLocation = async (req, res) => {
   }
 };
 
-// Get all locations
+// Get all locations with associated city names
 const getAllLocations = async (req, res) => {
   try {
-    const locations = await pool.query("SELECT * FROM locations");
+    const locationsQuery = await pool.query(
+      `SELECT l.*, c.city_name 
+       FROM locations l
+       JOIN cities c ON l.city_id = c.city_id`
+    );
 
-    res.status(200).json(locations.rows);
+    res.status(200).json(locationsQuery.rows);
   } catch (error) {
     console.error("Error fetching locations:", error);
     res.status(500).json({ message: "Server error", error });
