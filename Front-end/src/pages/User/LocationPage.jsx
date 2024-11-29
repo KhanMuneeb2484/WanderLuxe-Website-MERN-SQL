@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-function CityPage() {
-  const { countryId } = useParams(); // Get countryId from the URL
-  const [cities, setCities] = useState([]);
-  const [countryName, setCountryName] = useState(""); // State to store the country name
+function LocationPage() {
+  const { cityId } = useParams(); // Get cityId from the URL
+  const [locations, setLocations] = useState([]);
+  const [cityName, setCityName] = useState(""); // State to store the city name
   const [error, setError] = useState(null); // To store any error message
 
   const bearerToken = localStorage.getItem("token"); // Retrieve token from localStorage
 
   useEffect(() => {
-    // Fetch country name based on the countryId
-    const fetchCountryName = async () => {
+    // Fetch city name based on the cityId
+    const fetchCityName = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/api/countries/get-country-by-id/${countryId}`,
+          `http://localhost:3000/api/cities/get-city-by-id/${cityId}`,
           {
             method: "GET",
             headers: {
@@ -25,22 +25,22 @@ function CityPage() {
         );
 
         if (!response.ok) {
-          throw new Error("Failed to fetch country name");
+          throw new Error("Failed to fetch city name");
         }
 
         const data = await response.json();
-        setCountryName(data.country_name); // Set the country name to state
+        setCityName(data.city_name); // Set the city name to state
       } catch (error) {
         setError(error.message);
-        console.error("Error fetching country name:", error);
+        console.error("Error fetching city name:", error);
       }
     };
 
-    // Fetch cities based on the countryId
-    const fetchCities = async () => {
+    // Fetch locations based on the cityId
+    const fetchLocations = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/api/cities/get-cities-by-countryId/${countryId}`,
+          `http://localhost:3000/api/locations/get-locations-by-cityId/${cityId}`,
           {
             method: "GET",
             headers: {
@@ -51,20 +51,20 @@ function CityPage() {
         );
 
         if (!response.ok) {
-          throw new Error("Failed to fetch cities");
+          throw new Error("Failed to fetch locations");
         }
 
         const data = await response.json();
-        setCities(data); // Set the cities data to state
+        setLocations(data); // Set the locations data to state
       } catch (error) {
         setError(error.message);
-        console.error("Error fetching cities:", error);
+        console.error("Error fetching locations:", error);
       }
     };
 
-    fetchCountryName(); // Fetch the country name
-    fetchCities(); // Fetch the cities
-  }, [countryId, bearerToken]); // Dependency array includes countryId and token to re-fetch if they change
+    fetchCityName(); // Fetch the city name
+    fetchLocations(); // Fetch the locations
+  }, [cityId, bearerToken]); // Dependency array includes cityId and token to re-fetch if they change
 
   return (
     <div>
@@ -74,7 +74,7 @@ function CityPage() {
           <div className="row justify-content-center py-5">
             <div className="col-lg-10 pt-lg-5 mt-lg-5 text-center">
               <h1 className="display-3 text-white animated slideInDown">
-                Cities in {countryName}
+                Destinations in {cityName || "City"} {/* Fallback placeholder */}
               </h1>
               <nav aria-label="breadcrumb">
                 <ol className="breadcrumb justify-content-center">
@@ -85,7 +85,7 @@ function CityPage() {
                     className="breadcrumb-item text-white active"
                     aria-current="page"
                   >
-                    Cities
+                    Destinations
                   </li>
                 </ol>
               </nav>
@@ -94,20 +94,20 @@ function CityPage() {
         </div>
       </div>
 
-      {/* Cities Section */}
+      {/* Locations Section */}
       <div className="container-xxl py-5">
         <div className="container">
           <div className="text-center wow fadeInUp" data-wow-delay="0.1s">
             <h6 className="section-title bg-white text-center text-primary px-3">
-              Cities
+              Destinations
             </h6>
-            <h1 className="mb-5">Explore Cities in {countryName}</h1>
+            <h1 className="mb-5">Explore Destinations in {cityName}</h1>
           </div>
           {error && <p className="text-center text-danger">{error}</p>} {/* Display error if any */}
           <div className="row g-4 justify-content-center">
-            {cities.map((city) => (
+            {locations.map((location) => (
               <div
-                key={city.city_id}
+                key={location.location_id} // Correct key based on location_id
                 className="col-lg-4 col-md-6 wow fadeInUp"
                 data-wow-delay="0.1s"
               >
@@ -117,25 +117,17 @@ function CityPage() {
                     <img
                       className="img-fluid card-img-top"
                       src="placeholder.jpeg"
-                      alt={city.city_name}
+                      alt={location.location_name}
                     />
                   </div>
                   <div className="text-center p-4">
-                    <h3 className="mb-3">{city.city_name}</h3>
-                    <a
-                      href="{}"
-                      className="btn btn-sm btn-primary mb-2"
-                      style={{ borderRadius: "30px" }}
-                    >
-                      Explore Destinations
-                    </a>
-                    <br />
+                    <h3 className="mb-3">{location.location_name}</h3>
                     <a
                       href="#"
                       className="btn btn-sm btn-primary"
                       style={{ borderRadius: "30px" }}
                     >
-                      Explore Hotels
+                      Explore
                     </a>
                   </div>
                 </div>
@@ -148,4 +140,4 @@ function CityPage() {
   );
 }
 
-export default CityPage;
+export default LocationPage;
