@@ -9,7 +9,7 @@ import Services from "./pages/User/UserServices";
 import Packages from "./pages/User/UserPackages";
 import Booking from "./pages/User/UserBookings";
 import { AuthContext } from "./context/AuthContext";
-
+import Destinations from "./pages/User/UserDestinations";
 import Login from "./pages/Login";
 import Contact from "./pages/User/UserContact";
 import Dashboard from "./pages/User/UserDashboard";
