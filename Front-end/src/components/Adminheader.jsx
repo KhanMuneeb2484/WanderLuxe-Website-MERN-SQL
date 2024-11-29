@@ -56,7 +56,7 @@ const Adminheader = () => {
           <div className="collapse navbar-collapse" id="navbarCollapse">
             <div className="navbar-nav ms-auto py-0">
               {/* New links for Country, City, and Location */}
-              <Link to="/User" className="nav-item nav-link text-white">
+              <Link to="/Users" className="nav-item nav-link text-white">
                 Users
               </Link>
               <Link to="/AdminCountries" className="nav-item nav-link text-white">

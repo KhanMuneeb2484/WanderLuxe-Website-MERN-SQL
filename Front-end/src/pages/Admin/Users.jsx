@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Table, Button, Container, Alert, Dropdown } from "react-bootstrap";
+import { Table, Button, Container, Alert, Modal } from "react-bootstrap";
 import { AuthContext } from "../../context/AuthContext";
-import { Link } from "react-router-dom";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null); // Store the user ID to delete
   const { user, logout } = useContext(AuthContext);
 
   useEffect(() => {
@@ -42,14 +43,15 @@ const Users = () => {
     }
   };
 
-  const deleteUser = async (userId) => {
+  const deleteUser = async () => {
+    if (!userToDelete) return;
     const token = localStorage.getItem("token");
     if (!token) {
       return;
     }
     try {
       const response = await fetch(
-        `http://localhost:3000/api/users/delete-user/${userId}`,
+        `http://localhost:3000/api/users/delete-user/${userToDelete}`,
         {
           method: "DELETE",
           headers: {
@@ -59,7 +61,8 @@ const Users = () => {
         }
       );
       if (response.ok) {
-        setUsers(users.filter((user) => user.user_id !== userId));
+        setUsers(users.filter((user) => user.user_id !== userToDelete));
+        setShowDeleteConfirm(false); // Close the modal after deletion
       } else {
         const errorText = await response.text();
         setErrorMessage(errorText || "Failed to delete user.");
@@ -68,6 +71,16 @@ const Users = () => {
       console.error("Error deleting user:", error);
       setErrorMessage("Something went wrong. Please try again.");
     }
+  };
+
+  const handleShowDeleteConfirm = (userId) => {
+    setUserToDelete(userId);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleCloseDeleteConfirm = () => {
+    setShowDeleteConfirm(false);
+    setUserToDelete(null);
   };
 
   return (
@@ -97,7 +110,10 @@ const Users = () => {
                 <td>{user.email}</td>
                 <td>{user.phone_number}</td>
                 <td>
-                  <Button variant="danger" onClick={() => deleteUser(user.user_id)}>
+                  <Button
+                    variant="danger"
+                    onClick={() => handleShowDeleteConfirm(user.user_id)}
+                  >
                     Delete
                   </Button>
                 </td>
@@ -112,6 +128,24 @@ const Users = () => {
           )}
         </tbody>
       </Table>
+
+      {/* Confirmation Modal for Deletion */}
+      <Modal show={showDeleteConfirm} onHide={handleCloseDeleteConfirm}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete this user? This action cannot be undone.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseDeleteConfirm}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={deleteUser}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

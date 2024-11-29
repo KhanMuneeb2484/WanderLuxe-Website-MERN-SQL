@@ -21,6 +21,7 @@ import LocationPage from "./pages/User/LocationPage";
 import AdminCountries  from "./pages/Admin/AdminCountries";
 import AdminCities  from "./pages/Admin/AdminCities";
 import AdminLocations  from "./pages/Admin/AdminLocations";
+import Users  from "./pages/Admin/Users";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -46,6 +47,7 @@ const App = () => {
         <Route path="/AdminCountries" element={<AdminCountries />} />
         <Route path="/AdminCities" element={<AdminCities />} />
         <Route path="/AdminLocations" element={<AdminLocations />} />
+        <Route path="/Users" element={<Users />} />
         <Route path="/Booking" element={<UserBookings />} />
         <Route path="/cities/:countryId" element={<CityPage />} />
         <Route path="/locations/:cityId" element={<LocationPage />} />
