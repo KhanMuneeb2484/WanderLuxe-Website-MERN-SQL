@@ -143,10 +143,34 @@ const getTourGuideById = async (req, res) => {
   }
 };
 
+// Get tour guides by Country ID
+const getTourGuidesByCountryId = async (req, res) => {
+  const { country_id } = req.params;
+
+  try {
+    const guidesQuery = await pool.query(
+      `SELECT * FROM tour_guides WHERE country_id = $1`,
+      [country_id]
+    );
+
+    if (guidesQuery.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No tour guides found for this country" });
+    }
+
+    res.status(200).json(guidesQuery.rows);
+  } catch (error) {
+    console.error("Error fetching tour guides:", error);
+    res.status(500).json({ message: "Error fetching tour guides", error });
+  }
+};
+
 export {
   registerTourGuide,
   updateTourGuide,
   deleteTourGuide,
   getAllTourGuides,
   getTourGuideById,
+  getTourGuidesByCountryId,
 };
