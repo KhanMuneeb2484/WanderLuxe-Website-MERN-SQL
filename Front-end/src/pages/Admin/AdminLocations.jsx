@@ -4,9 +4,15 @@ import { AuthContext } from "../../context/AuthContext";
 
 const AdminLocations = () => {
   const [locations, setLocations] = useState([]);
+  const [cities, setCities] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [modalData, setModalData] = useState({ name: "", id: null, latitude: "", longitude: "" });
+  const [modalData, setModalData] = useState({
+    location_name: "",
+    price_per_person: "",
+    city_id: "",
+    id: null,
+  });
   const { user, logout } = useContext(AuthContext);
 
   useEffect(() => {
@@ -15,11 +21,12 @@ const AdminLocations = () => {
       return;
     }
     fetchLocations(token);
+    fetchCities(token); // Fetch cities when the component mounts
   }, []);
 
   const fetchLocations = async (token) => {
     try {
-      const response = await fetch("http://localhost:3000/api/locations", {
+      const response = await fetch("http://localhost:3000/api/locations/get-all-locations", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -28,13 +35,35 @@ const AdminLocations = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        setLocations(data.locations || []);
+        setLocations(data || []);
       } else {
         const errorText = await response.text();
         setErrorMessage(errorText || "Failed to fetch locations.");
       }
     } catch (error) {
       console.error("Error fetching locations:", error);
+      setErrorMessage("Something went wrong. Please try again.");
+    }
+  };
+
+  const fetchCities = async (token) => {
+    try {
+      const response = await fetch("http://localhost:3000/api/cities/get-all-cities", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setCities(data || []);
+      } else {
+        const errorText = await response.text();
+        setErrorMessage(errorText || "Failed to fetch cities.");
+      }
+    } catch (error) {
+      console.error("Error fetching cities:", error);
       setErrorMessage("Something went wrong. Please try again.");
     }
   };
@@ -46,7 +75,7 @@ const AdminLocations = () => {
     }
     try {
       const response = await fetch(
-        `http://localhost:3000/api/locations/${locationId}`,
+        `http://localhost:3000/api/locations/delete-location/${locationId}`,
         {
           method: "DELETE",
           headers: {
@@ -67,14 +96,14 @@ const AdminLocations = () => {
     }
   };
 
-  const handleShowModal = (location = { name: "", id: null, latitude: "", longitude: "" }) => {
+  const handleShowModal = (location = { location_name: "", price_per_person: "", city_id: "", id: null }) => {
     setModalData(location);
     setShowModal(true);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setModalData({ name: "", id: null, latitude: "", longitude: "" });
+    setModalData({ location_name: "", price_per_person: "", city_id: "", id: null });
   };
 
   const handleSaveLocation = async () => {
@@ -82,10 +111,10 @@ const AdminLocations = () => {
     if (!token) {
       return;
     }
-    const method = modalData.id ? "PUT" : "POST";
+    const method = modalData.id ? "PATCH" : "POST";
     const url = modalData.id
-      ? `http://localhost:3000/api/locations/${modalData.id}`
-      : "http://localhost:3000/api/locations";
+      ? `http://localhost:3000/api/locations/update-location/${modalData.id}`
+      : "http://localhost:3000/api/locations/register-location";
     try {
       const response = await fetch(url, {
         method,
@@ -94,9 +123,9 @@ const AdminLocations = () => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          name: modalData.name,
-          latitude: modalData.latitude,
-          longitude: modalData.longitude
+          location_name: modalData.location_name,
+          price_per_person: modalData.price_per_person,
+          city_id: modalData.city_id,
         }),
       });
 
@@ -106,7 +135,12 @@ const AdminLocations = () => {
           setLocations(
             locations.map((location) =>
               location.id === modalData.id
-                ? { ...location, name: modalData.name, latitude: modalData.latitude, longitude: modalData.longitude }
+                ? {
+                    ...location,
+                    location_name: modalData.location_name,
+                    price_per_person: modalData.price_per_person,
+                    city_id: modalData.city_id,
+                  }
                 : location
             )
           );
@@ -139,20 +173,20 @@ const AdminLocations = () => {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Name</th>
-            <th>Latitude</th>
-            <th>Longitude</th>
+            <th>City Name</th>
+            <th>Location Name</th>
+            <th>Price Per Session</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {locations && locations.length > 0 ? (
             locations.map((location) => (
-              <tr key={location.id}>
-                <td>{location.id}</td>
-                <td>{location.name}</td>
-                <td>{location.latitude}</td>
-                <td>{location.longitude}</td>
+              <tr key={location.location_id}>
+                <td>{location.location_id}</td>
+                <td>{location.city_name}</td>
+                <td>{location.location_name}</td>
+                <td>{location.price_per_person}</td>
                 <td>
                   <Button
                     variant="warning"
@@ -163,7 +197,7 @@ const AdminLocations = () => {
                   </Button>
                   <Button
                     variant="danger"
-                    onClick={() => handleDelete(location.id)}
+                    onClick={() => handleDelete(location.location_id)}
                   >
                     Delete
                   </Button>
@@ -187,36 +221,42 @@ const AdminLocations = () => {
         </Modal.Header>
         <Modal.Body>
           <Form>
+          <Form.Group controlId="formCityId">
+              <Form.Label>City</Form.Label>
+              <Form.Control
+                as="select"
+                value={modalData.city_id}
+                onChange={(e) =>
+                  setModalData({ ...modalData, city_id: e.target.value })
+                }
+              >
+                <option value="">Select City</option>
+                {cities.map((city) => (
+                  <option key={city.city_id} value={city.city_id}>
+                    {city.city_name}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
             <Form.Group controlId="formLocationName">
               <Form.Label>Location Name</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Enter location name"
-                value={modalData.name}
+                value={modalData.location_name}
                 onChange={(e) =>
-                  setModalData({ ...modalData, name: e.target.value })
+                  setModalData({ ...modalData, location_name: e.target.value })
                 }
               />
             </Form.Group>
-            <Form.Group controlId="formLatitude">
-              <Form.Label>Latitude</Form.Label>
+            <Form.Group controlId="formPricePerPerson">
+              <Form.Label>Price Per Session</Form.Label>
               <Form.Control
                 type="number"
-                placeholder="Enter latitude"
-                value={modalData.latitude}
+                placeholder="Enter price"
+                value={modalData.price_per_person}
                 onChange={(e) =>
-                  setModalData({ ...modalData, latitude: e.target.value })
-                }
-              />
-            </Form.Group>
-            <Form.Group controlId="formLongitude">
-              <Form.Label>Longitude</Form.Label>
-              <Form.Control
-                type="number"
-                placeholder="Enter longitude"
-                value={modalData.longitude}
-                onChange={(e) =>
-                  setModalData({ ...modalData, longitude: e.target.value })
+                  setModalData({ ...modalData, price_per_person: e.target.value })
                 }
               />
             </Form.Group>
