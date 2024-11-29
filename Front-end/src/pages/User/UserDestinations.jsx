@@ -6,9 +6,7 @@ function Destinations() {
   const [error, setError] = useState(null); // To store any error that occurs
 
   // Retrieve the user object from localStorage and extract the token
-  const user = JSON.parse(localStorage.getItem("user"));
-  const bearerToken = user?.token; // Access token from the user object
-
+  const bearerToken = localStorage.getItem("token");
   // Fetch countries data from API
   useEffect(() => {
     const fetchCountries = async () => {
