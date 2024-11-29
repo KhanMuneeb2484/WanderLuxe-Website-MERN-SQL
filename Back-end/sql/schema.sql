@@ -143,21 +143,39 @@ CREATE TABLE IF NOT EXISTS payments (
     ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- Creating Picture table
-CREATE TABLE IF NOT EXISTS pictures (
+CREATE TABLE IF NOT EXISTS country_pictures (
   picture_id SERIAL PRIMARY KEY,
-  location_id INT,
-  guide_id INT,
-  country_id INT,
-  city_id INT,  -- New column for city_id
-  picture_url VARCHAR(255),
+  country_id INT NOT NULL,
+  picture_url VARCHAR(255) NOT NULL,
   alt_text VARCHAR(255),
-  FOREIGN KEY (location_id) REFERENCES locations(location_id)
-    ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (guide_id) REFERENCES tour_guides(guide_id)
-    ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (country_id) REFERENCES countries(country_id)
-    ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (city_id) REFERENCES cities(city_id)  -- Adding foreign key for city_id
     ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS city_pictures (
+  picture_id SERIAL PRIMARY KEY,
+  city_id INT NOT NULL,
+  picture_url VARCHAR(255) NOT NULL,
+  alt_text VARCHAR(255),
+  FOREIGN KEY (city_id) REFERENCES cities(city_id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS location_pictures (
+  picture_id SERIAL PRIMARY KEY,
+  location_id INT NOT NULL,
+  picture_url VARCHAR(255) NOT NULL,
+  alt_text VARCHAR(255),
+  FOREIGN KEY (location_id) REFERENCES locations(location_id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS guide_pictures (
+  picture_id SERIAL PRIMARY KEY,
+  guide_id INT NOT NULL,
+  picture_url VARCHAR(255) NOT NULL,
+  alt_text VARCHAR(255),
+  FOREIGN KEY (guide_id) REFERENCES tour_guides(guide_id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+);
+
