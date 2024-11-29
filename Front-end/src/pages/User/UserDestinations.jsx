@@ -1,27 +1,45 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 function Destinations() {
-  // Dummy data for destinations
-  const destinations = [
-    {
-      id: 1,
-      name: "Indonesia",
-      image: "assets/img/destination-1.jpg",
-      description: "Explore the beautiful beaches and culture of Indonesia."
-    },
-    {
-      id: 2,
-      name: "Thailand",
-      image: "assets/img/destination-2.jpg",
-      description: "Discover the vibrant culture and islands of Thailand."
-    },
-    {
-      id: 3,
-      name: "Malaysia",
-      image: "assets/img/destination-3.jpg",
-      description: "Experience the modern city and tropical wonders of Malaysia."
-    }
-  ];
+  // State to store fetched destinations
+  const [countries, setCountries] = useState([]);
+  const [error, setError] = useState(null); // To store any error that occurs
+
+  // Retrieve the user object from localStorage and extract the token
+  const user = JSON.parse(localStorage.getItem("user"));
+  const bearerToken = user?.token; // Access token from the user object
+
+  // Fetch countries data from API
+  useEffect(() => {
+    const fetchCountries = async () => {
+      if (!bearerToken) {
+        setError("No token found. Please log in.");
+        return; // Exit early if no token is found
+      }
+
+      try {
+        const response = await fetch("api/countries/get-all-countries", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${bearerToken}`, // Send the Bearer token
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch countries");
+        }
+
+        const data = await response.json();
+        setCountries(data); // Set the countries data to state
+      } catch (error) {
+        setError(error.message); // Set the error message if something goes wrong
+        console.error("Error fetching countries:", error);
+      }
+    };
+
+    fetchCountries(); // Call the function to fetch countries
+  }, [bearerToken]); // Dependency array includes bearerToken to re-fetch if token changes
 
   return (
     <div>
@@ -59,22 +77,24 @@ function Destinations() {
             <h1 className="mb-5">The Destinations We Offer:</h1>
           </div>
           <div className="row g-4 justify-content-center">
-            {destinations.map((destination) => (
+            {error && <p className="text-center text-danger">{error}</p>} {/* Display error if any */}
+            {countries.map((country) => (
               <div
-                key={destination.id}
+                key={country.country_id}
                 className="col-lg-4 col-md-6 wow fadeInUp"
                 data-wow-delay="0.1s"
               >
                 <div className="destination-item card" style={{ cursor: "pointer" }}>
                   <div className="overflow-hidden">
+                    {/* Placeholder image, replace it with dynamic images later */}
                     <img
                       className="img-fluid card-img-top"
-                      src={destination.image}
-                      alt={destination.name}
+                      src={`https://via.placeholder.com/600x400?text=${country.country_name}`}
+                      alt={country.country_name}
                     />
                   </div>
                   <div className="text-center p-4">
-                    <h3 className="mb-3">{destination.name}</h3>
+                    <h3 className="mb-3">{country.country_name}</h3>
                     <a
                       href="#"
                       className="btn btn-sm btn-primary"
