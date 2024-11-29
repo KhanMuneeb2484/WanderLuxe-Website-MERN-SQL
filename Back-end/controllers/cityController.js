@@ -118,4 +118,37 @@ const getCityById = async (req, res) => {
   }
 };
 
-export { registerCity, deleteCity, updateCity, getAllCities, getCityById };
+// Get cities by country ID
+const getCitiesByCountryId = async (req, res) => {
+  const { country_id } = req.params;
+
+  try {
+    // Query to get all cities associated with the given country_id
+    const citiesQuery = await pool.query(
+      "SELECT * FROM cities WHERE country_id = $1",
+      [country_id]
+    );
+
+    // Check if any cities are found
+    if (citiesQuery.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No cities found for this country" });
+    }
+
+    // Respond with the list of cities
+    res.status(200).json(citiesQuery.rows);
+  } catch (error) {
+    console.error("Error retrieving cities:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+export {
+  registerCity,
+  deleteCity,
+  updateCity,
+  getAllCities,
+  getCityById,
+  getCitiesByCountryId,
+};

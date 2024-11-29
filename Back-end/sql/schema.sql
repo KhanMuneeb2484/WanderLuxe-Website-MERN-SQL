@@ -119,10 +119,12 @@ CREATE TABLE IF NOT EXISTS package_hotels (
 
 -- Creating Booking table
 CREATE TABLE IF NOT EXISTS bookings (
-  booking_id SERIAL PRIMARY KEY,
-  user_id INT NOT NULL,
-  package_id INT NOT NULL,
-  status VARCHAR(50),
+  booking_id SERIAL PRIMARY KEY,        -- Unique identifier for each booking
+  user_id INT NOT NULL,                 -- Foreign key to the users table
+  package_id INT NOT NULL,              -- Foreign key to the packages table
+  start_date DATE NOT NULL,             -- Start date of the booking
+  end_date DATE NOT NULL,               -- End date of the booking, calculated based on the package's total days
+  status VARCHAR(50) DEFAULT 'pending', -- Status of the booking, defaults to 'pending'
   FOREIGN KEY (user_id) REFERENCES users(user_id)
     ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (package_id) REFERENCES packages(package_id)

@@ -6,6 +6,7 @@ import {
   getCityById,
   deleteCity,
   updateCity,
+  getCitiesByCountryId,
 } from "../controllers/cityController.js";
 
 const router = express.Router();
@@ -44,5 +45,7 @@ router.patch(
   requireRole(["admin"]),
   updateCity
 );
+
+router.get("/get-city-by-countryId/:country_id", getCitiesByCountryId);
 
 export default router;
