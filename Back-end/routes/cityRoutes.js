@@ -46,6 +46,6 @@ router.patch(
   updateCity
 );
 
-router.get("/get-city-by-countryId/:country_id", getCitiesByCountryId);
+router.get("/get-cities-by-countryId/:country_id", getCitiesByCountryId);
 
 export default router;
