@@ -24,6 +24,7 @@ import AdminLocations  from "./pages/Admin/AdminLocations";
 import Users  from "./pages/Admin/Users";
 
 import "bootstrap/dist/css/bootstrap.min.css";
+import HotelPage from "./pages/User/HotelsPage";
 
 
 const App = () => {
@@ -51,6 +52,7 @@ const App = () => {
         <Route path="/Booking" element={<UserBookings />} />
         <Route path="/cities/:countryId" element={<CityPage />} />
         <Route path="/locations/:cityId" element={<LocationPage />} />
+        <Route path="/hotels/:cityId" element={<HotelPage />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       <Footer />
