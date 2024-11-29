@@ -13,9 +13,9 @@ const createBooking = async (req, res) => {
     // Fetch the total days for the package
     const packageQuery = await pool.query(
       `SELECT 
-         SUM(pc.days_stayed) AS total_days 
-       FROM package_cities pc
-       WHERE pc.package_id = $1`,
+           SUM(pc.days_stayed) AS total_days 
+         FROM package_cities pc
+         WHERE pc.package_id = $1`,
       [package_id]
     );
 
@@ -31,16 +31,16 @@ const createBooking = async (req, res) => {
     }
 
     // Calculate the end_date based on start_date and total days
-    const endDateQuery = await pool.query(`SELECT $1::DATE + $2 AS end_date`, [
-      start_date,
-      totalDays,
-    ]);
+    const endDateQuery = await pool.query(
+      `SELECT $1::DATE + ($2::INT) AS end_date`,
+      [start_date, totalDays]
+    );
     const end_date = endDateQuery.rows[0].end_date;
 
     // Insert the booking into the bookings table with status 'pending'
     const bookingQuery = await pool.query(
       `INSERT INTO bookings (user_id, package_id, start_date, end_date, status)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+         VALUES ($1, $2, $3, $4, $5) RETURNING *`,
       [user_id, package_id, start_date, end_date, "pending"]
     );
 
@@ -53,5 +53,31 @@ const createBooking = async (req, res) => {
     res.status(500).json({ message: "Error creating booking", error });
   }
 };
+// Delete booking by ID
+const deleteBooking = async (req, res) => {
+  const { booking_id } = req.params;
 
-export { createBooking };
+  try {
+    // Check if the booking exists
+    const bookingQuery = await pool.query(
+      `SELECT * FROM bookings WHERE booking_id = $1`,
+      [booking_id]
+    );
+
+    if (bookingQuery.rowCount === 0) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    // Delete the booking
+    await pool.query(`DELETE FROM bookings WHERE booking_id = $1`, [
+      booking_id,
+    ]);
+
+    res.status(200).json({ message: "Booking deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting booking:", error);
+    res.status(500).json({ message: "Error deleting booking", error });
+  }
+};
+
+export { createBooking, deleteBooking };
