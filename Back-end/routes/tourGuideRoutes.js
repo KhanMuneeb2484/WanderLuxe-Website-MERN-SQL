@@ -5,6 +5,7 @@ import {
   deleteTourGuide,
   getAllTourGuides,
   getTourGuideById,
+  getTourGuidesByCountryId,
 } from "../controllers/tourGuideController.js";
 import { authenticateJWT, requireRole } from "../middleware/authMiddleware.js";
 
@@ -36,11 +37,8 @@ router.delete(
 // Delete a tour guide
 router.get("/get-all-guides", getAllTourGuides); // Get all tour guides
 
-router.get(
-  "/get-guide-by-id/:guide_id",
-  authenticateJWT,
-  requireRole(["admin"]),
-  getTourGuideById
-); // Get a tour guide by ID
+router.get("/get-guide-by-id/:guide_id", getTourGuideById); // Get a tour guide by ID
+
+router.get("/get-guides-by-countryId/:country_id", getTourGuidesByCountryId); // Get a tour guide by ID
 
 export default router;

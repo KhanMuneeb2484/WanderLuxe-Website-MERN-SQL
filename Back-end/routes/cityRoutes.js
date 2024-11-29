@@ -22,11 +22,11 @@ router.post(
 
 // Get all cities
 
-router.get("/get-all-cities", authenticateJWT, getAllCities);
+router.get("/get-all-cities", getAllCities);
 
 // Get city by ID
 
-router.get("/get-city-by-id/:city_id", authenticateJWT, getCityById);
+router.get("/get-city-by-id/:city_id", getCityById);
 
 // Delete city by ID
 

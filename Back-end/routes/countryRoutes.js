@@ -19,10 +19,10 @@ router.post(
 );
 
 // Get all countries
-router.get("/get-all-countries", authenticateJWT, getAllCountries);
+router.get("/get-all-countries", getAllCountries);
 
 // Get country by ID
-router.get("/get-country-by-id/:country_id", authenticateJWT, getCountryById);
+router.get("/get-country-by-id/:country_id", getCountryById);
 
 //Delete country by ID
 router.delete(
