@@ -28,6 +28,9 @@ const createPackage = async (req, res) => {
     let totalPrice = 0;
     console.log("Starting total price:", totalPrice);
 
+    // Calculate total days stayed
+    let totalDaysStayed = 0; // Initialize the totalDaysStayed
+
     // Iterate over cities to calculate city cost and add to total price
     for (const city of cities) {
       const { city_id, days_stayed, locations, hotels } = city;
@@ -36,6 +39,9 @@ const createPackage = async (req, res) => {
       if (!city_id || !days_stayed) {
         return res.status(400).json({ message: "Missing city details" });
       }
+
+      // Add the days_stayed for the current city to totalDaysStayed
+      totalDaysStayed += days_stayed;
 
       // Insert city into package_cities with initial city_cost of 0
       const cityResult = await pool.query(
@@ -135,9 +141,7 @@ const createPackage = async (req, res) => {
       }
 
       // Calculate guide cost: per day charge * total days across cities
-      guideCost =
-        guideData.rows[0].per_day_charge *
-        cities.reduce((sum, city) => sum + city.days_stayed, 0);
+      guideCost = guideData.rows[0].per_day_charge * totalDaysStayed;
 
       console.log("Guide cost:", guideCost);
       totalPrice += guideCost;
@@ -145,13 +149,13 @@ const createPackage = async (req, res) => {
 
     console.log("Final total price (including guide):", totalPrice);
 
-    // Update the package with the final total price and guide cost
+    // Update the package with the final total price, guide cost, and total days stayed
     const updatePackage = await pool.query(
       `UPDATE packages SET total_price = $1, guide_cost = $2, total_days_stayed = $3 WHERE package_id = $4 RETURNING *`,
       [
         totalPrice,
         guideCost,
-        cities.reduce((sum, city) => sum + city.days_stayed, 0),
+        totalDaysStayed, // Use the computed totalDaysStayed here
         package_id,
       ]
     );
