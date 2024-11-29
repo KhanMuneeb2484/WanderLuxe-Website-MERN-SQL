@@ -9,6 +9,7 @@ const AdminCities = () => {
   const [modalData, setModalData] = useState({ name: "", id: null });
   const { user, logout } = useContext(AuthContext);
 
+  // Fetch cities on component mount
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -17,9 +18,10 @@ const AdminCities = () => {
     fetchCities(token);
   }, []);
 
+  // Fetch all cities from the server
   const fetchCities = async (token) => {
     try {
-      const response = await fetch("http://localhost:3000/api/cities", {
+      const response = await fetch("http://localhost:3000/api/cities/get-all-cities", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -28,7 +30,8 @@ const AdminCities = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        setCities(data.cities || []);
+        setCities(data || []);
+        console.log(data);
       } else {
         const errorText = await response.text();
         setErrorMessage(errorText || "Failed to fetch cities.");
@@ -39,6 +42,7 @@ const AdminCities = () => {
     }
   };
 
+  // Handle delete city action
   const handleDelete = async (cityId) => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -56,7 +60,7 @@ const AdminCities = () => {
         }
       );
       if (response.ok) {
-        setCities(cities.filter((city) => city.id !== cityId));
+        setCities(cities.filter((city) => city.city_id !== cityId)); // fixed key to city_id
       } else {
         const errorText = await response.text();
         setErrorMessage(errorText || "Failed to delete city.");
@@ -67,16 +71,19 @@ const AdminCities = () => {
     }
   };
 
+  // Show modal for adding or editing city
   const handleShowModal = (city = { name: "", id: null }) => {
-    setModalData(city);
+    setModalData({ name: city.city_name || "", id: city.city_id || null }); // handle city_name and city_id
     setShowModal(true);
   };
 
+  // Close modal
   const handleCloseModal = () => {
     setShowModal(false);
     setModalData({ name: "", id: null });
   };
 
+  // Save new or updated city
   const handleSaveCity = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -101,7 +108,7 @@ const AdminCities = () => {
         if (modalData.id) {
           setCities(
             cities.map((city) =>
-              city.id === modalData.id ? { ...city, name: modalData.name } : city
+              city.city_id === modalData.id ? { ...city, city_name: modalData.name } : city
             )
           );
         } else {
@@ -140,9 +147,9 @@ const AdminCities = () => {
         <tbody>
           {cities && cities.length > 0 ? (
             cities.map((city) => (
-              <tr key={city.id}>
-                <td>{city.id}</td>
-                <td>{city.name}</td>
+              <tr key={city.city_id}>
+                <td>{city.city_id}</td>
+                <td>{city.city_name}</td>
                 <td>
                   <Button
                     variant="warning"
@@ -153,7 +160,7 @@ const AdminCities = () => {
                   </Button>
                   <Button
                     variant="danger"
-                    onClick={() => handleDelete(city.id)}
+                    onClick={() => handleDelete(city.city_id)} // fixed city_id
                   >
                     Delete
                   </Button>
