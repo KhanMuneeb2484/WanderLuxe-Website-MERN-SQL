@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate from react-router-dom
 
 function Destinations() {
   // State to store fetched destinations
   const [countries, setCountries] = useState([]);
   const [error, setError] = useState(null); // To store any error that occurs
 
-  // Retrieve the user object from localStorage and extract the token
+  // Retrieve the token from localStorage
   const bearerToken = localStorage.getItem("token");
+
+  // Use navigate for programmatic navigation
+  const navigate = useNavigate();
+
   // Fetch countries data from API
   useEffect(() => {
     const fetchCountries = async () => {
@@ -14,9 +19,6 @@ function Destinations() {
         setError("No token found. Please log in.");
         return; // Exit early if no token is found
       }
-
-      console.log(bearerToken);
-
 
       try {
         const response = await fetch("http://localhost:3000/api/countries/get-all-countries", {
@@ -41,6 +43,12 @@ function Destinations() {
 
     fetchCountries(); // Call the function to fetch countries
   }, [bearerToken]); // Dependency array includes bearerToken to re-fetch if token changes
+
+  // Handle click on the country card
+  const handleCountryClick = (countryId) => {
+    // Navigate to the cities page with the corresponding country id
+    navigate(`/cities/${countryId}`);
+  };
 
   return (
     <div>
@@ -84,13 +92,14 @@ function Destinations() {
                 key={country.country_id}
                 className="col-lg-4 col-md-6 wow fadeInUp"
                 data-wow-delay="0.1s"
+                onClick={() => handleCountryClick(country.country_id)} // Handle the card click
               >
                 <div className="destination-item card" style={{ cursor: "pointer" }}>
                   <div className="overflow-hidden">
                     {/* Placeholder image, replace it with dynamic images later */}
                     <img
                       className="img-fluid card-img-top"
-                      src='placeholder.jpeg'
+                      src="placeholder.jpeg"
                       alt={country.country_name}
                     />
                   </div>

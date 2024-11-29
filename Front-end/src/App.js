@@ -16,6 +16,7 @@ import Dashboard from "./pages/User/UserDashboard";
 import Cities from "./pages/User/UserCities";
 import Countries from "./pages/User/UserCountries";
 import UserBookings from "./pages/User/UserBookings";
+import CityPage from "./pages/User/CityPage";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -38,6 +39,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/Booking" element={<UserBookings />} />
+        <Route path="/cities/:countryId" element={<CityPage />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       <Footer />
