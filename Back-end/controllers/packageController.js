@@ -1,13 +1,14 @@
 import pool from "../config/db.js";
 
-// Create a new tour package
 const createPackage = async (req, res) => {
   const { user_id } = req.user; // Assuming JWT middleware populates req.user
-  const { country_id, guide_id, cities } = req.body;
+  const { country_id, guide_id, cities, num_people } = req.body; // Added num_people
 
-  // Ensure that user_id is present
-  if (!user_id) {
-    return res.status(400).json({ message: "User ID is required" });
+  // Ensure that user_id and num_people are present
+  if (!user_id || !num_people) {
+    return res
+      .status(400)
+      .json({ message: "User ID and number of people are required" });
   }
 
   try {
@@ -16,11 +17,11 @@ const createPackage = async (req, res) => {
       return res.status(400).json({ message: "Cities data is required" });
     }
 
-    // Insert into packages table with initial total_price of 0
+    // Insert into packages table with initial total_price of 0 and num_people
     const newPackageQuery = await pool.query(
-      `INSERT INTO packages (user_id, country_id, guide_id, total_price)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [user_id, country_id, guide_id || null, 0] // Start with a price of 0
+      `INSERT INTO packages (user_id, country_id, guide_id, total_price, num_people)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [user_id, country_id, guide_id || null, 0, num_people] // Start with a price of 0 and include num_people
     );
     const package_id = newPackageQuery.rows[0].package_id;
 
@@ -49,9 +50,9 @@ const createPackage = async (req, res) => {
       // Process locations for the city and calculate cost
       if (Array.isArray(locations) && locations.length > 0) {
         for (const location of locations) {
-          const { location_id, num_people } = location;
+          const { location_id } = location;
 
-          if (!location_id || !num_people) {
+          if (!location_id) {
             return res
               .status(400)
               .json({ message: "Invalid location details" });
@@ -65,6 +66,7 @@ const createPackage = async (req, res) => {
             throw new Error(`Location with ID ${location_id} not found.`);
           }
 
+          // Calculate location price based on num_people
           const locationPrice =
             locationData.rows[0].price_per_person * num_people;
           console.log(`Location price for city ${city_id}:`, locationPrice);
@@ -96,6 +98,7 @@ const createPackage = async (req, res) => {
             throw new Error(`Hotel with ID ${hotel_id} not found.`);
           }
 
+          // Calculate hotel price based on num_rooms, num_people, and days_stayed
           const hotelPrice = hotelData.rows[0].price * num_rooms * days_stayed;
           console.log(`Hotel price for city ${city_id}:`, hotelPrice);
           cityCost += hotelPrice;
@@ -142,10 +145,15 @@ const createPackage = async (req, res) => {
 
     console.log("Final total price (including guide):", totalPrice);
 
-    // Ensure totalPrice is being updated in the database
+    // Update the package with the final total price and guide cost
     const updatePackage = await pool.query(
-      `UPDATE packages SET total_price = $1, guide_cost = $2 WHERE package_id = $3 RETURNING *`,
-      [totalPrice, guideCost, package_id]
+      `UPDATE packages SET total_price = $1, guide_cost = $2, total_days_stayed = $3 WHERE package_id = $4 RETURNING *`,
+      [
+        totalPrice,
+        guideCost,
+        cities.reduce((sum, city) => sum + city.days_stayed, 0),
+        package_id,
+      ]
     );
 
     console.log("Package after update:", updatePackage.rows[0]);
