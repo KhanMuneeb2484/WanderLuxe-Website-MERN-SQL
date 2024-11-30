@@ -11,6 +11,10 @@ const Adminheader = () => {
   const [navbarClass, setNavbarClass] = useState("navbar-darkgrey-translucent");
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const handleLogout = () => {
+    logout();  // This will clear user data
+    navigate('/');  // This will redirect to the homepage
+  };
 
   console.log("Logged in user's role:", user?.role); 
 
@@ -84,7 +88,7 @@ const Adminheader = () => {
                     <Dropdown.Item onClick={() => navigate("/dashboard")}>
                       View Profile
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={logout}>Logout</Dropdown.Item>
+                    <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
