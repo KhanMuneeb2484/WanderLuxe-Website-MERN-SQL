@@ -332,102 +332,79 @@ const deletePackageById = async (req, res) => {
 // Get all tour packages
 const getAllPackages = async (req, res) => {
   try {
-    // Fetch all packages with their basic details, including total price and guide info
-    const packageQuery = await pool.query(`
+    // Execute the SQL query to fetch all packages with aggregated details
+    const packagesQuery = await pool.query(`
       SELECT 
         p.package_id,
         p.user_id,
+        u.username AS user_name, -- Assuming 'users' table has a 'username' column
         p.country_id,
-        p.guide_id,
-        p.total_price,
-        p.num_people,               -- Include number of people
-        p.total_days_stayed,        -- Include total days stayed
         c.country_name,
+        p.total_price,
+        p.num_people,
+        p.total_days_stayed,
+        p.guide_id,
         g.guide_name,
-        g.per_day_charge
+        p.guide_cost,
+        p.created_at,
+        -- Associated Cities Data
+        json_agg(
+          DISTINCT jsonb_build_object(
+            'package_city_id', pc.package_city_id,
+            'city_id', pc.city_id,
+            'city_name', ci.city_name,
+            'days_stayed', pc.days_stayed,
+            'city_cost', pc.city_cost,
+            'hotels', (
+              SELECT json_agg(
+                jsonb_build_object(
+                  'hotel_id', ph.hotel_id,
+                  'hotel_name', h.hotel_name,
+                  'num_rooms', ph.num_rooms,
+                  'hotel_cost', ph.hotel_cost,
+                  'days_stayed', ph.days_stayed
+                )
+              )
+              FROM package_hotels ph
+              JOIN hotels h ON ph.hotel_id = h.hotel_id
+              WHERE ph.package_city_id = pc.package_city_id
+            ),
+            'locations', (
+              SELECT json_agg(
+                jsonb_build_object(
+                  'location_id', pl.location_id,
+                  'location_name', l.location_name,
+                  'total_price', pl.total_price
+                )
+              )
+              FROM package_locations pl
+              JOIN locations l ON pl.location_id = l.location_id
+              WHERE pl.package_city_id = pc.package_city_id
+            )
+          )
+        ) AS cities
       FROM packages p
+      LEFT JOIN users u ON p.user_id = u.user_id
       LEFT JOIN countries c ON p.country_id = c.country_id
       LEFT JOIN tour_guides g ON p.guide_id = g.guide_id
+      LEFT JOIN package_cities pc ON p.package_id = pc.package_id
+      LEFT JOIN cities ci ON pc.city_id = ci.city_id
+      GROUP BY p.package_id, p.user_id, u.username, p.country_id, c.country_name, p.guide_id, g.guide_name
+      ORDER BY p.created_at DESC;
     `);
 
-    const packages = packageQuery.rows;
-
-    // If no packages are found, return an empty response
-    if (packages.length === 0) {
+    // Check if any packages were found
+    if (packagesQuery.rowCount === 0) {
       return res
         .status(200)
         .json({ message: "No packages found", packages: [] });
     }
 
-    // For each package, fetch its associated cities, locations, and hotels
-    for (const pkg of packages) {
-      const { package_id } = pkg;
-
-      // Fetch cities associated with the package
-      const citiesQuery = await pool.query(
-        `
-        SELECT 
-          pc.package_city_id,
-          pc.city_id,
-          pc.days_stayed,
-          pc.city_cost,
-          ci.city_name
-        FROM package_cities pc
-        LEFT JOIN cities ci ON pc.city_id = ci.city_id
-        WHERE pc.package_id = $1
-      `,
-        [package_id]
-      );
-
-      const cities = citiesQuery.rows;
-
-      // Fetch locations and hotels for each city
-      for (const city of cities) {
-        const { package_city_id } = city;
-
-        // Fetch locations for the city
-        const locationsQuery = await pool.query(
-          `
-          SELECT 
-            pl.location_id,
-            l.location_name,
-            pl.total_price AS location_price
-          FROM package_locations pl
-          LEFT JOIN locations l ON pl.location_id = l.location_id
-          WHERE pl.package_city_id = $1
-        `,
-          [package_city_id]
-        );
-
-        city.locations = locationsQuery.rows;
-
-        // Fetch hotels for the city
-        const hotelsQuery = await pool.query(
-          `
-          SELECT 
-            ph.hotel_id,
-            h.hotel_name,
-            ph.num_rooms,
-            ph.hotel_cost,
-            ph.days_stayed
-          FROM package_hotels ph
-          LEFT JOIN hotels h ON ph.hotel_id = h.hotel_id
-          WHERE ph.package_city_id = $1
-        `,
-          [package_city_id]
-        );
-
-        city.hotels = hotelsQuery.rows;
-      }
-
-      // Attach cities to the package
-      pkg.cities = cities;
-    }
-
-    // Return all packages with details
-    res
-      .status(200)
-      .json({ message: "Packages retrieved successfully", packages });
+    // Return the packages
+    res.status(200).json({
+      message: "Packages retrieved successfully",
+      packages: packagesQuery.rows,
+    });
   } catch (error) {
     console.error("Error fetching packages:", error);
     res.status(500).json({ message: "Error fetching packages", error });
