@@ -63,6 +63,9 @@ const Adminheader = () => {
               <Link to="/Users" className="nav-item nav-link text-white">
                 Users
               </Link>
+              <Link to="/AdminGuides" className="nav-item nav-link text-white">
+                Guides
+              </Link>
               <Link to="/AdminCountries" className="nav-item nav-link text-white">
                 Countries
               </Link>
@@ -71,6 +74,9 @@ const Adminheader = () => {
               </Link>
               <Link to="/AdminLocations" className="nav-item nav-link text-white">
                 Location
+              </Link>
+              <Link to="/AdminHotels" className="nav-item nav-link text-white">
+                Hotels
               </Link>
             </div>
             {user ? (

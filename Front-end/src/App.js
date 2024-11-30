@@ -27,6 +27,8 @@ import Users  from "./pages/Admin/Users";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import HotelPage from "./pages/User/HotelsPage";
+import AdminHotels from "./pages/Admin/AdminHotels";
+import AdminGuides from "./pages/Admin/AdminGuides";
 
 
 const App = () => {
@@ -51,6 +53,8 @@ const App = () => {
         <Route path="/AdminCountries" element={<AdminCountries />} />
         <Route path="/AdminCities" element={<AdminCities />} />
         <Route path="/AdminLocations" element={<AdminLocations />} />
+        <Route path="/AdminGuides" element={<AdminGuides />} />
+        <Route path="/AdminHotels" element={<AdminHotels />} />
         <Route path="/Users" element={<Users />} />
         <Route path="/Booking" element={<UserBookings />} />
         <Route path="/cities/:countryId" element={<CityPage />} />

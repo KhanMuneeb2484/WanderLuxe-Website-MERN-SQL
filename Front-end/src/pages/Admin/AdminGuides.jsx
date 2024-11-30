@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 
-const AdminHotels = () => {
-  const [hotels, setHotels] = useState([]); // List of hotels
-  const [newHotel, setNewHotel] = useState({ name: "", countryId: "", pricePerNight: 0 }); // New hotel details
-  const [editingHotel, setEditingHotel] = useState(null); // Hotel being edited
+const AdminGuides = () => {
+  const [guides, setGuides] = useState([]); // List of guides
+  const [newGuide, setNewGuide] = useState({ name: "", countryId: "", charge: 0 }); // New guide details
+  const [editingGuide, setEditingGuide] = useState(null); // Guide being edited
   const [countries, setCountries] = useState([]); // List of countries
   const token = localStorage.getItem("token");
 
-  // Fetch all hotels
-  const fetchHotels = async () => {
+  // Fetch all guides
+  const fetchGuides = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/hotels/get-all-hotels", {
+      const response = await fetch("http://localhost:3000/api/guides/get-all-guides", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -18,12 +18,12 @@ const AdminHotels = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        setHotels(data);
+        setGuides(data);
       } else {
-        console.error("Failed to fetch hotels");
+        console.error("Failed to fetch guides");
       }
     } catch (error) {
-      console.error("Error fetching hotels:", error);
+      console.error("Error fetching guides:", error);
     }
   };
 
@@ -47,56 +47,56 @@ const AdminHotels = () => {
     }
   };
 
-  // Add a new hotel
-  const addHotel = async () => {
+  // Add a new guide
+  const addGuide = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/hotels/create-hotel", {
+      const response = await fetch("http://localhost:3000/api/guides/create-guide", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(newHotel),
+        body: JSON.stringify(newGuide),
       });
       if (response.ok) {
-        alert("Hotel added successfully!");
-        setNewHotel({ name: "", countryId: "", pricePerNight: 0 });
-        fetchHotels();
+        alert("Guide added successfully!");
+        setNewGuide({ name: "", countryId: "", charge: 0 });
+        fetchGuides();
       } else {
-        console.error("Failed to add hotel");
+        console.error("Failed to add guide");
       }
     } catch (error) {
-      console.error("Error adding hotel:", error);
+      console.error("Error adding guide:", error);
     }
   };
 
-  // Update an existing hotel
-  const updateHotel = async (hotelId) => {
+  // Update an existing guide
+  const updateGuide = async (guideId) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/hotels/update-hotel/${hotelId}`, {
+      const response = await fetch(`http://localhost:3000/api/guides/update-guide/${guideId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(editingHotel),
+        body: JSON.stringify(editingGuide),
       });
       if (response.ok) {
-        alert("Hotel updated successfully!");
-        setEditingHotel(null);
-        fetchHotels();
+        alert("Guide updated successfully!");
+        setEditingGuide(null);
+        fetchGuides();
       } else {
-        console.error("Failed to update hotel");
+        console.error("Failed to update guide");
       }
     } catch (error) {
-      console.error("Error updating hotel:", error);
+      console.error("Error updating guide:", error);
     }
   };
 
-  // Delete a hotel
-  const deleteHotel = async (hotelId) => {
+  // Delete a guide
+  const deleteGuide = async (guideId) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/hotels/delete-hotel/${hotelId}`, {
+      const response = await fetch(`http://localhost:3000/api/guides/delete-guide/${guideId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -104,45 +104,45 @@ const AdminHotels = () => {
         },
       });
       if (response.ok) {
-        alert("Hotel deleted successfully!");
-        fetchHotels();
+        alert("Guide deleted successfully!");
+        fetchGuides();
       } else {
-        console.error("Failed to delete hotel");
+        console.error("Failed to delete guide");
       }
     } catch (error) {
-      console.error("Error deleting hotel:", error);
+      console.error("Error deleting guide:", error);
     }
   };
 
   // Fetch data on component mount
   useEffect(() => {
-    fetchHotels();
+    fetchGuides();
     fetchCountries();
   }, []);
 
   return (
     <div className="container mt-4">
-      <h2>Admin: Manage Hotels</h2>
+      <h2>Admin: Manage Guides</h2>
 
-      {/* Add Hotel Form */}
+      {/* Add Guide Form */}
       <div className="card mb-4">
         <div className="card-body">
-          <h5>Add New Hotel</h5>
+          <h5>Add New Guide</h5>
           <div className="mb-3">
-            <label>Hotel Name:</label>
+            <label>Guide Name:</label>
             <input
               type="text"
               className="form-control"
-              value={newHotel.name}
-              onChange={(e) => setNewHotel({ ...newHotel, name: e.target.value })}
+              value={newGuide.name}
+              onChange={(e) => setNewGuide({ ...newGuide, name: e.target.value })}
             />
           </div>
           <div className="mb-3">
             <label>Country:</label>
             <select
               className="form-select"
-              value={newHotel.countryId}
-              onChange={(e) => setNewHotel({ ...newHotel, countryId: e.target.value })}
+              value={newGuide.countryId}
+              onChange={(e) => setNewGuide({ ...newGuide, countryId: e.target.value })}
             >
               <option value="">Select Country</option>
               {countries.map((country) => (
@@ -153,51 +153,51 @@ const AdminHotels = () => {
             </select>
           </div>
           <div className="mb-3">
-            <label>Price Per Night ($):</label>
+            <label>Per Day Charge ($):</label>
             <input
               type="number"
               min="0"
               className="form-control"
-              value={newHotel.pricePerNight}
-              onChange={(e) => setNewHotel({ ...newHotel, pricePerNight: e.target.valueAsNumber })}
+              value={newGuide.charge}
+              onChange={(e) => setNewGuide({ ...newGuide, charge: e.target.valueAsNumber })}
             />
           </div>
-          <button className="btn btn-primary" onClick={addHotel}>
-            Add Hotel
+          <button className="btn btn-primary" onClick={addGuide}>
+            Add Guide
           </button>
         </div>
       </div>
 
-      {/* Hotels List */}
-      <h4>Existing Hotels</h4>
+      {/* Guides List */}
+      <h4>Existing Guides</h4>
       <table className="table">
         <thead>
           <tr>
             <th>Name</th>
             <th>Country</th>
-            <th>Price Per Night</th>
+            <th>Charge</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {hotels.map((hotel) => (
-            <tr key={hotel.hotel_id}>
+          {guides.map((guide) => (
+            <tr key={guide.guide_id}>
               <td>
-                {editingHotel && editingHotel.hotel_id === hotel.hotel_id ? (
+                {editingGuide && editingGuide.guide_id === guide.guide_id ? (
                   <input
                     type="text"
-                    value={editingHotel.name}
-                    onChange={(e) => setEditingHotel({ ...editingHotel, name: e.target.value })}
+                    value={editingGuide.name}
+                    onChange={(e) => setEditingGuide({ ...editingGuide, name: e.target.value })}
                   />
                 ) : (
-                  hotel.hotel_name
+                  guide.guide_name
                 )}
               </td>
               <td>
-                {editingHotel && editingHotel.hotel_id === hotel.hotel_id ? (
+                {editingGuide && editingGuide.guide_id === guide.guide_id ? (
                   <select
-                    value={editingHotel.countryId}
-                    onChange={(e) => setEditingHotel({ ...editingHotel, countryId: e.target.value })}
+                    value={editingGuide.countryId}
+                    onChange={(e) => setEditingGuide({ ...editingGuide, countryId: e.target.value })}
                   >
                     <option value="">Select Country</option>
                     {countries.map((country) => (
@@ -207,30 +207,28 @@ const AdminHotels = () => {
                     ))}
                   </select>
                 ) : (
-                  countries.find((c) => c.country_id === hotel.country_id)?.country_name
+                  countries.find((c) => c.country_id === guide.country_id)?.country_name
                 )}
               </td>
               <td>
-                {editingHotel && editingHotel.hotel_id === hotel.hotel_id ? (
+                {editingGuide && editingGuide.guide_id === guide.guide_id ? (
                   <input
                     type="number"
                     min="0"
-                    value={editingHotel.pricePerNight}
-                    onChange={(e) =>
-                      setEditingHotel({ ...editingHotel, pricePerNight: e.target.valueAsNumber })
-                    }
+                    value={editingGuide.charge}
+                    onChange={(e) => setEditingGuide({ ...editingGuide, charge: e.target.valueAsNumber })}
                   />
                 ) : (
-                  `$${hotel.price_per_night}`
+                  `$${guide.per_day_charge}`
                 )}
               </td>
               <td>
-                {editingHotel && editingHotel.hotel_id === hotel.hotel_id ? (
+                {editingGuide && editingGuide.guide_id === guide.guide_id ? (
                   <>
-                    <button className="btn btn-success me-2" onClick={() => updateHotel(hotel.hotel_id)}>
+                    <button className="btn btn-success me-2" onClick={() => updateGuide(guide.guide_id)}>
                       Save
                     </button>
-                    <button className="btn btn-secondary" onClick={() => setEditingHotel(null)}>
+                    <button className="btn btn-secondary" onClick={() => setEditingGuide(null)}>
                       Cancel
                     </button>
                   </>
@@ -238,11 +236,11 @@ const AdminHotels = () => {
                   <>
                     <button
                       className="btn btn-warning me-2"
-                      onClick={() => setEditingHotel({ ...hotel, countryId: hotel.country_id })}
+                      onClick={() => setEditingGuide({ ...guide, countryId: guide.country_id })}
                     >
                       Edit
                     </button>
-                    <button className="btn btn-danger" onClick={() => deleteHotel(hotel.hotel_id)}>
+                    <button className="btn btn-danger" onClick={() => deleteGuide(guide.guide_id)}>
                       Delete
                     </button>
                   </>
@@ -256,4 +254,4 @@ const AdminHotels = () => {
   );
 };
 
-export default AdminHotels;
+export default AdminGuides;
