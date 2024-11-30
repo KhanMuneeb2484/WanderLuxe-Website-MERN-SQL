@@ -12,12 +12,7 @@ const router = express.Router();
 // Route to create a package
 router.post("/create-package", authenticateJWT, createPackage);
 
-router.get(
-  "/get-package-by-id/:package_id",
-  authenticateJWT,
-  requireRole(["admin"]),
-  getPackageById
-);
+router.get("/get-package-by-id/:package_id", getPackageById);
 
 router.delete(
   "/delete-package/:package_id",
