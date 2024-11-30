@@ -176,6 +176,11 @@ const createPackage = async (req, res) => {
 const getPackageById = async (req, res) => {
   const { package_id } = req.params;
 
+  // Validate if the package_id is a valid number
+  if (isNaN(package_id)) {
+    return res.status(400).json({ message: "Invalid package ID" });
+  }
+
   try {
     // Fetch package details by package_id
     const packageQuery = await pool.query(

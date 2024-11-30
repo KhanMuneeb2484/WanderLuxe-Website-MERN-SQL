@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import { Link } from "react-router-dom";
 
 const Packages = () => {
     const [countries, setCountries] = useState([]); // State for countries
@@ -366,9 +367,11 @@ const Packages = () => {
                                     </ul>
 
                                     {/* "View More" Button */}
-                                    <button className="btn btn-info mt-2">
-                                        View More
-                                    </button>
+                                    <Link to={`/packages/${packageData.package_id}`}>
+                                        <button className="btn btn-info mt-2">
+                                            View More
+                                        </button>
+                                    </Link>
 
                                     {/* "Book Now" Button */}
                                     <button className="btn btn-primary mt-2 ms-2">
