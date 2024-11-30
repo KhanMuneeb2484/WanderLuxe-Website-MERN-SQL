@@ -45,10 +45,22 @@ const deleteCountry = async (req, res) => {
   }
 };
 
-// Get all countries
+// Get all countries with pictures
 const getAllCountries = async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM countries");
+    // Query to get all countries along with their pictures
+    const result = await pool.query(`
+      SELECT c.*, cp.picture_url, cp.alt_text
+      FROM countries c
+      LEFT JOIN country_pictures cp ON c.country_id = cp.country_id
+    `);
+
+    if (result.rowCount === 0) {
+      return res
+        .status(200)
+        .json({ message: "No countries found", countries: [] });
+    }
+
     res.status(200).json(result.rows);
   } catch (error) {
     console.error("Error fetching countries:", error);
@@ -56,13 +68,19 @@ const getAllCountries = async (req, res) => {
   }
 };
 
-// Get country by ID
+// Get country by ID with pictures
 const getCountryById = async (req, res) => {
   const { country_id } = req.params;
 
   try {
+    // Query to get country by ID along with its picture
     const result = await pool.query(
-      "SELECT * FROM countries WHERE country_id = $1",
+      `
+      SELECT c.*, cp.picture_url, cp.alt_text
+      FROM countries c
+      LEFT JOIN country_pictures cp ON c.country_id = cp.country_id
+      WHERE c.country_id = $1
+    `,
       [country_id]
     );
 
