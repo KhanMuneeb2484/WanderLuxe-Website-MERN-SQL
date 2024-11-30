@@ -101,9 +101,9 @@ function Destinations() {
                                 key={country.country_id}
                                 className="col-lg-4 col-md-6 wow fadeInUp"
                                 data-wow-delay="0.1s"
-                                onClick={() =>
-                                    handleCountryClick(country.country_id)
-                                } // Handle the card click
+                                // onClick={() =>
+                                //     handleCountryClick(country.country_id)
+                                // } // Handle the card click
                             >
                                 <div
                                     className="destination-item card"
