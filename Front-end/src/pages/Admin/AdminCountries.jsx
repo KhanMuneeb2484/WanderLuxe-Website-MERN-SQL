@@ -175,18 +175,26 @@ const AdminCountries = () => {
   return (
     <Container className="mt-5">
       <h2 className="text-center mb-4">Country Management</h2>
+  
+      {/* Error Message */}
       {errorMessage && (
-        <Alert variant="danger" className="text-center">
+        <Alert variant="danger" className="text-center mb-3">
           {errorMessage}
         </Alert>
       )}
-      <Button
-        className="mb-3"
-        onClick={() => handleShowModal({ name: "", continent: "", id: null })}
-      >
-        Add Country
-      </Button>
-      <Table striped bordered hover>
+  
+      {/* Add Country Button */}
+      <div className="d-flex justify-content-between mb-3">
+        <Button
+          onClick={() => handleShowModal({ name: "", continent: "", id: null })}
+          variant="primary"
+        >
+          Add Country
+        </Button>
+      </div>
+  
+      {/* Country Table */}
+      <Table striped bordered hover responsive>
         <thead>
           <tr>
             <th>ID</th>
@@ -203,7 +211,8 @@ const AdminCountries = () => {
                 <td>{country.country_name}</td>
                 <td>{country.country_continent}</td>
                 <td>
-                  <div className="d-flex justify-content-between w-50">
+                  <div className="d-flex justify-content-between align-items-center w-100">
+                    {/* Edit Button */}
                     <Button
                       variant="warning"
                       className="me-3"
@@ -217,6 +226,8 @@ const AdminCountries = () => {
                     >
                       Edit
                     </Button>
+  
+                    {/* Delete Button */}
                     <Button
                       variant="danger"
                       onClick={() => {
@@ -226,16 +237,29 @@ const AdminCountries = () => {
                     >
                       Delete
                     </Button>
+  
                     {/* Upload Image Button */}
                     <Button
-                      variant="info"
-                      className="ms-3"
-                      onClick={() => setSelectedCountryId(country.country_id)} // Set the selected country ID for image upload
-                    >
-                      Upload Image
-                    </Button>
+  variant={country.picture_url ? "warning" : "success"}  // Change color based on image availability
+  className="ms-3"
+  onClick={() => setSelectedCountryId(country.country_id)} // Set the selected country ID for image upload
+>
+  {country.picture_url ? "Update Image" : "Upload Image"}
+</Button>
+{country.picture_url && (
+  <Button
+    variant="info"  // Light blue for 'View Image' button
+    className="ms-3"
+    onClick={() => window.open(country.picture_url, "_blank")} // Opens the image in a new tab
+  >
+    View Image
+  </Button>
+)}
+
                   </div>
-                  {selectedCountryId === country.country_id && (
+  
+                  {/* Image Upload Section */}
+                  {selectedCountryId === country.country_id && !country.picture_url && (
                     <div className="mt-2">
                       <Form.Control
                         type="file"
@@ -260,8 +284,8 @@ const AdminCountries = () => {
           )}
         </tbody>
       </Table>
-
-      {/* Modal for Add/Edit */}
+  
+      {/* Add/Edit Country Modal */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>{modalData.id ? "Edit Country" : "Add Country"}</Modal.Title>
@@ -279,7 +303,7 @@ const AdminCountries = () => {
                 }
               />
             </Form.Group>
-
+  
             <Form.Group controlId="formContinent">
               <Form.Label>Continent</Form.Label>
               <Form.Control
@@ -302,7 +326,7 @@ const AdminCountries = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
+  
       {/* Confirm Delete Modal */}
       <Modal
         show={showConfirmDeleteModal}
@@ -328,6 +352,7 @@ const AdminCountries = () => {
       </Modal>
     </Container>
   );
+  
 };
 
 export default AdminCountries;
