@@ -16,6 +16,7 @@ const Packages = () => {
     const [daysPerCity, setDaysPerCity] = useState({}); // State for number of days per city
     const { user, logout } = useContext(AuthContext); // Auth context for user data
     const [errorMessage, setErrorMessage] = useState(""); // State for error message
+    const [packages, setPackages] = useState([]);
     const token = localStorage.getItem("token"); // Token from local storage
 
     // Fetch countries
@@ -140,6 +141,26 @@ const Packages = () => {
         }
     };
 
+    const fetchPackages = async () => {
+      try {
+          const response = await fetch("http://localhost:3000/api/packages/get-all-packages", {
+              method: "GET",
+              headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+              },
+          });
+          if (response.ok) {
+              const data = await response.json();
+              setPackages(data.packages); // Store packages data
+          } else {
+              console.error("Failed to fetch packages");
+          }
+      } catch (error) {
+          console.error("Error fetching packages:", error);
+      }
+  };
+
     // Update data when country is selected
     useEffect(() => {
         if (selectedCountry) {
@@ -150,8 +171,9 @@ const Packages = () => {
 
     // Fetch countries on component load
     useEffect(() => {
-        fetchCountries();
-    }, []);
+      fetchCountries();
+      fetchPackages(); // Fetch pre-existing packages on load
+  }, []);
 
     // Handle country change
     const handleCountryChange = (e) => {
@@ -266,8 +288,79 @@ const Packages = () => {
                     </div>
                 </div>
             </div>
-            <div className="container mt-4 mb-8" onSubmit={handleSubmit}>
-            <h2>Book Pre-existing Packages:</h2>
+
+            <div className="container mt-4 mb-8">
+                <h2>Book Pre-existing Packages:</h2>
+                <div className="row">
+                    {packages.map((packageData) => (
+                        <div key={packageData.package_id} className="col-md-4">
+                            <div className="card mb-4">
+                                <div className="card-body">
+                                    <h5 className="card-title">
+                                        {packageData.country_name}
+                                    </h5>
+                                    <h6 className="card-subtitle mb-2 text-muted">
+                                        Guide: {packageData.guide_name}
+                                    </h6>
+                                    <p className="card-text">
+                                        Price: ${packageData.total_price} <br />
+                                        Duration:{" "}
+                                        {
+                                            packageData.total_days_stayed
+                                        } days <br />
+                                        People: {packageData.num_people}
+                                    </p>
+
+                                    <h6>Cities to visit:</h6>
+                                    <ul>
+                                        {packageData.cities.map((city) => (
+                                            <li key={city.package_city_id}>
+                                                {city.city_name} (
+                                                {city.days_stayed} days)
+                                                <ul>
+                                                    {city.locations.map(
+                                                        (location) => (
+                                                            <li
+                                                                key={
+                                                                    location.location_id
+                                                                }>
+                                                                {
+                                                                    location.location_name
+                                                                }{" "}
+                                                                - $
+                                                                {
+                                                                    location.location_price
+                                                                }
+                                                            </li>
+                                                        )
+                                                    )}
+                                                </ul>
+                                                <ul>
+                                                    {city.hotels.map(
+                                                        (hotel) => (
+                                                            <li
+                                                                key={
+                                                                    hotel.hotel_id
+                                                                }>
+                                                                {
+                                                                    hotel.hotel_name
+                                                                }{" "}
+                                                                - $
+                                                                {
+                                                                    hotel.hotel_cost
+                                                                }
+                                                            </li>
+                                                        )
+                                                    )}
+                                                </ul>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
             <form className="container mt-4 mb-8" onSubmit={handleSubmit}>
                 <h2>Create a Custom Package:</h2>

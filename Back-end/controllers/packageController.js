@@ -344,10 +344,12 @@ const getAllPackages = async (req, res) => {
         p.total_days_stayed,        -- Include total days stayed
         c.country_name,
         g.guide_name,
-        g.per_day_charge
+        g.per_day_charge,
+        cp.picture_url AS country_picture
       FROM packages p
       LEFT JOIN countries c ON p.country_id = c.country_id
       LEFT JOIN tour_guides g ON p.guide_id = g.guide_id
+      LEFT JOIN country_pictures cp ON c.country_id = cp.country_id
     `);
 
     const packages = packageQuery.rows;
@@ -371,9 +373,11 @@ const getAllPackages = async (req, res) => {
           pc.city_id,
           pc.days_stayed,
           pc.city_cost,
-          ci.city_name
+          ci.city_name,
+          cpic.picture_url AS city_picture
         FROM package_cities pc
         LEFT JOIN cities ci ON pc.city_id = ci.city_id
+        LEFT JOIN city_pictures cpic ON ci.city_id = cpic.city_id
         WHERE pc.package_id = $1
       `,
         [package_id]
@@ -391,9 +395,11 @@ const getAllPackages = async (req, res) => {
           SELECT 
             pl.location_id,
             l.location_name,
-            pl.total_price AS location_price
+            pl.total_price AS location_price,
+            lp.picture_url AS location_picture
           FROM package_locations pl
           LEFT JOIN locations l ON pl.location_id = l.location_id
+          LEFT JOIN location_pictures lp ON l.location_id = lp.location_id
           WHERE pl.package_city_id = $1
         `,
           [package_city_id]
@@ -409,9 +415,11 @@ const getAllPackages = async (req, res) => {
             h.hotel_name,
             ph.num_rooms,
             ph.hotel_cost,
-            ph.days_stayed
+            ph.days_stayed,
+            hp.picture_url AS hotel_picture
           FROM package_hotels ph
           LEFT JOIN hotels h ON ph.hotel_id = h.hotel_id
+          LEFT JOIN hotel_pictures hp ON h.hotel_id = hp.hotel_id
           WHERE ph.package_city_id = $1
         `,
           [package_city_id]

@@ -75,3 +75,17 @@ export const uploadGuidePicture = async (req, res) => {
     res
   );
 };
+
+export const uploadHotelPicture = async (req, res) => {
+  const { hotel_id } = req.params;
+  const altText = req.body.altText || null;
+  const pictureUrl = `/uploads/${req.file.filename}`;
+  await insertPicture(
+    "hotel_pictures",
+    "hotel_id",
+    hotel_id,
+    pictureUrl,
+    altText,
+    res
+  );
+};
