@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 function About() {
   return (
@@ -102,8 +102,51 @@ function About() {
         </div>
       </div>
       {/* About End */}
+        
+      {/* Meet the Devs Start */}
+      <div className="container-xxl py-5 bg-light">
+        <div className="container">
+          <div className="text-center pb-4 wow fadeInUp" data-wow-delay="0.1s">
+            <h6 className="section-title bg-white text-center text-primary px-3">
+              Meet the Devs
+            </h6>
+            <h1 className="mb-5">Our Creative Team</h1>
+          </div>
+          <div className="row justify-content-center gy-4">
+            <div className="col-lg-3 col-md-4 col-sm-6 text-center wow fadeInUp" data-wow-delay="0.1s">
+              <div className="rounded-circle overflow-hidden mx-auto mb-3" style={{ width: '150px', height: '150px' }}>
+                <img src="assets/img/muneeb2.jpeg" alt="Dev 1" className="img-fluid" />
+              </div>
+              <h5 className="mb-1">Muneeb Ullah</h5>
+              <p>Lead Developer</p>
+            </div>
+            <div className="col-lg-3 col-md-4 col-sm-6 text-center wow fadeInUp" data-wow-delay="0.3s">
+              <div className="rounded-circle overflow-hidden mx-auto mb-3" style={{ width: '150px', height: '150px' }}>
+                <img src="assets/img/raahim.jpeg" alt="Dev 2" className="img-fluid" />
+              </div>
+              <h5 className="mb-1">Raahim</h5>
+              <p>Frontend Developer</p>
+            </div>
+            <div className="col-lg-3 col-md-4 col-sm-6 text-center wow fadeInUp" data-wow-delay="0.5s">
+              <div className="rounded-circle overflow-hidden mx-auto mb-3" style={{ width: '150px', height: '150px' }}>
+                <img src="assets/img/aawaix.jpeg" alt="Dev 3" className="img-fluid" />
+              </div>
+              <h5 className="mb-1">Aawaiz</h5>
+              <p>Backend Developer</p>
+            </div>
+            <div className="col-lg-3 col-md-4 col-sm-6 text-center wow fadeInUp" data-wow-delay="0.7s">
+              <div className="rounded-circle overflow-hidden mx-auto mb-3" style={{ width: '150px', height: '150px' }}>
+                <img src="assets/img/shuja.jpeg" alt="Dev 4" className="img-fluid" />
+              </div>
+              <h5 className="mb-1">Shuja</h5>
+              <p>UI/UX Designer</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Meet the Devs End */}
     </div>
-  )
+  );
 }
 
-export default About
+export default About;
