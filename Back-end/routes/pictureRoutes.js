@@ -5,6 +5,7 @@ import {
   uploadCityPicture,
   uploadLocationPicture,
   uploadGuidePicture,
+  uploadHotelPicture, // Add route for uploading hotel pictures here
 } from "../controllers/pictureController.js";
 
 const router = express.Router();
@@ -28,6 +29,13 @@ router.post(
   "/upload/guide/:guide_id",
   upload.single("image"),
   uploadGuidePicture
+);
+
+// Route to upload hotel pictures
+router.post(
+  "/hotels/:hotel_id/pictures",
+  upload.single("file"), // Use multer middleware for single file upload
+  uploadHotelPicture
 );
 
 export default router;
