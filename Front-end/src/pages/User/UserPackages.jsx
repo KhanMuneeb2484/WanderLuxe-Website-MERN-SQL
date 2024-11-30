@@ -248,7 +248,7 @@ const Packages = () => {
                     <div className="row justify-content-center py-5">
                         <div className="col-lg-10 pt-lg-5 mt-lg-5 text-center">
                             <h1 className="display-3 text-white animated slideInDown">
-                                Booking
+                                Packages
                             </h1>
                             <nav aria-label="breadcrumb">
                                 <ol className="breadcrumb justify-content-center">
@@ -258,7 +258,7 @@ const Packages = () => {
                                     <li
                                         className="breadcrumb-item text-white active"
                                         aria-current="page">
-                                        Booking
+                                        Packages
                                     </li>
                                 </ol>
                             </nav>
@@ -266,8 +266,11 @@ const Packages = () => {
                     </div>
                 </div>
             </div>
-            <form className="container mt-4" onSubmit={handleSubmit}>
-                <h2>Create Custom Package</h2>
+            <div className="container mt-4 mb-8" onSubmit={handleSubmit}>
+            <h2>Book Pre-existing Packages:</h2>
+            </div>
+            <form className="container mt-4 mb-8" onSubmit={handleSubmit}>
+                <h2>Create a Custom Package:</h2>
                 {/* Country Selection */}
                 <div className="mb-3">
                     <label>Select Country:</label>
@@ -438,7 +441,7 @@ const Packages = () => {
                         ))}
                     </div>
                 ))}
-                <button type="submit" className="btn btn-primary mt-3">
+                <button type="submit" className="btn btn-primary mt-3 mb-4">
                     Submit Package
                 </button>
             </form>
