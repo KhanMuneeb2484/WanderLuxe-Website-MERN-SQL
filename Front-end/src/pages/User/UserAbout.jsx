@@ -117,8 +117,9 @@ function About() {
               <div className="rounded-circle overflow-hidden mx-auto mb-3" style={{ width: '150px', height: '150px' }}>
                 <img src="assets/img/muneeb2.jpeg" alt="Dev 1" className="img-fluid" />
               </div>
-              <h5 className="mb-1">Muneeb Ullah</h5>
+              <h5 className="mb-1">Muneeb</h5>
               <p>Lead Developer</p>
+              <p>heartbroken </p>
             </div>
             <div className="col-lg-3 col-md-4 col-sm-6 text-center wow fadeInUp" data-wow-delay="0.3s">
               <div className="rounded-circle overflow-hidden mx-auto mb-3" style={{ width: '150px', height: '150px' }}>
@@ -126,6 +127,7 @@ function About() {
               </div>
               <h5 className="mb-1">Raahim</h5>
               <p>Frontend Developer</p>
+              <p>Down to Earth</p>
             </div>
             <div className="col-lg-3 col-md-4 col-sm-6 text-center wow fadeInUp" data-wow-delay="0.5s">
               <div className="rounded-circle overflow-hidden mx-auto mb-3" style={{ width: '150px', height: '150px' }}>
@@ -133,6 +135,7 @@ function About() {
               </div>
               <h5 className="mb-1">Aawaiz</h5>
               <p>Backend Developer</p>
+              <p>cousin marriage enthuisaist</p>
             </div>
             <div className="col-lg-3 col-md-4 col-sm-6 text-center wow fadeInUp" data-wow-delay="0.7s">
               <div className="rounded-circle overflow-hidden mx-auto mb-3" style={{ width: '150px', height: '150px' }}>
@@ -140,6 +143,7 @@ function About() {
               </div>
               <h5 className="mb-1">Shuja</h5>
               <p>UI/UX Designer</p>
+              <p>pooping is my hobby</p>
             </div>
           </div>
         </div>
