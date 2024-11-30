@@ -27,7 +27,7 @@ export default function UserHome() {
                 a trip; it should be a story waiting to unfold.
               </p>
               <a
-                href="#packages"
+                href="/packages"
                 className="btn btn-lg btn-outline-light px-5 py-3 animate__animated animate__slideInUp"
               >
                 Explore Packages

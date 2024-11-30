@@ -17,6 +17,7 @@ import Cities from "./pages/User/UserCities";
 import Countries from "./pages/User/UserCountries";
 import UserBookings from "./pages/User/UserBookings";
 import CityPage from "./pages/User/CityPage";
+import GuidePage from "./pages/User/GuidePage";
 import LocationPage from "./pages/User/LocationPage";
 import AdminCountries  from "./pages/Admin/AdminCountries";
 import AdminCities  from "./pages/Admin/AdminCities";
@@ -51,6 +52,7 @@ const App = () => {
         <Route path="/Users" element={<Users />} />
         <Route path="/Booking" element={<UserBookings />} />
         <Route path="/cities/:countryId" element={<CityPage />} />
+        <Route path="/guides/:countryId" element={<GuidePage />} />
         <Route path="/locations/:cityId" element={<LocationPage />} />
         <Route path="/hotels/:cityId" element={<HotelPage />} />
         <Route path="*" element={<Navigate to="/" />} />
