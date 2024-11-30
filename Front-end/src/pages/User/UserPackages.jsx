@@ -142,24 +142,27 @@ const Packages = () => {
     };
 
     const fetchPackages = async () => {
-      try {
-          const response = await fetch("http://localhost:3000/api/packages/get-all-packages", {
-              method: "GET",
-              headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`,
-              },
-          });
-          if (response.ok) {
-              const data = await response.json();
-              setPackages(data.packages); // Store packages data
-          } else {
-              console.error("Failed to fetch packages");
-          }
-      } catch (error) {
-          console.error("Error fetching packages:", error);
-      }
-  };
+        try {
+            const response = await fetch(
+                "http://localhost:3000/api/packages/get-all-packages",
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            if (response.ok) {
+                const data = await response.json();
+                setPackages(data.packages); // Store packages data
+            } else {
+                console.error("Failed to fetch packages");
+            }
+        } catch (error) {
+            console.error("Error fetching packages:", error);
+        }
+    };
 
     // Update data when country is selected
     useEffect(() => {
@@ -171,9 +174,9 @@ const Packages = () => {
 
     // Fetch countries on component load
     useEffect(() => {
-      fetchCountries();
-      fetchPackages(); // Fetch pre-existing packages on load
-  }, []);
+        fetchCountries();
+        fetchPackages(); // Fetch pre-existing packages on load
+    }, []);
 
     // Handle country change
     const handleCountryChange = (e) => {
@@ -295,6 +298,11 @@ const Packages = () => {
                     {packages.map((packageData) => (
                         <div key={packageData.package_id} className="col-md-4">
                             <div className="card mb-4">
+                                <img
+                                    src={packageData.country_picture} // Image URL
+                                    className="card-img-top"
+                                    alt={`${packageData.country_name} image`}
+                                />
                                 <div className="card-body">
                                     <h5 className="card-title">
                                         {packageData.country_name}
@@ -356,12 +364,23 @@ const Packages = () => {
                                             </li>
                                         ))}
                                     </ul>
+
+                                    {/* "View More" Button */}
+                                    <button className="btn btn-info mt-2">
+                                        View More
+                                    </button>
+
+                                    {/* "Book Now" Button */}
+                                    <button className="btn btn-primary mt-2 ms-2">
+                                        Book Now
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     ))}
                 </div>
             </div>
+
             <form className="container mt-4 mb-8" onSubmit={handleSubmit}>
                 <h2>Create a Custom Package:</h2>
                 {/* Country Selection */}

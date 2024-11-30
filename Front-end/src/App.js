@@ -19,6 +19,7 @@ import UserBookings from "./pages/User/UserBookings";
 import CityPage from "./pages/User/CityPage";
 import GuidePage from "./pages/User/GuidePage";
 import LocationPage from "./pages/User/LocationPage";
+
 import AdminCountries  from "./pages/Admin/AdminCountries";
 import AdminCities  from "./pages/Admin/AdminCities";
 import AdminLocations  from "./pages/Admin/AdminLocations";
@@ -42,6 +43,7 @@ const App = () => {
         <Route path="/countries" element={<Countries />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/packages" element={<Packages />} />
+        <Route path="/packages/:packageId" element={<PackagesPage />} />
         <Route path="/services" element={<Services />} />
         <Route path="/Destination" element={<Destinations />} />
         <Route path="/login" element={<Login />} />
