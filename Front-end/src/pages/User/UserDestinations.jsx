@@ -112,7 +112,7 @@ function Destinations() {
                                         {/* Placeholder image, replace it with dynamic images later */}
                                         <img
                                             className="img-fluid card-img-top"
-                                            src={country.picture-url}
+                                            src={country.picture_url}
                                             alt={country.country_name}
                                         />
                                     </div>
