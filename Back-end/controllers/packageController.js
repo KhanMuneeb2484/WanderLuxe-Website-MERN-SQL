@@ -17,11 +17,34 @@ const createPackage = async (req, res) => {
       return res.status(400).json({ message: "Cities data is required" });
     }
 
+    // Calculate total days stayed
+    let totalDaysStayed = 0; // Initialize the totalDaysStayed
+
+    // Iterate over cities to calculate city cost and add to total price
+    for (const city of cities) {
+      const { city_id, days_stayed, locations, hotels } = city;
+
+      // Validate city_id, locations, and hotels data
+      if (!city_id || !days_stayed) {
+        return res.status(400).json({ message: "Missing city details" });
+      }
+
+      // Add the days_stayed for the current city to totalDaysStayed
+      totalDaysStayed += days_stayed;
+    }
+
+    // Ensure totalDaysStayed is calculated correctly
+    if (totalDaysStayed <= 0) {
+      return res
+        .status(400)
+        .json({ message: "Total days stayed must be greater than 0" });
+    }
+
     // Insert into packages table with initial total_price of 0 and num_people
     const newPackageQuery = await pool.query(
-      `INSERT INTO packages (user_id, country_id, guide_id, total_price, num_people)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [user_id, country_id, guide_id || null, 0, num_people] // Start with a price of 0 and include num_people
+      `INSERT INTO packages (user_id, country_id, guide_id, total_price, num_people, total_days_stayed)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [user_id, country_id, guide_id || null, 0, num_people, totalDaysStayed] // Include totalDaysStayed here
     );
     const package_id = newPackageQuery.rows[0].package_id;
 
@@ -135,9 +158,7 @@ const createPackage = async (req, res) => {
       }
 
       // Calculate guide cost: per day charge * total days across cities
-      guideCost =
-        guideData.rows[0].per_day_charge *
-        cities.reduce((sum, city) => sum + city.days_stayed, 0);
+      guideCost = guideData.rows[0].per_day_charge * totalDaysStayed;
 
       console.log("Guide cost:", guideCost);
       totalPrice += guideCost;
@@ -145,13 +166,13 @@ const createPackage = async (req, res) => {
 
     console.log("Final total price (including guide):", totalPrice);
 
-    // Update the package with the final total price and guide cost
+    // Update the package with the final total price, guide cost, and total days stayed
     const updatePackage = await pool.query(
       `UPDATE packages SET total_price = $1, guide_cost = $2, total_days_stayed = $3 WHERE package_id = $4 RETURNING *`,
       [
         totalPrice,
         guideCost,
-        cities.reduce((sum, city) => sum + city.days_stayed, 0),
+        totalDaysStayed, // Use the computed totalDaysStayed here
         package_id,
       ]
     );
@@ -323,10 +344,12 @@ const getAllPackages = async (req, res) => {
         p.total_days_stayed,        -- Include total days stayed
         c.country_name,
         g.guide_name,
-        g.per_day_charge
+        g.per_day_charge,
+        cp.picture_url AS country_picture
       FROM packages p
       LEFT JOIN countries c ON p.country_id = c.country_id
       LEFT JOIN tour_guides g ON p.guide_id = g.guide_id
+      LEFT JOIN country_pictures cp ON c.country_id = cp.country_id
     `);
 
     const packages = packageQuery.rows;
@@ -350,9 +373,11 @@ const getAllPackages = async (req, res) => {
           pc.city_id,
           pc.days_stayed,
           pc.city_cost,
-          ci.city_name
+          ci.city_name,
+          cpic.picture_url AS city_picture
         FROM package_cities pc
         LEFT JOIN cities ci ON pc.city_id = ci.city_id
+        LEFT JOIN city_pictures cpic ON ci.city_id = cpic.city_id
         WHERE pc.package_id = $1
       `,
         [package_id]
@@ -370,9 +395,11 @@ const getAllPackages = async (req, res) => {
           SELECT 
             pl.location_id,
             l.location_name,
-            pl.total_price AS location_price
+            pl.total_price AS location_price,
+            lp.picture_url AS location_picture
           FROM package_locations pl
           LEFT JOIN locations l ON pl.location_id = l.location_id
+          LEFT JOIN location_pictures lp ON l.location_id = lp.location_id
           WHERE pl.package_city_id = $1
         `,
           [package_city_id]
@@ -388,9 +415,11 @@ const getAllPackages = async (req, res) => {
             h.hotel_name,
             ph.num_rooms,
             ph.hotel_cost,
-            ph.days_stayed
+            ph.days_stayed,
+            hp.picture_url AS hotel_picture
           FROM package_hotels ph
           LEFT JOIN hotels h ON ph.hotel_id = h.hotel_id
+          LEFT JOIN hotel_pictures hp ON h.hotel_id = hp.hotel_id
           WHERE ph.package_city_id = $1
         `,
           [package_city_id]

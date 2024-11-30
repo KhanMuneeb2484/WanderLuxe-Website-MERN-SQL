@@ -124,7 +124,8 @@ const UserDashboard = () => {
   }
 
   return (
-    <Container className="mt-5">
+    <>
+      <Container className="mt-5">
       <Row className="justify-content-center">
         <Col md={8}>
           <Card className="p-4 shadow">
@@ -187,6 +188,8 @@ const UserDashboard = () => {
         </Col>
       </Row>
     </Container>
+    </>
+    
   );
 };
 

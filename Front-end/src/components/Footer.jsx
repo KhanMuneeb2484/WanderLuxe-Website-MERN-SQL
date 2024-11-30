@@ -16,27 +16,10 @@ const Footer = () => {
       </div>
       <div className="footer-section contact-info">
         <h4>Contact Us</h4>
-        <p>Address: 123 Pakistan Street, Karachi, Pakistan</p>
         <p>Phone: +92 123 456 7890</p>
         <p>Email: info@pakistantravel.com</p>
       </div>
-      <div className="footer-section quick-links">
-        <h4>Quick Links</h4>
-        <ul>
-          <li>
-            <a href="/blog">Blog</a>
-          </li>
-          <li>
-            <a href="/privacy-policy">Privacy Policy</a>
-          </li>
-          <li>
-            <a href="/faqs">FAQs</a>
-          </li>
-          <li>
-            <a href="/contact">Contact</a>
-          </li>
-        </ul>
-      </div>
+    
       <div className="footer-section social-share">
         <h4>Follow Us</h4>
         <div className="social-icons">
@@ -56,8 +39,8 @@ const Footer = () => {
       </div>
       <div className="footer-bottom">
         <p>
-          © 2023 Pakistan Travel. All rights reserved. Designed and developed by{" "}
-          <a href="https://suavesolutions.com">Suave Solutions</a>
+          © 2024 Wander Luxe. All rights reserved. Designed and developed by{" "}
+          <a href="https://suavesolutions.com">Muneeb Ullah</a>
         </p>
       </div>
     </footer>

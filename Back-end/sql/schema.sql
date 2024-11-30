@@ -184,3 +184,13 @@ CREATE TABLE IF NOT EXISTS guide_pictures (
     ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS hotel_pictures (
+  picture_id SERIAL PRIMARY KEY,
+  hotel_id INT NOT NULL,
+  picture_url TEXT NOT NULL,
+  alt_text TEXT,
+  uploaded_at TIMESTAMP DEFAULT NOW(),
+  FOREIGN KEY (hotel_id) REFERENCES hotels (hotel_id) ON DELETE CASCADE
+);
+
+
