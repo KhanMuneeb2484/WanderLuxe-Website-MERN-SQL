@@ -184,7 +184,7 @@ CREATE TABLE IF NOT EXISTS guide_pictures (
     ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE hotel_pictures (
+CREATE TABLE IF NOT EXISTS hotel_pictures (
   picture_id SERIAL PRIMARY KEY,
   hotel_id INT NOT NULL,
   picture_url TEXT NOT NULL,
