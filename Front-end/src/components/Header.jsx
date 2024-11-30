@@ -90,9 +90,9 @@ const Header = () => {
           <Link to="/" className="navbar-brand p-0">
             {/* Replace the text with logo.svg */}
             <img
-              src="/assets/img/logo.svg"  // Replace with the actual path to your logo.svg
+              src="/assets/img/LOGO1.png"  // Replace with the actual path to your logo.svg
               alt="Wander Luxe Logo"
-              style={{ height: "100px" }} // Adjust height as needed
+              style={{ height: "110px" }} // Adjust height as needed
             />
           </Link>
           <button
