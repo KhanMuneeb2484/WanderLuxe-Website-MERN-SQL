@@ -190,84 +190,114 @@ const createPackage = async (req, res) => {
 };
 
 // Get package details by ID
+// Get package by ID
 const getPackageById = async (req, res) => {
-  const { package_id } = req.params; // Get package_id from route parameter
+  const { package_id } = req.params;
 
   try {
-    // Retrieve the main package details including the new columns
+    // Fetch package details by package_id
     const packageQuery = await pool.query(
-      `SELECT * FROM packages WHERE package_id = $1`,
+      `
+      SELECT 
+        p.package_id,
+        p.user_id,
+        p.country_id,
+        p.guide_id,
+        p.total_price,
+        p.num_people,               -- Include number of people
+        p.total_days_stayed,        -- Include total days stayed
+        c.country_name,
+        g.guide_name,
+        g.per_day_charge,
+        cp.picture_url AS country_picture
+      FROM packages p
+      LEFT JOIN countries c ON p.country_id = c.country_id
+      LEFT JOIN tour_guides g ON p.guide_id = g.guide_id
+      LEFT JOIN country_pictures cp ON c.country_id = cp.country_id
+      WHERE p.package_id = $1
+      `,
       [package_id]
     );
 
-    if (packageQuery.rowCount === 0) {
+    if (packageQuery.rows.length === 0) {
       return res.status(404).json({ message: "Package not found" });
     }
 
-    const packageDetails = packageQuery.rows[0];
+    const pkg = packageQuery.rows[0];
 
-    // Retrieve the cities related to the package
+    // Fetch cities associated with the package
     const citiesQuery = await pool.query(
-      `SELECT pc.package_city_id, c.city_name, pc.days_stayed, pc.city_cost
-       FROM package_cities pc
-       JOIN cities c ON pc.city_id = c.city_id
-       WHERE pc.package_id = $1`,
+      `
+      SELECT 
+        pc.package_city_id,
+        pc.city_id,
+        pc.days_stayed,
+        pc.city_cost,
+        ci.city_name,
+        cpic.picture_url AS city_picture
+      FROM package_cities pc
+      LEFT JOIN cities ci ON pc.city_id = ci.city_id
+      LEFT JOIN city_pictures cpic ON ci.city_id = cpic.city_id
+      WHERE pc.package_id = $1
+      `,
       [package_id]
     );
 
-    // Retrieve the locations for each city in the package
-    for (const city of citiesQuery.rows) {
-      const locationsQuery = await pool.query(
-        `SELECT pl.location_id, l.location_name, pl.total_price
-         FROM package_locations pl
-         JOIN locations l ON pl.location_id = l.location_id
-         WHERE pl.package_city_id = $1`,
-        [city.package_city_id]
-      );
-      city.locations = locationsQuery.rows;
-    }
+    const cities = citiesQuery.rows;
 
-    // Retrieve the hotels for each city in the package
-    for (const city of citiesQuery.rows) {
-      const hotelsQuery = await pool.query(
-        `SELECT ph.hotel_id, h.hotel_name, ph.num_rooms, ph.hotel_cost, ph.days_stayed
-         FROM package_hotels ph
-         JOIN hotels h ON ph.hotel_id = h.hotel_id
-         WHERE ph.package_city_id = $1`,
-        [city.package_city_id]
+    // Fetch locations and hotels for each city
+    for (const city of cities) {
+      const { package_city_id } = city;
+
+      // Fetch locations for the city
+      const locationsQuery = await pool.query(
+        `
+        SELECT 
+          pl.location_id,
+          l.location_name,
+          pl.total_price AS location_price,
+          lp.picture_url AS location_picture
+        FROM package_locations pl
+        LEFT JOIN locations l ON pl.location_id = l.location_id
+        LEFT JOIN location_pictures lp ON l.location_id = lp.location_id
+        WHERE pl.package_city_id = $1
+        `,
+        [package_city_id]
       );
+
+      city.locations = locationsQuery.rows;
+
+      // Fetch hotels for the city
+      const hotelsQuery = await pool.query(
+        `
+        SELECT 
+          ph.hotel_id,
+          h.hotel_name,
+          ph.num_rooms,
+          ph.hotel_cost,
+          ph.days_stayed,
+          hp.picture_url AS hotel_picture
+        FROM package_hotels ph
+        LEFT JOIN hotels h ON ph.hotel_id = h.hotel_id
+        LEFT JOIN hotel_pictures hp ON h.hotel_id = hp.hotel_id
+        WHERE ph.package_city_id = $1
+        `,
+        [package_city_id]
+      );
+
       city.hotels = hotelsQuery.rows;
     }
 
-    // Retrieve the guide details if available
-    let guideDetails = null;
-    if (packageDetails.guide_id) {
-      const guideQuery = await pool.query(
-        `SELECT * FROM tour_guides WHERE guide_id = $1`,
-        [packageDetails.guide_id]
-      );
-      if (guideQuery.rowCount > 0) {
-        guideDetails = guideQuery.rows[0];
-      }
-    }
+    // Attach cities to the package
+    pkg.cities = cities;
 
-    // Prepare the full package details response
-    const fullPackageDetails = {
-      package: {
-        ...packageDetails,
-        num_people: packageDetails.num_people, // Include number of people
-        total_days_stayed: packageDetails.total_days_stayed, // Include total days stayed
-      },
-      cities: citiesQuery.rows,
-      guide: guideDetails, // Include guide details if available
-    };
-
-    res.status(200).json(fullPackageDetails);
-  } catch (error) {
-    console.error("Error retrieving package details:", error);
+    // Return the package with details
     res
-      .status(500)
-      .json({ message: "Error retrieving package details", error });
+      .status(200)
+      .json({ message: "Package retrieved successfully", package: pkg });
+  } catch (error) {
+    console.error("Error fetching package by ID:", error);
+    res.status(500).json({ message: "Error fetching package by ID", error });
   }
 };
 

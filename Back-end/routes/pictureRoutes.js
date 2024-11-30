@@ -33,8 +33,8 @@ router.post(
 
 // Route to upload hotel pictures
 router.post(
-  "/hotels/:hotel_id/pictures",
-  upload.single("file"), // Use multer middleware for single file upload
+  "/upload/hotel/:hotel_id",
+  upload.single("image"), // Use multer middleware for single file upload
   uploadHotelPicture
 );
 
