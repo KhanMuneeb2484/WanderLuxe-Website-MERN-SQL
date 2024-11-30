@@ -2,7 +2,7 @@ import pool from "../config/db.js";
 
 const createPackage = async (req, res) => {
   const { user_id } = req.user; // Assuming JWT middleware populates req.user
-  const { country_id, guide_id, cities, num_people } = req.body; // Added num_people
+  const { country_id, guide_id, cities, num_people } = req.body;
 
   // Ensure that user_id and num_people are present
   if (!user_id || !num_people) {
@@ -10,6 +10,8 @@ const createPackage = async (req, res) => {
       .status(400)
       .json({ message: "User ID and number of people are required" });
   }
+
+  console.log("Request body:", req.body); // Log incoming request data
 
   try {
     // Ensure cities is an array
@@ -19,8 +21,6 @@ const createPackage = async (req, res) => {
 
     // Calculate total days stayed
     let totalDaysStayed = 0; // Initialize the totalDaysStayed
-
-    // Iterate over cities to calculate city cost and add to total price
     for (const city of cities) {
       const { city_id, days_stayed, locations, hotels } = city;
 
@@ -33,7 +33,6 @@ const createPackage = async (req, res) => {
       totalDaysStayed += days_stayed;
     }
 
-    // Ensure totalDaysStayed is calculated correctly
     if (totalDaysStayed <= 0) {
       return res
         .status(400)
@@ -44,14 +43,12 @@ const createPackage = async (req, res) => {
     const newPackageQuery = await pool.query(
       `INSERT INTO packages (user_id, country_id, guide_id, total_price, num_people, total_days_stayed)
        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [user_id, country_id, guide_id || null, 0, num_people, totalDaysStayed] // Include totalDaysStayed here
+      [user_id, country_id, guide_id || null, 0, num_people, totalDaysStayed]
     );
     const package_id = newPackageQuery.rows[0].package_id;
 
     let totalPrice = 0;
-    console.log("Starting total price:", totalPrice);
 
-    // Iterate over cities to calculate city cost and add to total price
     for (const city of cities) {
       const { city_id, days_stayed, locations, hotels } = city;
 
@@ -64,7 +61,7 @@ const createPackage = async (req, res) => {
       const cityResult = await pool.query(
         `INSERT INTO package_cities (package_id, city_id, days_stayed, city_cost)
          VALUES ($1, $2, $3, $4) RETURNING package_city_id`,
-        [package_id, city_id, days_stayed, 0] // Initialize city cost as 0
+        [package_id, city_id, days_stayed, 0]
       );
       const packageCityId = cityResult.rows[0].package_city_id;
 
@@ -85,17 +82,19 @@ const createPackage = async (req, res) => {
             `SELECT price_per_person FROM locations WHERE location_id = $1`,
             [location_id]
           );
-          if (locationData.rowCount === 0) {
-            throw new Error(`Location with ID ${location_id} not found.`);
+          if (
+            locationData.rowCount === 0 ||
+            locationData.rows[0].price_per_person === null
+          ) {
+            throw new Error(
+              `Location with ID ${location_id} has no price data.`
+            );
           }
 
-          // Calculate location price based on num_people
           const locationPrice =
             locationData.rows[0].price_per_person * num_people;
-          console.log(`Location price for city ${city_id}:`, locationPrice);
           cityCost += locationPrice;
 
-          // Insert location details into package_locations
           await pool.query(
             `INSERT INTO package_locations (package_city_id, location_id, total_price)
              VALUES ($1, $2, $3)`,
@@ -117,16 +116,13 @@ const createPackage = async (req, res) => {
             `SELECT price FROM hotels WHERE hotel_id = $1`,
             [hotel_id]
           );
-          if (hotelData.rowCount === 0) {
-            throw new Error(`Hotel with ID ${hotel_id} not found.`);
+          if (hotelData.rowCount === 0 || hotelData.rows[0].price === null) {
+            throw new Error(`Hotel with ID ${hotel_id} has no price data.`);
           }
 
-          // Calculate hotel price based on num_rooms, num_people, and days_stayed
           const hotelPrice = hotelData.rows[0].price * num_rooms * days_stayed;
-          console.log(`Hotel price for city ${city_id}:`, hotelPrice);
           cityCost += hotelPrice;
 
-          // Insert hotel details into package_hotels
           await pool.query(
             `INSERT INTO package_hotels (package_city_id, hotel_id, num_rooms, hotel_cost, days_stayed)
              VALUES ($1, $2, $3, $4, $5)`,
@@ -135,49 +131,35 @@ const createPackage = async (req, res) => {
         }
       }
 
-      // Update city cost in package_cities
       await pool.query(
         `UPDATE package_cities SET city_cost = $1 WHERE package_city_id = $2`,
         [cityCost, packageCityId]
       );
 
-      // Add city cost to total price
       totalPrice += cityCost;
-      console.log(`Total price after city ${city_id}:`, totalPrice);
     }
 
-    // Add guide cost if applicable
     let guideCost = 0;
     if (guide_id) {
       const guideData = await pool.query(
         `SELECT per_day_charge FROM tour_guides WHERE guide_id = $1`,
         [guide_id]
       );
-      if (guideData.rowCount === 0) {
-        throw new Error("Tour guide not found.");
+      if (
+        guideData.rowCount === 0 ||
+        guideData.rows[0].per_day_charge === null
+      ) {
+        throw new Error("Tour guide not found or guide charge is missing.");
       }
 
-      // Calculate guide cost: per day charge * total days across cities
       guideCost = guideData.rows[0].per_day_charge * totalDaysStayed;
-
-      console.log("Guide cost:", guideCost);
       totalPrice += guideCost;
     }
 
-    console.log("Final total price (including guide):", totalPrice);
-
-    // Update the package with the final total price, guide cost, and total days stayed
     const updatePackage = await pool.query(
       `UPDATE packages SET total_price = $1, guide_cost = $2, total_days_stayed = $3 WHERE package_id = $4 RETURNING *`,
-      [
-        totalPrice,
-        guideCost,
-        totalDaysStayed, // Use the computed totalDaysStayed here
-        package_id,
-      ]
+      [totalPrice, guideCost, totalDaysStayed, package_id]
     );
-
-    console.log("Package after update:", updatePackage.rows[0]);
 
     res.status(201).json({
       message: "Tour package created successfully",
