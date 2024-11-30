@@ -174,183 +174,182 @@ const AdminCountries = () => {
 
   return (
     <Container className="mt-5">
-      <h2 className="text-center mb-4">Country Management</h2>
+    <h2 className="text-center mb-4">Country Management</h2>
   
-      {/* Error Message */}
-      {errorMessage && (
-        <Alert variant="danger" className="text-center mb-3">
-          {errorMessage}
-        </Alert>
-      )}
+    {/* Error Message */}
+    {errorMessage && (
+      <Alert variant="danger" className="text-center mb-3">
+        {errorMessage}
+      </Alert>
+    )}
   
-      {/* Add Country Button */}
-      <div className="d-flex justify-content-between mb-3">
-        <Button
-          onClick={() => handleShowModal({ name: "", continent: "", id: null })}
-          variant="primary"
-        >
-          Add Country
-        </Button>
-      </div>
+    {/* Add Country Button */}
+    <div className="d-flex justify-content-start mb-3">
+      <Button
+        onClick={() => handleShowModal({ name: "", continent: "", id: null })}
+        variant="primary"
+      >
+        Add Country
+      </Button>
+    </div>
   
-      {/* Country Table */}
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Continent</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {countries.length > 0 ? (
-            countries.map((country) => (
-              <tr key={country.country_id}>
-                <td>{country.country_id}</td>
-                <td>{country.country_name}</td>
-                <td>{country.country_continent}</td>
-                <td>
-                  <div className="d-flex justify-content-between align-items-center w-100">
-                    {/* Edit Button */}
+    {/* Country Table */}
+    <Table striped bordered hover responsive>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Continent</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {countries.length > 0 ? (
+          countries.map((country) => (
+            <tr key={country.country_id}>
+              <td>{country.country_id}</td>
+              <td>{country.country_name}</td>
+              <td>{country.country_continent}</td>
+              <td>
+                <div className="d-flex justify-content-start gap-3 align-items-center">
+                  {/* Edit Button */}
+                  <Button
+                    variant="warning"
+                    onClick={() =>
+                      handleShowModal({
+                        country_id: country.country_id,
+                        country_name: country.country_name,
+                        country_continent: country.country_continent,
+                      })
+                    }
+                  >
+                    Edit
+                  </Button>
+  
+                  {/* Delete Button */}
+                  <Button
+                    variant="danger"
+                    onClick={() => {
+                      setCountryToDelete(country.country_id); // Set country for deletion
+                      setShowConfirmDeleteModal(true); // Show confirmation modal
+                    }}
+                  >
+                    Delete
+                  </Button>
+  
+                  {/* Upload Image Button */}
+                  <Button
+                    variant={country.picture_url ? "warning" : "success"} // Change color based on image availability
+                    onClick={() => setSelectedCountryId(country.country_id)} // Set the selected country ID for image upload
+                  >
+                    {country.picture_url ? "Update Image" : "Upload Image"}
+                  </Button>
+  
+                  {/* View Image Button */}
+                  {country.picture_url && (
                     <Button
-                      variant="warning"
-                      className="me-3"
-                      onClick={() =>
-                        handleShowModal({
-                          country_id: country.country_id,
-                          country_name: country.country_name,
-                          country_continent: country.country_continent,
-                        })
-                      }
+                      variant="info" // Light blue for 'View Image' button
+                      onClick={() => window.open(country.picture_url, "_blank")} // Opens the image in a new tab
                     >
-                      Edit
+                      View Image
                     </Button>
-  
-                    {/* Delete Button */}
-                    <Button
-                      variant="danger"
-                      onClick={() => {
-                        setCountryToDelete(country.country_id); // Set country for deletion
-                        setShowConfirmDeleteModal(true); // Show confirmation modal
-                      }}
-                    >
-                      Delete
-                    </Button>
-  
-                    {/* Upload Image Button */}
-                    <Button
-  variant={country.picture_url ? "warning" : "success"}  // Change color based on image availability
-  className="ms-3"
-  onClick={() => setSelectedCountryId(country.country_id)} // Set the selected country ID for image upload
->
-  {country.picture_url ? "Update Image" : "Upload Image"}
-</Button>
-{country.picture_url && (
-  <Button
-    variant="info"  // Light blue for 'View Image' button
-    className="ms-3"
-    onClick={() => window.open(country.picture_url, "_blank")} // Opens the image in a new tab
-  >
-    View Image
-  </Button>
-)}
-
-                  </div>
-  
-                  {/* Image Upload Section */}
-                  {selectedCountryId === country.country_id && !country.picture_url && (
-                    <div className="mt-2">
-                      <Form.Control
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                      />
-                      {image && <p>Selected image: {image.name}</p>}
-                      <Button variant="success" onClick={handleImageUpload}>
-                        Upload
-                      </Button>
-                    </div>
                   )}
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="4" className="text-center">
-                No countries found.
+                </div>
+  
+                {/* Image Upload Section */}
+                {selectedCountryId === country.country_id && !country.picture_url && (
+                  <div className="mt-2">
+                    <Form.Control
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                    />
+                    {image && <p>Selected image: {image.name}</p>}
+                    <Button variant="success" onClick={handleImageUpload}>
+                      Upload
+                    </Button>
+                  </div>
+                )}
               </td>
             </tr>
-          )}
-        </tbody>
-      </Table>
+          ))
+        ) : (
+          <tr>
+            <td colSpan="4" className="text-center">
+              No countries found.
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </Table>
   
-      {/* Add/Edit Country Modal */}
-      <Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>{modalData.id ? "Edit Country" : "Add Country"}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group controlId="formCountryName">
-              <Form.Label>Country Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter country name"
-                value={modalData.name}
-                onChange={(e) =>
-                  setModalData({ ...modalData, name: e.target.value })
-                }
-              />
-            </Form.Group>
+    {/* Add/Edit Country Modal */}
+    <Modal show={showModal} onHide={handleCloseModal}>
+      <Modal.Header closeButton>
+        <Modal.Title>{modalData.id ? "Edit Country" : "Add Country"}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form>
+          <Form.Group controlId="formCountryName">
+            <Form.Label>Country Name</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter country name"
+              value={modalData.name}
+              onChange={(e) =>
+                setModalData({ ...modalData, name: e.target.value })
+              }
+            />
+          </Form.Group>
   
-            <Form.Group controlId="formContinent">
-              <Form.Label>Continent</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter continent"
-                value={modalData.continent}
-                onChange={(e) =>
-                  setModalData({ ...modalData, continent: e.target.value })
-                }
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={handleSaveCountry}>
-            Save Changes
-          </Button>
-        </Modal.Footer>
-      </Modal>
+          <Form.Group controlId="formContinent">
+            <Form.Label>Continent</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter continent"
+              value={modalData.continent}
+              onChange={(e) =>
+                setModalData({ ...modalData, continent: e.target.value })
+              }
+            />
+          </Form.Group>
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleCloseModal}>
+          Close
+        </Button>
+        <Button variant="primary" onClick={handleSaveCountry}>
+          Save Changes
+        </Button>
+      </Modal.Footer>
+    </Modal>
   
-      {/* Confirm Delete Modal */}
-      <Modal
-        show={showConfirmDeleteModal}
-        onHide={() => setShowConfirmDeleteModal(false)}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Delete</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Are you sure you want to delete this country?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setShowConfirmDeleteModal(false)}
-          >
-            Cancel
-          </Button>
-          <Button variant="danger" onClick={handleDelete}>
-            Delete
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </Container>
+    {/* Confirm Delete Modal */}
+    <Modal
+      show={showConfirmDeleteModal}
+      onHide={() => setShowConfirmDeleteModal(false)}
+    >
+      <Modal.Header closeButton>
+        <Modal.Title>Confirm Delete</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        Are you sure you want to delete this country?
+      </Modal.Body>
+      <Modal.Footer>
+        <Button
+          variant="secondary"
+          onClick={() => setShowConfirmDeleteModal(false)}
+        >
+          Cancel
+        </Button>
+        <Button variant="danger" onClick={handleDelete}>
+          Delete
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  </Container>
+  
   );
   
 };
