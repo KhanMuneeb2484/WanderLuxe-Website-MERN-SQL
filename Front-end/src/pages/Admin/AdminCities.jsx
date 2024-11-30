@@ -203,21 +203,24 @@ const AdminCities = () => {
                 <td>{city.country_id}</td>
                 <td>{city.city_name}</td>
                 <td>
-  <div className="d-flex justify-content-between w-50">
-    <Button
-      variant="warning"
-      className="me-3"
-      onClick={() => handleShowModal(city)}
-    >
-      Edit
-    </Button>
-    <Button
-      variant="danger"
-      onClick={() => handleDeleteCityConfirmation(city.city_id)}
-    >
-      Delete
-    </Button>
-  </div>
+                <div className="d-flex justify-content-between w-50">
+  <Button
+    variant="warning"
+    className="me-3"
+    onClick={() => handleShowModal(city)}
+  >
+    Edit
+  </Button>
+  <Button
+    variant="danger"
+    className="me-3"
+    onClick={() => handleDeleteCityConfirmation(city.city_id)}
+  >
+    Delete
+  </Button>
+  
+</div>
+
 </td>
 
               </tr>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Table, Button, Container, Alert, Form, Modal } from "react-bootstrap";
+import { Table, Button, Container, Alert, Modal, Form } from "react-bootstrap";
 import { AuthContext } from "../../context/AuthContext";
 
 const AdminCountries = () => {
@@ -10,6 +10,8 @@ const AdminCountries = () => {
   const [modalData, setModalData] = useState({ name: "", continent: "", id: null });
   const [countryToDelete, setCountryToDelete] = useState(null); // To store the country being deleted
   const { user, logout } = useContext(AuthContext);
+  const [image, setImage] = useState(null); // To store the selected image
+  const [selectedCountryId, setSelectedCountryId] = useState(null); // Store the country ID to upload the image to
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -132,33 +134,41 @@ const AdminCountries = () => {
     }
   };
 
-  const handleSaveNewCountry = async () => {
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file); // Set the selected image to the image state
+    }
+  };
+
+  const handleImageUpload = async () => {
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token || !selectedCountryId || !image) return;
 
     try {
-      const response = await fetch("http://localhost:3000/api/countries/register-country", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          country_name: modalData.name,
-          country_continent: modalData.continent,
-        }),
-      });
+      const imageFormData = new FormData();
+      imageFormData.append("image", image);
 
-      if (response.ok) {
-        const data = await response.json();
-        setCountries([...countries, data]);
-        handleCloseModal();
+      const imageResponse = await fetch(
+        `http://localhost:3000/api/pictures/upload/country/${selectedCountryId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: imageFormData,
+        }
+      );
+
+      if (!imageResponse.ok) {
+        setErrorMessage("Failed to upload image. Please try again.");
       } else {
-        setErrorMessage("Failed to add country. Please try again.");
+        console.log("Image uploaded successfully.");
+        // You can optionally update the country's data or refresh the list after image upload
       }
     } catch (error) {
-      console.error("Error adding country:", error);
-      setErrorMessage("An error occurred while adding the country.");
+      console.error("Error uploading image:", error);
+      setErrorMessage("An error occurred while uploading the image.");
     }
   };
 
@@ -193,55 +203,52 @@ const AdminCountries = () => {
                 <td>{country.country_name}</td>
                 <td>{country.country_continent}</td>
                 <td>
-  <div className="d-flex justify-content-between w-50">
-    <Button
-      variant="warning"
-      className="me-3"
-      onClick={() =>
-        handleShowModal({
-          country_id: country.country_id,
-          country_name: country.country_name,
-          country_continent: country.country_continent,
-        })
-      }
-    >
-      Edit
-    </Button>
-    <Button
-      variant="danger"
-      onClick={() => {
-        setCountryToDelete(country.country_id); // Set country for deletion
-        setShowConfirmDeleteModal(true); // Show confirmation modal
-      }}
-    >
-      Delete
-    </Button>
-  </div>
-</td>
-                {/* <td>
-                  <Button
-                    variant="warning"
-                    className="me-2"
-                    onClick={() =>
-                      handleShowModal({
-                        country_id: country.country_id,
-                        country_name: country.country_name,
-                        country_continent: country.country_continent,
-                      })
-                    }
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="danger"
-                    onClick={() => {
-                      setCountryToDelete(country.country_id); // Set country for deletion
-                      setShowConfirmDeleteModal(true); // Show confirmation modal
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </td> */}
+                  <div className="d-flex justify-content-between w-50">
+                    <Button
+                      variant="warning"
+                      className="me-3"
+                      onClick={() =>
+                        handleShowModal({
+                          country_id: country.country_id,
+                          country_name: country.country_name,
+                          country_continent: country.country_continent,
+                        })
+                      }
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="danger"
+                      onClick={() => {
+                        setCountryToDelete(country.country_id); // Set country for deletion
+                        setShowConfirmDeleteModal(true); // Show confirmation modal
+                      }}
+                    >
+                      Delete
+                    </Button>
+                    {/* Upload Image Button */}
+                    <Button
+                      variant="info"
+                      className="ms-3"
+                      onClick={() => setSelectedCountryId(country.country_id)} // Set the selected country ID for image upload
+                    >
+                      Upload Image
+                    </Button>
+                  </div>
+                  {selectedCountryId === country.country_id && (
+                    <div className="mt-2">
+                      <Form.Control
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                      />
+                      {image && <p>Selected image: {image.name}</p>}
+                      <Button variant="success" onClick={handleImageUpload}>
+                        Upload
+                      </Button>
+                    </div>
+                  )}
+                </td>
               </tr>
             ))
           ) : (
@@ -254,30 +261,10 @@ const AdminCountries = () => {
         </tbody>
       </Table>
 
-      {/* Confirmation Modal for Deletion */}
-      <Modal show={showConfirmDeleteModal} onHide={() => setShowConfirmDeleteModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Deletion</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>Are you sure you want to delete this country?</p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowConfirmDeleteModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="danger" onClick={handleDelete}>
-            Delete
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
       {/* Modal for Add/Edit */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>
-            {modalData.id ? "Edit Country" : "Add Country"}
-          </Modal.Title>
+          <Modal.Title>{modalData.id ? "Edit Country" : "Add Country"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -292,11 +279,12 @@ const AdminCountries = () => {
                 }
               />
             </Form.Group>
-            <Form.Group controlId="formCountryContinent">
-              <Form.Label>Country Continent</Form.Label>
+
+            <Form.Group controlId="formContinent">
+              <Form.Label>Continent</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter country continent"
+                placeholder="Enter continent"
                 value={modalData.continent}
                 onChange={(e) =>
                   setModalData({ ...modalData, continent: e.target.value })
@@ -309,15 +297,33 @@ const AdminCountries = () => {
           <Button variant="secondary" onClick={handleCloseModal}>
             Close
           </Button>
-          {modalData.id ? (
-            <Button variant="primary" onClick={handleSaveCountry}>
-              Save Changes
-            </Button>
-          ) : (
-            <Button variant="primary" onClick={handleSaveNewCountry}>
-              Save Country
-            </Button>
-          )}
+          <Button variant="primary" onClick={handleSaveCountry}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Confirm Delete Modal */}
+      <Modal
+        show={showConfirmDeleteModal}
+        onHide={() => setShowConfirmDeleteModal(false)}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete this country?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowConfirmDeleteModal(false)}
+          >
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleDelete}>
+            Delete
+          </Button>
         </Modal.Footer>
       </Modal>
     </Container>
