@@ -88,7 +88,12 @@ const Header = () => {
           style={{ background: "rgba(33, 37, 41, 0.85)" }}
         >
           <Link to="/" className="navbar-brand p-0">
-            <h1 className="text-white m-0">Wander Luxe</h1>
+            {/* Replace the text with logo.svg */}
+            <img
+              src="/assets/img/logo.svg"  // Replace with the actual path to your logo.svg
+              alt="Wander Luxe Logo"
+              style={{ height: "100px" }} // Adjust height as needed
+            />
           </Link>
           <button
             className="navbar-toggler"
