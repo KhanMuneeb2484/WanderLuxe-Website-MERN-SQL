@@ -40,7 +40,7 @@ function About() {
               <div className="position-relative h-100">
                 <img
                   className="img-fluid position-absolute w-100 h-100"
-                  src="assets/img/about.jpg"
+                  src="assets/img/tour-guide-rules.jpg"
                   alt=""
                   style={{ objectFit: "cover" }}
                 />
