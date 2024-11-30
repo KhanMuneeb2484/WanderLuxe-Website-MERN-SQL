@@ -97,7 +97,7 @@ const updateLocation = async (req, res) => {
   }
 };
 
-// Get all locations with associated city names
+// Get all locations with associated city names and location pictures
 const getAllLocations = async (req, res) => {
   try {
     const locationsQuery = await pool.query(
@@ -106,51 +106,89 @@ const getAllLocations = async (req, res) => {
        JOIN cities c ON l.city_id = c.city_id`
     );
 
-    res.status(200).json(locationsQuery.rows);
+    const locations = locationsQuery.rows;
+
+    // Fetch pictures for each location
+    for (const location of locations) {
+      const pictureQuery = await pool.query(
+        "SELECT picture_url, alt_text FROM location_pictures WHERE location_id = $1",
+        [location.location_id]
+      );
+      location.pictures = pictureQuery.rows;
+    }
+
+    res.status(200).json(locations);
   } catch (error) {
     console.error("Error fetching locations:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };
 
-// Get a location by ID
+// Get a location by ID with associated city name and location pictures
 const getLocationById = async (req, res) => {
   const { location_id } = req.params;
 
   try {
-    const location = await pool.query(
+    const locationQuery = await pool.query(
       "SELECT * FROM locations WHERE location_id = $1",
       [location_id]
     );
 
-    if (location.rows.length === 0) {
+    if (locationQuery.rows.length === 0) {
       return res.status(404).json({ message: "Location not found" });
     }
 
-    res.status(200).json(location.rows[0]);
+    const location = locationQuery.rows[0];
+
+    // Fetch city name
+    const cityQuery = await pool.query(
+      "SELECT city_name FROM cities WHERE city_id = $1",
+      [location.city_id]
+    );
+    location.city_name = cityQuery.rows[0].city_name;
+
+    // Fetch pictures for the location
+    const pictureQuery = await pool.query(
+      "SELECT picture_url, alt_text FROM location_pictures WHERE location_id = $1",
+      [location.location_id]
+    );
+    location.pictures = pictureQuery.rows;
+
+    res.status(200).json(location);
   } catch (error) {
     console.error("Error fetching location:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };
 
-// Get locations by city ID
+// Get locations by city ID with associated pictures
 const getLocationsByCityId = async (req, res) => {
   const { city_id } = req.params;
 
   try {
-    const locations = await pool.query(
+    const locationsQuery = await pool.query(
       "SELECT * FROM locations WHERE city_id = $1",
       [city_id]
     );
 
-    if (locations.rows.length === 0) {
+    if (locationsQuery.rows.length === 0) {
       return res
         .status(404)
         .json({ message: "No locations found for this city" });
     }
 
-    res.status(200).json(locations.rows);
+    const locations = locationsQuery.rows;
+
+    // Fetch pictures for each location
+    for (const location of locations) {
+      const pictureQuery = await pool.query(
+        "SELECT picture_url, alt_text FROM location_pictures WHERE location_id = $1",
+        [location.location_id]
+      );
+      location.pictures = pictureQuery.rows;
+    }
+
+    res.status(200).json(locations);
   } catch (error) {
     console.error("Error fetching locations:", error);
     res.status(500).json({ message: "Server error", error });
