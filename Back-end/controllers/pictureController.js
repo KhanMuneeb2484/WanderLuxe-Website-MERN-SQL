@@ -3,22 +3,46 @@ import pool from "../config/db.js";
 // Reusable function to insert or update a picture
 const upsertPicture = async (table, column, id, pictureUrl, altText, res) => {
   try {
-    const query = `
-      INSERT INTO ${table} (${column}, picture_url, alt_text)
-      VALUES ($1, $2, $3)
-      ON CONFLICT (${column})
-      DO UPDATE SET 
-        picture_url = EXCLUDED.picture_url,
-        alt_text = EXCLUDED.alt_text
-      RETURNING *;
+    // First, try to find if the picture already exists
+    const checkExistingQuery = `
+      SELECT * FROM ${table} WHERE ${column} = $1
     `;
-    const result = await pool.query(query, [id, pictureUrl, altText]);
-    res
-      .status(200)
-      .json({
-        message: "Picture added/updated successfully",
-        data: result.rows[0],
+    const checkResult = await pool.query(checkExistingQuery, [id]);
+
+    if (checkResult.rowCount > 0) {
+      // If picture exists, update the existing record
+      const updateQuery = `
+        UPDATE ${table}
+        SET picture_url = $1, alt_text = $2
+        WHERE ${column} = $3
+        RETURNING *;
+      `;
+      const updateResult = await pool.query(updateQuery, [
+        pictureUrl,
+        altText,
+        id,
+      ]);
+      res.status(200).json({
+        message: "Picture updated successfully",
+        data: updateResult.rows[0],
       });
+    } else {
+      // If picture does not exist, insert a new one
+      const insertQuery = `
+        INSERT INTO ${table} (${column}, picture_url, alt_text)
+        VALUES ($1, $2, $3)
+        RETURNING *;
+      `;
+      const insertResult = await pool.query(insertQuery, [
+        id,
+        pictureUrl,
+        altText,
+      ]);
+      res.status(201).json({
+        message: "Picture added successfully",
+        data: insertResult.rows[0],
+      });
+    }
   } catch (error) {
     console.error(`Error adding/updating picture for ${table}:`, error);
     res.status(500).json({ message: "Error adding/updating picture", error });
