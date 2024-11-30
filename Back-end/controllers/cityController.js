@@ -86,18 +86,29 @@ const updateCity = async (req, res) => {
   }
 };
 
-// Get all cities
+// Get all cities with their pictures
 const getAllCities = async (req, res) => {
   try {
     const citiesQuery = await pool.query("SELECT * FROM cities");
-    res.status(200).json(citiesQuery.rows);
+    const cities = citiesQuery.rows;
+
+    // Fetch pictures for each city
+    for (const city of cities) {
+      const pictureQuery = await pool.query(
+        "SELECT picture_url, alt_text FROM city_pictures WHERE city_id = $1",
+        [city.city_id]
+      );
+      city.pictures = pictureQuery.rows;
+    }
+
+    res.status(200).json(cities);
   } catch (error) {
     console.error("Error retrieving cities:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };
 
-// Get city by ID
+// Get city by ID with its pictures
 const getCityById = async (req, res) => {
   const { city_id } = req.params;
 
@@ -111,14 +122,23 @@ const getCityById = async (req, res) => {
       return res.status(404).json({ message: "City not found" });
     }
 
-    res.status(200).json(cityQuery.rows[0]);
+    const city = cityQuery.rows[0];
+
+    // Fetch pictures for the city
+    const pictureQuery = await pool.query(
+      "SELECT picture_url, alt_text FROM city_pictures WHERE city_id = $1",
+      [city.city_id]
+    );
+    city.pictures = pictureQuery.rows;
+
+    res.status(200).json(city);
   } catch (error) {
     console.error("Error retrieving city:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };
 
-// Get cities by country ID
+// Get cities by country ID with their pictures
 const getCitiesByCountryId = async (req, res) => {
   const { country_id } = req.params;
 
@@ -136,8 +156,19 @@ const getCitiesByCountryId = async (req, res) => {
         .json({ message: "No cities found for this country" });
     }
 
-    // Respond with the list of cities
-    res.status(200).json(citiesQuery.rows);
+    const cities = citiesQuery.rows;
+
+    // Fetch pictures for each city
+    for (const city of cities) {
+      const pictureQuery = await pool.query(
+        "SELECT picture_url, alt_text FROM city_pictures WHERE city_id = $1",
+        [city.city_id]
+      );
+      city.pictures = pictureQuery.rows;
+    }
+
+    // Respond with the list of cities and their pictures
+    res.status(200).json(cities);
   } catch (error) {
     console.error("Error retrieving cities:", error);
     res.status(500).json({ message: "Server error", error });
