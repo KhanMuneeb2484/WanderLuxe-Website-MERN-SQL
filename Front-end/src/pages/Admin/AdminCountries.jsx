@@ -96,7 +96,7 @@ const AdminCountries = () => {
     const method = modalData.id ? "PATCH" : "POST";
     const url = modalData.id
       ? `http://localhost:3000/api/countries/update-country/${modalData.id}`
-      : "http://localhost:3000/api/countries";
+      : "http://localhost:3000/api/countries/register-country";
 
     try {
       const response = await fetch(url, {
