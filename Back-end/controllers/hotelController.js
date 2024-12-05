@@ -126,14 +126,26 @@ const deleteHotel = async (req, res) => {
   }
 };
 
-// Get all hotels with associated city names
+// Get all hotels with their associated city names, pictures, and alt text
 const getAllHotels = async (req, res) => {
   try {
-    const allHotelsQuery = await pool.query(
-      `SELECT h.*, c.city_name
-       FROM hotels h
-       JOIN cities c ON h.city_id = c.city_id`
-    );
+    const allHotelsQuery = await pool.query(`
+      SELECT 
+        h.hotel_id,
+        h.hotel_name,
+        h.city_id,
+        h.room_type,
+        h.price,
+        h.amenities,
+        h.number_of_rooms,
+        h.availability,
+        c.city_name,
+        hp.picture_url,
+        hp.alt_text
+      FROM hotels h
+      JOIN cities c ON h.city_id = c.city_id
+      LEFT JOIN hotel_pictures hp ON h.hotel_id = hp.hotel_id
+    `);
 
     res.status(200).json(allHotelsQuery.rows);
   } catch (error) {
@@ -142,13 +154,30 @@ const getAllHotels = async (req, res) => {
   }
 };
 
-// Get a hotel by ID
+// Get a hotel by ID with its details, associated city name, and pictures
 const getHotelById = async (req, res) => {
   const { hotel_id } = req.params;
 
   try {
     const hotelQuery = await pool.query(
-      `SELECT * FROM hotels WHERE hotel_id = $1`,
+      `
+      SELECT 
+        h.hotel_id,
+        h.hotel_name,
+        h.city_id,
+        h.room_type,
+        h.price,
+        h.amenities,
+        h.number_of_rooms,
+        h.availability,
+        c.city_name,
+        hp.picture_url,
+        hp.alt_text
+      FROM hotels h
+      JOIN cities c ON h.city_id = c.city_id
+      LEFT JOIN hotel_pictures hp ON h.hotel_id = hp.hotel_id
+      WHERE h.hotel_id = $1
+    `,
       [hotel_id]
     );
 
@@ -162,13 +191,30 @@ const getHotelById = async (req, res) => {
   }
 };
 
-// Get hotels by City ID
+// Get hotels by City ID with their details, associated city name, and pictures
 const getHotelsByCityId = async (req, res) => {
   const { city_id } = req.params;
 
   try {
     const hotelsQuery = await pool.query(
-      `SELECT * FROM hotels WHERE city_id = $1`,
+      `
+      SELECT 
+        h.hotel_id,
+        h.hotel_name,
+        h.city_id,
+        h.room_type,
+        h.price,
+        h.amenities,
+        h.number_of_rooms,
+        h.availability,
+        c.city_name,
+        hp.picture_url,
+        hp.alt_text
+      FROM hotels h
+      JOIN cities c ON h.city_id = c.city_id
+      LEFT JOIN hotel_pictures hp ON h.hotel_id = hp.hotel_id
+      WHERE h.city_id = $1
+    `,
       [city_id]
     );
 
