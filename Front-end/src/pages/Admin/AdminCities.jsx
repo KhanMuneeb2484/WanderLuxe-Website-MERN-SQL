@@ -144,9 +144,10 @@ const AdminCities = () => {
             )
           );
         } else {
-          setCities([...cities, data]);
+          setCities((prevCities) => [...prevCities, data]);
         }
         handleCloseModal();
+        fetchCities(token); // Refresh cities list after saving
       } else {
         setErrorMessage("Failed to save city. Please try again.");
       }
@@ -187,6 +188,7 @@ const AdminCities = () => {
       } else {
         console.log("Image uploaded successfully.");
         // Optionally refresh the city's data or refresh the list after image upload
+        fetchCities(token); // Refresh cities list after image upload
       }
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -305,7 +307,7 @@ const AdminCities = () => {
         </tbody>
       </Table>
 
-      {/* Modal for City Form */}
+      {/* Add/Edit City Modal */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>{modalData.id ? "Edit City" : "Add City"}</Modal.Title>
@@ -321,22 +323,20 @@ const AdminCities = () => {
                 onChange={(e) => setModalData({ ...modalData, name: e.target.value })}
               />
             </Form.Group>
+
             <Form.Group controlId="formCountrySelect">
               <Form.Label>Country</Form.Label>
               <Form.Control
                 as="select"
                 value={modalData.country}
-                onChange={(e) =>
-                  setModalData({ ...modalData, country: e.target.value })
-                }
+                onChange={(e) => setModalData({ ...modalData, country: e.target.value })}
               >
-                <option value="">Select a country</option>
-                {countries.length > 0 &&
-                  countries.map((country) => (
-                    <option key={country.country_id} value={country.country_id}>
-                      {country.country_name}
-                    </option>
-                  ))}
+                <option value="">Select Country</option>
+                {countries.map((country) => (
+                  <option key={country.country_id} value={country.country_id}>
+                    {country.country_name}
+                  </option>
+                ))}
               </Form.Control>
             </Form.Group>
           </Form>
@@ -346,27 +346,24 @@ const AdminCities = () => {
             Close
           </Button>
           <Button variant="primary" onClick={handleSaveCity}>
-            {modalData.id ? "Save Changes" : "Add City"}
+            Save City
           </Button>
         </Modal.Footer>
       </Modal>
 
-      {/* Confirmation Modal for Deletion */}
+      {/* Delete Confirmation Modal */}
       <Modal
         show={showConfirmDeleteModal}
         onHide={() => setShowConfirmDeleteModal(false)}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Confirm Delete</Modal.Title>
+          <Modal.Title>Confirm Deletion</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>Are you sure you want to delete this city?</p>
+          Are you sure you want to delete this city? This action cannot be undone.
         </Modal.Body>
         <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setShowConfirmDeleteModal(false)}
-          >
+          <Button variant="secondary" onClick={() => setShowConfirmDeleteModal(false)}>
             Cancel
           </Button>
           <Button variant="danger" onClick={handleDelete}>
