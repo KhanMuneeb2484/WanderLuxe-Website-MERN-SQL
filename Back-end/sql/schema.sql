@@ -80,7 +80,24 @@ CREATE TABLE IF NOT EXISTS packages (
     ON DELETE SET NULL ON UPDATE CASCADE
 );
 
-
+-- Create the packages table if it doesn't exist
+CREATE TABLE IF NOT EXISTS AdminPackages (
+  package_id SERIAL PRIMARY KEY,        -- Unique package ID
+  user_id INT NOT NULL,                 -- User ID (references the users table)
+  country_id INT NOT NULL,              -- Country ID (references the countries table)
+  guide_id INT,                         -- Guide ID (optional, references the tour_guides table)
+  guide_cost DECIMAL(10, 2) DEFAULT 0,  -- Cost for the guide, default is 0
+  total_price DECIMAL(10, 2) NOT NULL,  -- Total price of the package
+  num_people INT NOT NULL,              -- Number of people in the package
+  total_days_stayed INT NOT NULL,       -- Total number of days stayed across all cities in the package
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp for when the package was created
+  FOREIGN KEY (user_id) REFERENCES users(user_id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (country_id) REFERENCES countries(country_id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (guide_id) REFERENCES tour_guides(guide_id)
+    ON DELETE SET NULL ON UPDATE CASCADE
+);
 
 CREATE TABLE IF NOT EXISTS package_cities (
   package_city_id SERIAL PRIMARY KEY,
