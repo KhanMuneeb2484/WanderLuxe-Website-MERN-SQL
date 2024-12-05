@@ -204,83 +204,84 @@ const AdminCountries = () => {
         </tr>
       </thead>
       <tbody>
-        {countries.length > 0 ? (
-          countries.map((country) => (
-            <tr key={country.country_id}>
-              <td>{country.country_id}</td>
-              <td>{country.country_name}</td>
-              <td>{country.country_continent}</td>
-              <td>
-                <div className="d-flex justify-content-start gap-3 align-items-center">
-                  {/* Edit Button */}
-                  <Button
-                    variant="warning"
-                    onClick={() =>
-                      handleShowModal({
-                        country_id: country.country_id,
-                        country_name: country.country_name,
-                        country_continent: country.country_continent,
-                      })
-                    }
-                  >
-                    Edit
-                  </Button>
-  
-                  {/* Delete Button */}
-                  <Button
-                    variant="danger"
-                    onClick={() => {
-                      setCountryToDelete(country.country_id); // Set country for deletion
-                      setShowConfirmDeleteModal(true); // Show confirmation modal
-                    }}
-                  >
-                    Delete
-                  </Button>
-  
-                  {/* Upload Image Button */}
-                  <Button
-                    variant={country.picture_url ? "warning" : "success"} // Change color based on image availability
-                    onClick={() => setSelectedCountryId(country.country_id)} // Set the selected country ID for image upload
-                  >
-                    {country.picture_url ? "Update Image" : "Upload Image"}
-                  </Button>
-  
-                  {/* View Image Button */}
-                  {country.picture_url && (
-                    <Button
-                      variant="info" // Light blue for 'View Image' button
-                      onClick={() => window.open(country.picture_url, "_blank")} // Opens the image in a new tab
-                    >
-                      View Image
-                    </Button>
-                  )}
-                </div>
-  
-                {/* Image Upload Section */}
-                {selectedCountryId === country.country_id && !country.picture_url && (
-                  <div className="mt-2">
-                    <Form.Control
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                    />
-                    {image && <p>Selected image: {image.name}</p>}
-                    <Button variant="success" onClick={handleImageUpload}>
-                      Upload
-                    </Button>
-                  </div>
-                )}
-              </td>
-            </tr>
-          ))
-        ) : (
-          <tr>
-            <td colSpan="4" className="text-center">
-              No countries found.
-            </td>
-          </tr>
-        )}
-      </tbody>
+  {countries.length > 0 ? (
+    countries.map((country) => (
+      <tr key={country.country_id}>
+        <td>{country.country_id}</td>
+        <td>{country.country_name}</td>
+        <td>{country.country_continent}</td>
+        <td>
+          <div className="d-flex justify-content-start gap-3 align-items-center">
+            {/* Edit Button */}
+            <Button
+              variant="warning"
+              onClick={() =>
+                handleShowModal({
+                  country_id: country.country_id,
+                  country_name: country.country_name,
+                  country_continent: country.country_continent,
+                })
+              }
+            >
+              Edit
+            </Button>
+
+            {/* Delete Button */}
+            <Button
+              variant="danger"
+              onClick={() => {
+                setCountryToDelete(country.country_id); // Set country for deletion
+                setShowConfirmDeleteModal(true); // Show confirmation modal
+              }}
+            >
+              Delete
+            </Button>
+
+            {/* Unified Image Upload Button */}
+            <Button
+              variant={country.picture_url ? "warning" : "success"} // Change color based on image availability
+              onClick={() => setSelectedCountryId(country.country_id)} // Set the selected country ID for image upload
+            >
+              {country.picture_url ? "Update Image" : "Upload Image"}
+            </Button>
+
+            {/* View Image Button */}
+            {country.picture_url && (
+              <Button
+                variant="info" // Light blue for 'View Image' button
+                onClick={() => window.open(country.picture_url, "_blank")} // Opens the image in a new tab
+              >
+                View Image
+              </Button>
+            )}
+          </div>
+
+          {/* Image Upload Section */}
+          {selectedCountryId === country.country_id && (
+            <div className="mt-2">
+              <Form.Control
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+              {image && <p>Selected image: {image.name}</p>}
+              <Button variant="success" onClick={handleImageUpload}>
+                Upload
+              </Button>
+            </div>
+          )}
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="4" className="text-center">
+        No countries found.
+      </td>
+    </tr>
+  )}
+</tbody>
+
     </Table>
   
     {/* Add/Edit Country Modal */}
