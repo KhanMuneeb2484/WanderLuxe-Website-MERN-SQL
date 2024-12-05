@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Modal, Button, Form, Dropdown, Alert } from "react-bootstrap";
-import { FaGoogle, FaFacebookF } from "react-icons/fa";
+import { FaUser, FaSignOutAlt } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext"; // Corrected path
+import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import "./Header.css";
 
 const Header = () => {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
-  const [agreeTerms, setAgreeTerms] = useState(false);
   const [navbarClass, setNavbarClass] = useState("navbar-darkgrey-translucent");
   const [formData, setFormData] = useState({
     name: "",
@@ -38,10 +37,6 @@ const Header = () => {
     navigate("/login");
   };
 
-  const handleCheckboxChange = (e) => {
-    setAgreeTerms(e.target.checked);
-  };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -53,7 +48,6 @@ const Header = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (formData.password !== formData.confirmPassword) {
       setErrorMessage("Passwords do not match.");
       return;
@@ -62,19 +56,16 @@ const Header = () => {
     try {
       const response = await axios.post("http://localhost:3000/api/users/register-user", {
         ...formData,
-        password_hash: formData.password, // Backend expects password_hash
-        role: "user", // Hardcoded role
+        password_hash: formData.password,
+        role: "user",
       });
       if (response.data) {
-        // Successfully registered
-        setShowRegisterModal(false); // Close the modal
-        navigate("/login"); // Redirect to login page
+        setShowRegisterModal(false);
+        navigate("/login");
       } else {
-        // Handle registration failure
         setErrorMessage(response.data.message || "Registration failed.");
       }
     } catch (error) {
-      // Handle error (network issues, server errors, etc.)
       setErrorMessage("An error occurred. Please try again.");
     }
   };
@@ -88,11 +79,10 @@ const Header = () => {
           style={{ background: "rgba(33, 37, 41, 0.85)" }}
         >
           <Link to="/" className="navbar-brand p-0">
-            {/* Replace the text with logo.svg */}
             <img
-              src="/assets/img/LOGO1.png"  // Replace with the actual path to your logo.svg
+              src="/assets/img/LOGO1.png"
               alt="Wander Luxe Logo"
-              style={{ height: "110px" }} // Adjust height as needed
+              style={{ height: "110px" }}
             />
           </Link>
           <button
@@ -124,19 +114,29 @@ const Header = () => {
             {user ? (
               <div className="d-flex align-items-center ms-3">
                 <Dropdown align="end">
-                  <Dropdown.Toggle variant="light" id="dropdown-basic">
-                    <img
-                      src={user.profilePicture || "/default-profile.png"}
-                      alt="Profile"
-                      style={{ width: "30px", borderRadius: "50%" }}
-                    />
+                  <Dropdown.Toggle
+                    variant="light"
+                    id="dropdown-basic"
+                    className="d-flex align-items-center px-3 py-2 bg-white text-dark border rounded shadow-sm"
+                    style={{ cursor: "pointer" }}
+                  >
+                    <span className="fw-bold">{user.name}</span>
                   </Dropdown.Toggle>
 
-                  <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => navigate("/dashboard")}>
-                      View Profile
+                  <Dropdown.Menu className="shadow">
+                    <Dropdown.Item
+                      onClick={() => navigate("/dashboard")}
+                      className="d-flex align-items-center"
+                    >
+                      <FaUser className="me-2" /> View Profile
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={logout}>Logout</Dropdown.Item>
+                    <Dropdown.Divider />
+                    <Dropdown.Item
+                      onClick={logout}
+                      className="d-flex align-items-center text-danger"
+                    >
+                      <FaSignOutAlt className="me-2" /> Logout
+                    </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
@@ -179,11 +179,7 @@ const Header = () => {
               Receive our exclusive travel deals now!
             </p>
           </div>
-          {errorMessage && (
-            <Alert variant="danger">
-              {errorMessage}
-            </Alert>
-          )}
+          {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
           <Form onSubmit={handleSubmit}>
             <Form.Group controlId="formName" className="mb-3">
               <Form.Control
@@ -235,57 +231,14 @@ const Header = () => {
                 className="p-3 border-0 shadow-sm"
               />
             </Form.Group>
-            <Form.Group controlId="formCheckbox" className="mb-3">
-              <Form.Check
-                type="checkbox"
-                label="I agree to the Terms and Conditions"
-                onChange={handleCheckboxChange}
-              />
-            </Form.Group>
             <Button
               variant="primary"
               className="w-100 py-3 mb-4 fw-bold shadow"
-              disabled={!agreeTerms}
               type="submit"
             >
               Submit
             </Button>
           </Form>
-          <div className="text-center mb-3">
-            <hr className="my-4" />
-            <span className="text-muted fw-bold">Or Sign In With</span>
-            <hr className="my-4" />
-          </div>
-          <div className="d-flex justify-content-center gap-4 mb-4">
-            <Button
-              variant="outline-primary"
-              className="rounded-circle p-3 shadow-sm"
-              onClick={() => (window.location.href = "https://facebook.com")}
-            >
-              <FaFacebookF size={24} />
-            </Button>
-            <Button
-              variant="outline-danger"
-              className="rounded-circle p-3 shadow-sm"
-              onClick={() =>
-                (window.location.href = "https://accounts.google.com")
-              }
-            >
-              <FaGoogle size={24} />
-            </Button>
-          </div>
-          <div className="text-center mt-4">
-            <p className="fw-bold">
-              Already have an account?{" "}
-              <span
-                className="text-primary"
-                onClick={handleLoginRedirect}
-                style={{ cursor: "pointer" }}
-              >
-                Login
-              </span>
-            </p>
-          </div>
         </Modal.Body>
       </Modal>
     </div>

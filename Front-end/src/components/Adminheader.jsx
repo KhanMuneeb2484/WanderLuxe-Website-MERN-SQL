@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Modal, Button, Form, Dropdown } from "react-bootstrap";
-import { FaGoogle, FaFacebookF } from "react-icons/fa";
+import { FaUser, FaSignOutAlt } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import "./Header.css";
@@ -11,12 +11,11 @@ const Adminheader = () => {
   const [navbarClass, setNavbarClass] = useState("navbar-darkgrey-translucent");
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
-  const handleLogout = () => {
-    logout();  // This will clear user data
-    navigate('/');  // This will redirect to the homepage
-  };
 
-  console.log("Logged in user's role:", user?.role); 
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,7 +58,6 @@ const Adminheader = () => {
           </button>
           <div className="collapse navbar-collapse" id="navbarCollapse">
             <div className="navbar-nav ms-auto py-0">
-              {/* New links for Country, City, and Location */}
               <Link to="/Users" className="nav-item nav-link text-white">
                 Users
               </Link>
@@ -82,19 +80,29 @@ const Adminheader = () => {
             {user ? (
               <div className="d-flex align-items-center ms-3">
                 <Dropdown align="end">
-                  <Dropdown.Toggle variant="light" id="dropdown-basic">
-                    <img
-                      src={user.profilePicture || "/default-profile.png"}
-                      alt="Profile"
-                      style={{ width: "30px", borderRadius: "50%" }}
-                    />
+                  <Dropdown.Toggle
+                    variant="light"
+                    id="dropdown-basic"
+                    className="d-flex align-items-center px-3 py-2 bg-white text-dark border rounded shadow-sm"
+                    style={{ cursor: "pointer" }}
+                  >
+                    <span className="fw-bold">{user.name}</span>
                   </Dropdown.Toggle>
 
-                  <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => navigate("/dashboard")}>
-                      View Profile
+                  <Dropdown.Menu className="shadow">
+                    <Dropdown.Item
+                      onClick={() => navigate("/dashboard")}
+                      className="d-flex align-items-center"
+                    >
+                      <FaUser className="me-2" /> View Profile
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
+                    <Dropdown.Divider />
+                    <Dropdown.Item
+                      onClick={handleLogout}
+                      className="d-flex align-items-center text-danger"
+                    >
+                      <FaSignOutAlt className="me-2" /> Logout
+                    </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
@@ -166,44 +174,13 @@ const Adminheader = () => {
                 className="p-3 border-0 shadow-sm"
               />
             </Form.Group>
-            <Form.Group controlId="formCheckbox" className="mb-3">
-              <Form.Check
-                type="checkbox"
-                label="I agree to the Terms and Conditions"
-                onChange={handleCheckboxChange}
-              />
-            </Form.Group>
             <Button
               variant="primary"
               className="w-100 py-3 mb-4 fw-bold shadow"
-              disabled={!agreeTerms}
             >
               Submit
             </Button>
           </Form>
-          <div className="text-center mb-3">
-            <hr className="my-4" />
-            <span className="text-muted fw-bold">Or Sign In With</span>
-            <hr className="my-4" />
-          </div>
-          <div className="d-flex justify-content-center gap-4 mb-4">
-            <Button
-              variant="outline-primary"
-              className="rounded-circle p-3 shadow-sm"
-              onClick={() => (window.location.href = "https://facebook.com")}
-            >
-              <FaFacebookF size={24} />
-            </Button>
-            <Button
-              variant="outline-danger"
-              className="rounded-circle p-3 shadow-sm"
-              onClick={() =>
-                (window.location.href = "https://accounts.google.com")
-              }
-            >
-              <FaGoogle size={24} />
-            </Button>
-          </div>
           <div className="text-center mt-4">
             <p className="fw-bold">
               Already have an account?{" "}
