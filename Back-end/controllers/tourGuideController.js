@@ -116,8 +116,24 @@ const deleteTourGuide = async (req, res) => {
 // Get all tour guides
 const getAllTourGuides = async (req, res) => {
   try {
-    const allGuidesQuery = await pool.query("SELECT * FROM tour_guides");
-    res.status(200).json(allGuidesQuery.rows);
+    const allGuidesQuery = await pool.query(`
+      SELECT 
+        tg.*, 
+        c.country_name, 
+        gp.picture_url, 
+        gp.alt_text
+      FROM tour_guides tg
+      LEFT JOIN countries c ON tg.country_id = c.country_id
+      LEFT JOIN guide_pictures gp ON tg.guide_id = gp.guide_id
+    `);
+
+    const guidesWithImages = allGuidesQuery.rows.map((guide) => ({
+      ...guide,
+      picture_url: guide.picture_url || null,
+      alt_text: guide.alt_text || "No description available",
+    }));
+
+    res.status(200).json(guidesWithImages);
   } catch (error) {
     res.status(500).json({ message: "Error fetching tour guides", error });
   }
@@ -129,7 +145,17 @@ const getTourGuideById = async (req, res) => {
 
   try {
     const guideQuery = await pool.query(
-      `SELECT * FROM tour_guides WHERE guide_id = $1`,
+      `
+      SELECT 
+        tg.*, 
+        c.country_name, 
+        gp.picture_url, 
+        gp.alt_text
+      FROM tour_guides tg
+      LEFT JOIN countries c ON tg.country_id = c.country_id
+      LEFT JOIN guide_pictures gp ON tg.guide_id = gp.guide_id
+      WHERE tg.guide_id = $1
+    `,
       [guide_id]
     );
 
@@ -137,7 +163,14 @@ const getTourGuideById = async (req, res) => {
       return res.status(404).json({ message: "Tour guide not found" });
     }
 
-    res.status(200).json(guideQuery.rows[0]);
+    const guide = guideQuery.rows[0];
+    const guideWithImage = {
+      ...guide,
+      picture_url: guide.picture_url || null,
+      alt_text: guide.alt_text || "No description available",
+    };
+
+    res.status(200).json(guideWithImage);
   } catch (error) {
     res.status(500).json({ message: "Error fetching tour guide", error });
   }
@@ -149,7 +182,17 @@ const getTourGuidesByCountryId = async (req, res) => {
 
   try {
     const guidesQuery = await pool.query(
-      `SELECT * FROM tour_guides WHERE country_id = $1`,
+      `
+      SELECT 
+        tg.*, 
+        c.country_name, 
+        gp.picture_url, 
+        gp.alt_text
+      FROM tour_guides tg
+      LEFT JOIN countries c ON tg.country_id = c.country_id
+      LEFT JOIN guide_pictures gp ON tg.guide_id = gp.guide_id
+      WHERE tg.country_id = $1
+    `,
       [country_id]
     );
 
@@ -159,7 +202,13 @@ const getTourGuidesByCountryId = async (req, res) => {
         .json({ message: "No tour guides found for this country" });
     }
 
-    res.status(200).json(guidesQuery.rows);
+    const guidesWithImages = guidesQuery.rows.map((guide) => ({
+      ...guide,
+      picture_url: guide.picture_url || null,
+      alt_text: guide.alt_text || "No description available",
+    }));
+
+    res.status(200).json(guidesWithImages);
   } catch (error) {
     console.error("Error fetching tour guides:", error);
     res.status(500).json({ message: "Error fetching tour guides", error });
