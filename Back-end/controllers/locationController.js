@@ -108,13 +108,18 @@ const getAllLocations = async (req, res) => {
 
     const locations = locationsQuery.rows;
 
-    // Fetch pictures for each location
+    // Fetch pictures for each location and merge with the location data
     for (const location of locations) {
       const pictureQuery = await pool.query(
         "SELECT picture_url, alt_text FROM location_pictures WHERE location_id = $1",
         [location.location_id]
       );
-      location.pictures = pictureQuery.rows;
+
+      // Append picture details directly to the location object
+      if (pictureQuery.rows.length > 0) {
+        location.picture_url = pictureQuery.rows[0].picture_url;
+        location.alt_text = pictureQuery.rows[0].alt_text;
+      }
     }
 
     res.status(200).json(locations);
@@ -129,6 +134,7 @@ const getLocationById = async (req, res) => {
   const { location_id } = req.params;
 
   try {
+    // Fetch the location by ID
     const locationQuery = await pool.query(
       "SELECT * FROM locations WHERE location_id = $1",
       [location_id]
@@ -140,19 +146,23 @@ const getLocationById = async (req, res) => {
 
     const location = locationQuery.rows[0];
 
-    // Fetch city name
+    // Fetch the associated city name
     const cityQuery = await pool.query(
       "SELECT city_name FROM cities WHERE city_id = $1",
       [location.city_id]
     );
     location.city_name = cityQuery.rows[0].city_name;
 
-    // Fetch pictures for the location
+    // Fetch pictures for the location and merge with the location data
     const pictureQuery = await pool.query(
       "SELECT picture_url, alt_text FROM location_pictures WHERE location_id = $1",
       [location.location_id]
     );
-    location.pictures = pictureQuery.rows;
+
+    if (pictureQuery.rows.length > 0) {
+      location.picture_url = pictureQuery.rows[0].picture_url;
+      location.alt_text = pictureQuery.rows[0].alt_text;
+    }
 
     res.status(200).json(location);
   } catch (error) {
@@ -166,6 +176,7 @@ const getLocationsByCityId = async (req, res) => {
   const { city_id } = req.params;
 
   try {
+    // Fetch locations by city ID
     const locationsQuery = await pool.query(
       "SELECT * FROM locations WHERE city_id = $1",
       [city_id]
@@ -179,18 +190,86 @@ const getLocationsByCityId = async (req, res) => {
 
     const locations = locationsQuery.rows;
 
-    // Fetch pictures for each location
+    // Fetch pictures for each location and merge with the location data
     for (const location of locations) {
       const pictureQuery = await pool.query(
         "SELECT picture_url, alt_text FROM location_pictures WHERE location_id = $1",
         [location.location_id]
       );
-      location.pictures = pictureQuery.rows;
+
+      if (pictureQuery.rows.length > 0) {
+        location.picture_url = pictureQuery.rows[0].picture_url;
+        location.alt_text = pictureQuery.rows[0].alt_text;
+      }
     }
 
     res.status(200).json(locations);
   } catch (error) {
     console.error("Error fetching locations:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+// Handle image upload for location pictures
+const uploadLocationPicture = async (req, res) => {
+  const { location_id } = req.params;
+  const { file } = req;
+
+  if (!file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+
+  try {
+    // Save the image URL and alt text to the database
+    const pictureUrl = `/uploads/locations/${file.filename}`; // Path to the uploaded image
+    const altText = req.body.alt_text || "Location picture";
+
+    const insertQuery = await pool.query(
+      "INSERT INTO location_pictures (location_id, picture_url, alt_text) VALUES ($1, $2, $3) RETURNING *",
+      [location_id, pictureUrl, altText]
+    );
+
+    res
+      .status(200)
+      .json({
+        message: "Image uploaded successfully",
+        picture_url: insertQuery.rows[0].picture_url,
+        alt_text: insertQuery.rows[0].alt_text,
+      });
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+// Handle image update for location pictures
+const updateLocationPicture = async (req, res) => {
+  const { location_id } = req.params;
+  const { file } = req;
+
+  if (!file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+
+  try {
+    // Update the image URL in the database
+    const pictureUrl = `/uploads/locations/${file.filename}`; // Path to the uploaded image
+    const altText = req.body.alt_text || "Updated location picture";
+
+    const updateQuery = await pool.query(
+      "UPDATE location_pictures SET picture_url = $1, alt_text = $2 WHERE location_id = $3 RETURNING *",
+      [pictureUrl, altText, location_id]
+    );
+
+    res
+      .status(200)
+      .json({
+        message: "Image updated successfully",
+        picture_url: updateQuery.rows[0].picture_url,
+        alt_text: updateQuery.rows[0].alt_text,
+      });
+  } catch (error) {
+    console.error("Error updating image:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };
