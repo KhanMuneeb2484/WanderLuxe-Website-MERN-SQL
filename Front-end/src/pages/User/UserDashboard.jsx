@@ -1,27 +1,17 @@
 import React, { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../../context/AuthContext"; // Corrected path
-import {
-  Container,
-  Row,
-  Col,
-  Button,
-  Form,
-  Card,
-  Image,
-} from "react-bootstrap";
+import { AuthContext } from "../../context/AuthContext";
+import { Container, Row, Col, Button, Form, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 const API_URL_UPDATE = "http://localhost:3000/api/users/update-user";
 const API_URL_GET_USER = "http://localhost:3000/api/users/get-user";
-const API_URL_UPDATE_PICTURE = "http://localhost:3000/api/users/update-picture";
 
 const UserDashboard = () => {
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({ name: "", email: "" });
-  const [profilePicture, setProfilePicture] = useState(null);
+  const [formData, setFormData] = useState({ name: "", email: "", phone_number: "" });
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -46,8 +36,7 @@ const UserDashboard = () => {
 
       if (response.ok) {
         setUserData(data);
-        setFormData({ name: data.name, email: data.email });
-        setProfilePicture(data.profilePicture);
+        setFormData({ name: data.name, email: data.email, phone_number: data.phone_number });
       } else {
         logout();
         navigate("/login");
@@ -93,62 +82,26 @@ const UserDashboard = () => {
     }
   };
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append("profilePicture", file);
-
-      const token = localStorage.getItem("token");
-      try {
-        const response = await fetch(API_URL_UPDATE_PICTURE, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-          setProfilePicture(data.profilePicture);
-        } else {
-          console.error("Failed to update profile picture:", data.message);
-        }
-      } catch (error) {
-        console.error("Error updating profile picture:", error);
-      }
-    }
-  };
-
   if (!userData) {
     return <p>Loading...</p>;
   }
 
   return (
-    <>
-      <Container className="mt-5">
+    <Container className="mt-5">
       <Row className="justify-content-center">
         <Col md={8}>
-          <Card className="p-4 shadow">
+          <Card className="p-4 shadow-lg">
             <div className="text-center mb-4">
-              <Image
-                src={profilePicture || "/default-profile.png"}
-                alt="Profile"
-                roundedCircle
-                style={{ width: "150px", height: "150px", objectFit: "cover" }}
-              />
-              <h2 className="mt-3">{userData.name}</h2>
-              <p>{userData.email}</p>
-              <Form.Group controlId="formFile" className="mb-3">
-                <Form.Label>Update Profile Picture</Form.Label>
-                <Form.Control
-                  type="file"
-                  onChange={handleFileChange}
-                  accept="image/*"
-                />
-              </Form.Group>
+              <h2>{userData.name}</h2>
+              <p className="text-muted">{userData.email}</p>
+              <p className="text-muted">{userData.phone_number}</p>
             </div>
-            <h4>Booking Details</h4>
-            <p>No booking details available.</p>
+
+            <div className="mb-4">
+              <h4 className="text-primary">Booking Details</h4>
+              <p>No booking details available at this moment.</p>
+            </div>
+
             <Button
               variant="primary"
               className="mt-3"
@@ -156,6 +109,7 @@ const UserDashboard = () => {
             >
               {isEditing ? "Cancel" : "Edit Profile"}
             </Button>
+
             {isEditing && (
               <Form className="mt-4">
                 <Form.Group controlId="formName" className="mb-3">
@@ -167,6 +121,7 @@ const UserDashboard = () => {
                     onChange={handleInputChange}
                   />
                 </Form.Group>
+
                 <Form.Group controlId="formEmail" className="mb-3">
                   <Form.Label>Email</Form.Label>
                   <Form.Control
@@ -176,20 +131,35 @@ const UserDashboard = () => {
                     onChange={handleInputChange}
                   />
                 </Form.Group>
+
+                <Form.Group controlId="formPhone" className="mb-3">
+                  <Form.Label>Phone Number</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="phone_number"
+                    value={formData.phone_number}
+                    onChange={handleInputChange}
+                    placeholder="Enter phone number"
+                  />
+                </Form.Group>
+
                 <Button variant="primary" onClick={handleUpdateProfile}>
                   Save Changes
                 </Button>
               </Form>
             )}
-            <Button variant="secondary" className="mt-3" onClick={logout}>
+
+            <Button
+              variant="secondary"
+              className="mt-3"
+              onClick={logout}
+            >
               Logout
             </Button>
           </Card>
         </Col>
       </Row>
     </Container>
-    </>
-    
   );
 };
 
