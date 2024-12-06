@@ -28,8 +28,7 @@ const Packages = () => {
                 {
                     method: "GET",
                     headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
                     },
                 }
             );
@@ -52,8 +51,7 @@ const Packages = () => {
                 {
                     method: "GET",
                     headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
                     },
                 }
             );
@@ -76,8 +74,7 @@ const Packages = () => {
                 {
                     method: "GET",
                     headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
                     },
                 }
             );
@@ -100,8 +97,7 @@ const Packages = () => {
                 {
                     method: "GET",
                     headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
                     },
                 }
             );
@@ -126,8 +122,7 @@ const Packages = () => {
                 {
                     method: "GET",
                     headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
                     },
                 }
             );
@@ -145,12 +140,11 @@ const Packages = () => {
     const fetchPackages = async () => {
         try {
             const response = await fetch(
-                "http://localhost:3000/api/packages/get-all-packages",
+                "http://localhost:3000/api/packages/get-all-packages/",
                 {
                     method: "GET",
                     headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
                     },
                 }
             );

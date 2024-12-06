@@ -13,7 +13,7 @@ const router = express.Router();
 // Route to create a package
 router.post("/create-package", authenticateJWT, createPackage);
 
-router.get("/get-package-by-id/:package_id", authenticateJWT, getPackageById);
+router.get("/get-package-by-id/:package_id",  getPackageById);
 
 router.delete(
   "/delete-package/:package_id",
@@ -21,7 +21,7 @@ router.delete(
   deletePackageById
 );
 
-router.get("/get-all-packages", authenticateJWT, getAllPackages);
+router.get("/get-all-packages", getAllPackages);
 
 router.get("/get-packages-by-userId", authenticateJWT, getPackageByUserId); // Updated to include user_id parameter
 
