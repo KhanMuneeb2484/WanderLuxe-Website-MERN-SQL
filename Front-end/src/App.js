@@ -7,6 +7,7 @@ import Home from "./pages/User/UserHome";
 import About from "./pages/User/UserAbout";
 import Services from "./pages/User/UserServices";
 import Packages from "./pages/User/UserPackages";
+import PackagesAdmin from "./pages/Admin/AdminPackages";
 import Booking from "./pages/User/UserBookings";
 import { AuthContext } from "./context/AuthContext";
 import Destinations from "./pages/User/UserDestinations";
@@ -45,6 +46,7 @@ const App = () => {
         <Route path="/countries" element={<Countries />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/packages" element={<Packages />} />
+        <Route path="/adminpackages" element={<PackagesAdmin />} />
         <Route path="/packages/:packageId" element={<PackagePage />} />
         <Route path="/services" element={<Services />} />
         <Route path="/Destination" element={<Destinations />} />
