@@ -584,6 +584,5 @@ export {
   getPackageById,
   deletePackageById,
   getAllPackages,
-  deletePackageById,
   getPackageByUserId,
 };
