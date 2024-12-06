@@ -10,7 +10,7 @@ import locationRoutes from "./routes/locationRoutes.js";
 import tourGuideRoutes from "./routes/tourGuideRoutes.js";
 import hotelRoutes from "./routes/hotelRoutes.js";
 import packageRoutes from "./routes/packageRoutes.js";
-import bookingRoutes from "./routes/bookingRoutes.js";
+import customBookingRoutes from "./routes/customBookingRoutes.js";
 import pictureRoutes from "./routes/pictureRoutes.js";
 import adminPackageRoutes from "./routes/adminPackageRoute.js";
 import cors from "cors";
@@ -36,7 +36,7 @@ app.use("/api/locations", locationRoutes);
 app.use("/api/guides", tourGuideRoutes);
 app.use("/api/hotels", hotelRoutes);
 app.use("/api/packages", packageRoutes);
-app.use("/api/bookings", bookingRoutes);
+app.use("/api/bookings", customBookingRoutes);
 app.use("/api/adminPackages", adminPackageRoutes);
 app.use("/api/pictures", pictureRoutes);
 

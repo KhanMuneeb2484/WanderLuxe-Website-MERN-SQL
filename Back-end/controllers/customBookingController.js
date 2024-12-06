@@ -14,7 +14,7 @@ const createBooking = async (req, res) => {
     const packageQuery = await pool.query(
       `SELECT 
            SUM(pc.days_stayed) AS total_days 
-         FROM admin_package_cities pc
+         FROM package_cities pc
          WHERE pc.package_id = $1`,
       [package_id]
     );
@@ -39,7 +39,7 @@ const createBooking = async (req, res) => {
 
     // Insert the booking into the bookings table with status 'pending'
     const bookingQuery = await pool.query(
-      `INSERT INTO bookings (user_id, admin_package_id, start_date, end_date, status)
+      `INSERT INTO bookings (user_id, package_id, start_date, end_date, status)
          VALUES ($1, $2, $3, $4, $5) RETURNING *`,
       [user_id, package_id, start_date, end_date, "pending"]
     );
