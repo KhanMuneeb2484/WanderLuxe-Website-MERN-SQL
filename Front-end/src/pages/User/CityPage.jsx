@@ -46,7 +46,7 @@ function CityPage() {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            Authorization: `Bearer ${bearerToken}`, // Add Bearer toke
+                            Authorization: `Bearer ${bearerToken}`, // Add Bearer token
                         },
                     }
                 );
@@ -56,6 +56,7 @@ function CityPage() {
                 }
 
                 const data = await response.json();
+                console.log(data);
                 setCities(data); // Set the cities data to state
             } catch (error) {
                 setError(error.message);
@@ -121,10 +122,10 @@ function CityPage() {
                                     className="destination-item card"
                                     style={{ cursor: "pointer" }}>
                                     <div className="overflow-hidden">
-                                        {/* Placeholder image, replace it with dynamic images later */}
+                                        {/* Dynamic image */}
                                         <img
                                             className="img-fluid card-img-top"
-                                            src="placeholder.jpeg"
+                                            src={city.picture_url}
                                             alt={city.city_name}
                                         />
                                     </div>
