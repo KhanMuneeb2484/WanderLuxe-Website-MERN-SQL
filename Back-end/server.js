@@ -38,8 +38,6 @@ app.use("/api/hotels", hotelRoutes);
 app.use("/api/packages", packageRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/adminPackages", adminPackageRoutes);
-
-// Routes
 app.use("/api/pictures", pictureRoutes);
 
 app.use(morgan("dev"));
