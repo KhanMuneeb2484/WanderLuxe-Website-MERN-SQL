@@ -12,6 +12,7 @@ import hotelRoutes from "./routes/hotelRoutes.js";
 import packageRoutes from "./routes/packageRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import pictureRoutes from "./routes/pictureRoutes.js";
+import adminPackageRoutes from "./routes/adminPackageRoute.js";
 import cors from "cors";
 import path from "path";
 import multer from "multer";
@@ -36,6 +37,7 @@ app.use("/api/guides", tourGuideRoutes);
 app.use("/api/hotels", hotelRoutes);
 app.use("/api/packages", packageRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/adminPackages", adminPackageRoutes);
 
 // Routes
 app.use("/api/pictures", pictureRoutes);
