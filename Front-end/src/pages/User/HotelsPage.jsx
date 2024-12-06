@@ -115,10 +115,10 @@ function HotelPage() {
                   <div className="overflow-hidden">
                     {/* Placeholder image, replace it with dynamic images later */}
                     <img
-                      className="img-fluid card-img-top"
-                      src="placeholder-hotel.jpeg"
-                      alt={hotel.hotel_name}
-                    />
+                                            className="img-fluid card-img-top"
+                                            src={hotel.picture_url}
+                                            alt={hotel.hotel_name}
+                                        />
                   </div>
                   <div className="text-center p-4">
                     <h3 className="mb-3">{hotel.hotel_name}</h3>

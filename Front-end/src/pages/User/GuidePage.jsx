@@ -124,8 +124,8 @@ function GuidePage() {
                                         {/* Placeholder image, replace it with dynamic images later */}
                                         <img
                                             className="img-fluid card-img-top"
-                                            src="placeholder.jpeg"
-                                            alt={guide.guide_name}
+                                            src={guide.picture_url}
+                                            alt={guide.country_name}
                                         />
                                     </div>
                                     <div className="text-center p-4">

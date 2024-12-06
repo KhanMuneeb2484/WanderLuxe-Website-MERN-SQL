@@ -16,10 +16,6 @@ function Destinations() {
     // Fetch countries data from API
     useEffect(() => {
         const fetchCountries = async () => {
-            if (!bearerToken) {
-                setError("No token found. Please log in.");
-                return; // Exit early if no token is found
-            }
 
             try {
                 const response = await fetch(
