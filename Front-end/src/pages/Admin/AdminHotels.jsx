@@ -199,15 +199,14 @@ const AdminHotels = () => {
       setImage(file); // Set the selected image to the image state
     }
   };
-
   const handleImageUpload = async () => {
     const token = localStorage.getItem("token");
-    if (!token || !selectedHotelId || !image) return;
-
-    const imageFormData = new FormData();
-    imageFormData.append("image", image);
+    if (!token || !selectedHotelId|| !image) return;
 
     try {
+      const imageFormData = new FormData();
+      imageFormData.append("image", image);
+
       const imageResponse = await fetch(
         `http://localhost:3000/api/pictures/upload/hotel/${selectedHotelId}`,
         {
@@ -223,7 +222,7 @@ const AdminHotels = () => {
         setErrorMessage("Failed to upload image. Please try again.");
       } else {
         console.log("Image uploaded successfully.");
-        fetchHotels(token); // Refresh hotels list after image upload
+        // You can optionally update the country's data or refresh the list after image upload
       }
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -286,14 +285,6 @@ const AdminHotels = () => {
                 <td>{hotel.price}</td>
                 <td>{hotel.availability ? "Available" : "Not Available"}</td>
                 <td>
-                {hotel.picture_url && (
-                      <Button
-                        variant="info"
-                        onClick={() => window.open(hotel.picture_url, "_blank")}
-                      >
-                        View Image
-                      </Button>
-                    )}
                   <Button variant="warning" onClick={() => handleShowModal(hotel)}>
                     Edit
                   </Button>
@@ -306,21 +297,38 @@ const AdminHotels = () => {
                   >
                     Delete
                   </Button>
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      setSelectedHotelId(hotel.hotel_id);
-                      document.getElementById("imageUpload").click();
-                    }}
-                  >
-                    {hotel.picture_url ? "Update Image" : "Upload Image"}
-                  </Button>
-                  <input
-                    type="file"
-                    id="imageUpload"
-                    style={{ display: "none" }}
-                    onChange={handleImageChange}
-                  />
+                   {/* Unified Image Upload Button */}
+            <Button
+              variant={hotel.picture_url ? "warning" : "success"} // Change color based on image availability
+              onClick={() => setSelectedHotelId(hotel.hotel_id)} // Set the selected country ID for image upload
+            >
+              {hotel.picture_url ? "Update Image" : "Upload Image"}
+            </Button>
+
+            {/* View Image Button */}
+            {hotel.picture_url && (
+              <Button
+                variant="info" // Light blue for 'View Image' button
+                onClick={() => window.open(hotel.picture_url, "_blank")} // Opens the image in a new tab
+              >
+                View Image
+              </Button>
+            )}
+
+          {/* Image Upload Section */}
+          {selectedHotelId === hotel.hotel_id && (
+            <div className="mt-2">
+              <Form.Control
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+              {image && <p>Selected image: {image.name}</p>}
+              <Button variant="success" onClick={handleImageUpload}>
+                Upload
+              </Button>
+            </div>
+          )}
                 </td>
               </tr>
             ))
