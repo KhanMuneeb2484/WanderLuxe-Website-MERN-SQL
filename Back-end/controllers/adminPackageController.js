@@ -57,9 +57,9 @@ const createPackage = async (req, res) => {
         return res.status(400).json({ message: "Missing city details" });
       }
 
-      // Insert city into package_cities with initial city_cost of 0
+      // Insert city into admin_package_cities with initial city_cost of 0
       const cityResult = await pool.query(
-        `INSERT INTO package_cities (package_id, city_id, days_stayed, city_cost)
+        `INSERT INTO admin_package_cities (package_id, city_id, days_stayed, city_cost)
          VALUES ($1, $2, $3, $4) RETURNING package_city_id`,
         [package_id, city_id, days_stayed, 0]
       );
@@ -96,7 +96,7 @@ const createPackage = async (req, res) => {
           cityCost += locationPrice;
 
           await pool.query(
-            `INSERT INTO package_locations (package_city_id, location_id, total_price)
+            `INSERT INTO admin_package_locations (package_city_id, location_id, total_price)
              VALUES ($1, $2, $3)`,
             [packageCityId, location_id, locationPrice]
           );
@@ -124,7 +124,7 @@ const createPackage = async (req, res) => {
           cityCost += hotelPrice;
 
           await pool.query(
-            `INSERT INTO package_hotels (package_city_id, hotel_id, num_rooms, hotel_cost, days_stayed)
+            `INSERT INTO admin_package_hotels (package_city_id, hotel_id, num_rooms, hotel_cost, days_stayed)
              VALUES ($1, $2, $3, $4, $5)`,
             [packageCityId, hotel_id, num_rooms, hotelPrice, days_stayed]
           );
@@ -132,7 +132,7 @@ const createPackage = async (req, res) => {
       }
 
       await pool.query(
-        `UPDATE package_cities SET city_cost = $1 WHERE package_city_id = $2`,
+        `UPDATE admin_package_cities SET city_cost = $1 WHERE package_city_id = $2`,
         [cityCost, packageCityId]
       );
 
@@ -222,7 +222,7 @@ const getPackageById = async (req, res) => {
         pc.city_cost,
         ci.city_name,
         cpic.picture_url AS city_picture
-      FROM package_cities pc
+      FROM admin_package_cities pc
       LEFT JOIN cities ci ON pc.city_id = ci.city_id
       LEFT JOIN city_pictures cpic ON ci.city_id = cpic.city_id
       WHERE pc.package_id = $1
@@ -244,7 +244,7 @@ const getPackageById = async (req, res) => {
           l.location_name,
           pl.total_price AS location_price,
           lp.picture_url AS location_picture
-        FROM package_locations pl
+        FROM admin_package_locations pl
         LEFT JOIN locations l ON pl.location_id = l.location_id
         LEFT JOIN location_pictures lp ON l.location_id = lp.location_id
         WHERE pl.package_city_id = $1
@@ -264,7 +264,7 @@ const getPackageById = async (req, res) => {
           ph.hotel_cost,
           ph.days_stayed,
           hp.picture_url AS hotel_picture
-        FROM package_hotels ph
+        FROM admin_package_hotels ph
         LEFT JOIN hotels h ON ph.hotel_id = h.hotel_id
         LEFT JOIN hotel_pictures hp ON h.hotel_id = hp.hotel_id
         WHERE ph.package_city_id = $1
@@ -306,26 +306,26 @@ const deletePackageById = async (req, res) => {
     // Start a transaction to ensure consistent deletion
     await pool.query("BEGIN");
 
-    // Delete related data from package_locations
+    // Delete related data from admin_package_locations
     await pool.query(
-      `DELETE FROM package_locations
+      `DELETE FROM admin_package_locations
        WHERE package_city_id IN (
-         SELECT package_city_id FROM package_cities WHERE package_id = $1
+         SELECT package_city_id FROM admin_package_cities WHERE package_id = $1
        )`,
       [package_id]
     );
 
-    // Delete related data from package_hotels
+    // Delete related data from admin_package_hotels
     await pool.query(
-      `DELETE FROM package_hotels
+      `DELETE FROM admin_package_hotels
        WHERE package_city_id IN (
-         SELECT package_city_id FROM package_cities WHERE package_id = $1
+         SELECT package_city_id FROM admin_package_cities WHERE package_id = $1
        )`,
       [package_id]
     );
 
-    // Delete related data from package_cities
-    await pool.query(`DELETE FROM package_cities WHERE package_id = $1`, [
+    // Delete related data from admin_package_cities
+    await pool.query(`DELETE FROM admin_package_cities WHERE package_id = $1`, [
       package_id,
     ]);
 
@@ -392,7 +392,7 @@ const getAllPackages = async (req, res) => {
           pc.city_cost,
           ci.city_name,
           cpic.picture_url AS city_picture
-        FROM package_cities pc
+        FROM admin_package_cities pc
         LEFT JOIN cities ci ON pc.city_id = ci.city_id
         LEFT JOIN city_pictures cpic ON ci.city_id = cpic.city_id
         WHERE pc.package_id = $1
@@ -414,7 +414,7 @@ const getAllPackages = async (req, res) => {
             l.location_name,
             pl.total_price AS location_price,
             lp.picture_url AS location_picture
-          FROM package_locations pl
+          FROM admin_package_locations pl
           LEFT JOIN locations l ON pl.location_id = l.location_id
           LEFT JOIN location_pictures lp ON l.location_id = lp.location_id
           WHERE pl.package_city_id = $1
@@ -434,7 +434,7 @@ const getAllPackages = async (req, res) => {
             ph.hotel_cost,
             ph.days_stayed,
             hp.picture_url AS hotel_picture
-          FROM package_hotels ph
+          FROM admin_package_hotels ph
           LEFT JOIN hotels h ON ph.hotel_id = h.hotel_id
           LEFT JOIN hotel_pictures hp ON h.hotel_id = hp.hotel_id
           WHERE ph.package_city_id = $1

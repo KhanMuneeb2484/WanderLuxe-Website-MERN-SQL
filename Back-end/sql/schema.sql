@@ -137,7 +137,43 @@ CREATE TABLE IF NOT EXISTS package_hotels (
     ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS admin_package_cities (
+  package_city_id SERIAL PRIMARY KEY,
+  package_id INT NOT NULL,
+  city_id INT NOT NULL,
+  days_stayed INT NOT NULL,
+  city_cost DECIMAL(10, 2) NOT NULL,
+  FOREIGN KEY (package_id) REFERENCES adminPackages(package_id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (city_id) REFERENCES cities(city_id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+);
 
+CREATE TABLE IF NOT EXISTS admin_package_locations (
+  package_location_id SERIAL PRIMARY KEY,
+  package_city_id INT NOT NULL,
+  location_id INT NOT NULL,
+  total_price DECIMAL(10, 2) NOT NULL,  -- Price for the total number of people
+  FOREIGN KEY (package_city_id) REFERENCES admin_package_cities(package_city_id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (location_id) REFERENCES locations(location_id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+
+CREATE TABLE IF NOT EXISTS admin_package_hotels (
+  package_hotel_id SERIAL PRIMARY KEY,
+  package_city_id INT NOT NULL,
+  hotel_id INT NOT NULL,
+  num_rooms INT NOT NULL,
+  hotel_cost DECIMAL(10, 2) NOT NULL,
+  days_stayed INT NOT NULL, -- Days stayed at the hotel (should match `days_stayed` from `package_cities`)
+  FOREIGN KEY (package_city_id) REFERENCES admin_package_cities(package_city_id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (hotel_id) REFERENCES hotels(hotel_id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+);
 
 -- Creating Booking table
 CREATE TABLE IF NOT EXISTS bookings (
