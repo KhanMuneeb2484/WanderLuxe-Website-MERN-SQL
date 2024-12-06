@@ -39,9 +39,9 @@ const createPackage = async (req, res) => {
         .json({ message: "Total days stayed must be greater than 0" });
     }
 
-    // Insert into packages table with initial total_price of 0 and num_people
+    // Insert into adminPackages table with initial total_price of 0 and num_people
     const newPackageQuery = await pool.query(
-      `INSERT INTO packages (user_id, country_id, guide_id, total_price, num_people, total_days_stayed)
+      `INSERT INTO adminPackages (user_id, country_id, guide_id, total_price, num_people, total_days_stayed)
        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
       [user_id, country_id, guide_id || null, 0, num_people, totalDaysStayed]
     );
@@ -157,7 +157,7 @@ const createPackage = async (req, res) => {
     }
 
     const updatePackage = await pool.query(
-      `UPDATE packages SET total_price = $1, guide_cost = $2, total_days_stayed = $3 WHERE package_id = $4 RETURNING *`,
+      `UPDATE adminPackages SET total_price = $1, guide_cost = $2, total_days_stayed = $3 WHERE package_id = $4 RETURNING *`,
       [totalPrice, guideCost, totalDaysStayed, package_id]
     );
 
@@ -197,7 +197,7 @@ const getPackageById = async (req, res) => {
         g.guide_name,
         g.per_day_charge,
         cp.picture_url AS country_picture
-      FROM packages p
+      FROM adminPackages p
       LEFT JOIN countries c ON p.country_id = c.country_id
       LEFT JOIN tour_guides g ON p.guide_id = g.guide_id
       LEFT JOIN country_pictures cp ON c.country_id = cp.country_id
@@ -295,7 +295,7 @@ const deletePackageById = async (req, res) => {
   try {
     // Check if the package exists
     const packageExists = await pool.query(
-      `SELECT * FROM packages WHERE package_id = $1`,
+      `SELECT * FROM adminPackages WHERE package_id = $1`,
       [package_id]
     );
 
@@ -330,7 +330,7 @@ const deletePackageById = async (req, res) => {
     ]);
 
     // Finally, delete the package itself
-    await pool.query(`DELETE FROM packages WHERE package_id = $1`, [
+    await pool.query(`DELETE FROM adminPackages WHERE package_id = $1`, [
       package_id,
     ]);
 
@@ -346,10 +346,10 @@ const deletePackageById = async (req, res) => {
   }
 };
 
-// Get all tour packages
+// Get all tour adminPackages
 const getAllPackages = async (req, res) => {
   try {
-    // Fetch all packages with their basic details, including total price and guide info
+    // Fetch all adminPackages with their basic details, including total price and guide info
     const packageQuery = await pool.query(`
       SELECT 
         p.package_id,
@@ -363,23 +363,23 @@ const getAllPackages = async (req, res) => {
         g.guide_name,
         g.per_day_charge,
         cp.picture_url AS country_picture
-      FROM packages p
+      FROM adminPackages p
       LEFT JOIN countries c ON p.country_id = c.country_id
       LEFT JOIN tour_guides g ON p.guide_id = g.guide_id
       LEFT JOIN country_pictures cp ON c.country_id = cp.country_id
     `);
 
-    const packages = packageQuery.rows;
+    const adminPackages = packageQuery.rows;
 
-    // If no packages are found, return an empty response
-    if (packages.length === 0) {
+    // If no adminPackages are found, return an empty response
+    if (adminPackages.length === 0) {
       return res
         .status(200)
-        .json({ message: "No packages found", packages: [] });
+        .json({ message: "No adminPackages found", adminPackages: [] });
     }
 
     // For each package, fetch its associated cities, locations, and hotels
-    for (const pkg of packages) {
+    for (const pkg of adminPackages) {
       const { package_id } = pkg;
 
       // Fetch cities associated with the package
@@ -449,13 +449,13 @@ const getAllPackages = async (req, res) => {
       pkg.cities = cities;
     }
 
-    // Return all packages with details
+    // Return all adminPackages with details
     res
       .status(200)
-      .json({ message: "Packages retrieved successfully", packages });
+      .json({ message: "Packages retrieved successfully", adminPackages });
   } catch (error) {
-    console.error("Error fetching packages:", error);
-    res.status(500).json({ message: "Error fetching packages", error });
+    console.error("Error fetching adminPackages:", error);
+    res.status(500).json({ message: "Error fetching adminPackages", error });
   }
 };
 
