@@ -185,7 +185,7 @@ CREATE TABLE IF NOT EXISTS Bookings (
   status VARCHAR(50) DEFAULT 'pending', -- Status of the booking, defaults to 'pending'
   FOREIGN KEY (user_id) REFERENCES users(user_id)
     ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (package_id) REFERENCES adminPackages(package_id)
+  FOREIGN KEY (admin_package_id) REFERENCES adminPackages(package_id)
     ON DELETE CASCADE ON UPDATE CASCADE
 );
 
