@@ -24,17 +24,17 @@ import {
 
 const UserHome = () => {
   return (
-<Box sx={{ bgcolor: 'background.default', minHeight: '100vh', mt: { xs: '15px', md: '15px' } }}>
-{/* Hero Section */}
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+      {/* Hero Section */}
       <Box 
         sx={{ 
           position: 'relative', 
-          height: '80vh', 
+          height: '120vh', 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center',
           background: 'linear-gradient(to right, #303f9f, #7b1fa2, #303f9f)',
-          overflow: 'hidden',
+          overflow: 'hidden'
         }}
       >
         <Box sx={{ position: 'absolute', inset: 0, bgcolor: 'rgba(0,0,0,0.3)' }}></Box>
