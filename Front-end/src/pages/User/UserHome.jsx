@@ -176,7 +176,7 @@ const UserHome = () => {
           >
             <Box
               sx={{
-                background: "linear-gradient(to right, #3f51b5, #7e57c2)",
+                background: "linear-gradient(to right,rgb(21, 36, 120), #7e57c2)",
                 color: "white",
                 px: 3,
                 py: 5,
