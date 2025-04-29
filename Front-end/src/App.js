@@ -30,6 +30,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import HotelPage from "./pages/User/HotelsPage";
 import AdminHotels from "./pages/Admin/AdminHotels";
 import AdminGuides from "./pages/Admin/AdminGuides";
+import BookingPage from "./pages/User/BookingPage";
 
 
 const App = () => {
@@ -63,6 +64,8 @@ const App = () => {
         <Route path="/guides/:countryId" element={<GuidePage />} />
         <Route path="/locations/:cityId" element={<LocationPage />} />
         <Route path="/hotels/:cityId" element={<HotelPage />} />
+        <Route path="/booking/:packageId" element={<BookingPage />} />
+
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       <Footer />

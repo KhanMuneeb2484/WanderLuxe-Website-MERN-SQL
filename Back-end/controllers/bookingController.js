@@ -1,3 +1,4 @@
+//readymade booking controller
 import pool from "../config/db.js";
 
 const createBooking = async (req, res) => {

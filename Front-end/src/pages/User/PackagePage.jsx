@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Row, Typography, Image, Spin, Divider } from 'antd';
 import { useParams } from 'react-router-dom';
-import './PackagePage.css'; // If you prefer using a separate CSS file for custom styles
+import './PackagePage.css';
 
 const { Title, Text } = Typography;
 
@@ -13,11 +13,11 @@ const PackagePage = () => {
 
   useEffect(() => {
     // Fetch package data from API using packageId from the URL
-    fetch(`http://localhost:3000/api/packages/get-package-by-id/${packageId}`)
+    fetch(`http://localhost:3000/api/adminPackages/get-package-by-id/${packageId}`)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data); // Log the response to see the structure
-        setPackageData(data);
+        console.log('this is package data ', data); // Log the response to see the structure
+        setPackageData(data.adminPackages[0]); // Access the first package in the array
         setLoading(false);
       })
       .catch((error) => {
@@ -30,11 +30,11 @@ const PackagePage = () => {
     return <Spin size="large" style={{ marginTop: '20px' }} />;
   }
 
-  if (!packageData || !packageData.package) {
+  if (!packageData) {
     return <Text>No package data available</Text>;
   }
 
-  const pkg = packageData.package; // Access the "package" key directly from the response
+  const pkg = packageData; // Now packageData is a single object, no need to access `packageData.package`
 
   return (
     <div className="package-page">

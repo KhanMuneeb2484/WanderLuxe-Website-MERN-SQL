@@ -176,13 +176,12 @@ const createPackage = async (req, res) => {
 const getPackageById = async (req, res) => {
   const { package_id } = req.params;
 
-  // Validate if the package_id is a valid number
   if (isNaN(package_id)) {
     return res.status(400).json({ message: "Invalid package ID" });
   }
 
   try {
-    // Fetch package details by package_id
+    // Fetch package details by package_id from admin tables
     const packageQuery = await pool.query(
       `
       SELECT 
@@ -191,8 +190,8 @@ const getPackageById = async (req, res) => {
         p.country_id,
         p.guide_id,
         p.total_price,
-        p.num_people,               -- Include number of people
-        p.total_days_stayed,        -- Include total days stayed
+        p.num_people,
+        p.total_days_stayed,
         c.country_name,
         g.guide_name,
         g.per_day_charge,
@@ -212,7 +211,7 @@ const getPackageById = async (req, res) => {
 
     const pkg = packageQuery.rows[0];
 
-    // Fetch cities associated with the package
+    // Fetch cities associated with the package from admin tables
     const citiesQuery = await pool.query(
       `
       SELECT 
@@ -232,11 +231,10 @@ const getPackageById = async (req, res) => {
 
     const cities = citiesQuery.rows;
 
-    // Fetch locations and hotels for each city
     for (const city of cities) {
       const { package_city_id } = city;
 
-      // Fetch locations for the city
+      // Locations
       const locationsQuery = await pool.query(
         `
         SELECT 
@@ -251,10 +249,9 @@ const getPackageById = async (req, res) => {
         `,
         [package_city_id]
       );
-
       city.locations = locationsQuery.rows;
 
-      // Fetch hotels for the city
+      // Hotels
       const hotelsQuery = await pool.query(
         `
         SELECT 
@@ -271,22 +268,38 @@ const getPackageById = async (req, res) => {
         `,
         [package_city_id]
       );
-
       city.hotels = hotelsQuery.rows;
     }
 
-    // Attach cities to the package
     pkg.cities = cities;
 
-    // Return the package with details
-    res
-      .status(200)
-      .json({ message: "Package retrieved successfully", package: pkg });
+    // Construct the response for the admin package
+    const adminPackage = {
+      package_id: pkg.package_id,
+      user_id: pkg.user_id,
+      country_id: pkg.country_id,
+      guide_id: pkg.guide_id,
+      total_price: pkg.total_price,
+      num_people: pkg.num_people,
+      total_days_stayed: pkg.total_days_stayed,
+      country_name: pkg.country_name,
+      guide_name: pkg.guide_name,
+      per_day_charge: pkg.per_day_charge,
+      country_picture: pkg.country_picture,
+      cities: pkg.cities,
+    };
+
+    res.status(200).json({
+      message: "Package retrieved successfully",
+      adminPackages: [adminPackage], // wrap the package in an array like the backend response
+    });
   } catch (error) {
     console.error("Error fetching package by ID:", error);
     res.status(500).json({ message: "Error fetching package by ID", error });
   }
 };
+
+
 
 // Delete a package by ID
 const deletePackageById = async (req, res) => {
@@ -349,7 +362,7 @@ const deletePackageById = async (req, res) => {
 // Get all tour adminPackages
 const getAllPackages = async (req, res) => {
   try {
-    // Fetch all adminPackages with their basic details, including total price and guide info
+    // Fetch all adminPackages with related basic info
     const packageQuery = await pool.query(`
       SELECT 
         p.package_id,
@@ -357,8 +370,8 @@ const getAllPackages = async (req, res) => {
         p.country_id,
         p.guide_id,
         p.total_price,
-        p.num_people,               -- Include number of people
-        p.total_days_stayed,        -- Include total days stayed
+        p.num_people,
+        p.total_days_stayed,
         c.country_name,
         g.guide_name,
         g.per_day_charge,
@@ -371,20 +384,15 @@ const getAllPackages = async (req, res) => {
 
     const adminPackages = packageQuery.rows;
 
-    // If no adminPackages are found, return an empty response
     if (adminPackages.length === 0) {
-      return res
-        .status(200)
-        .json({ message: "No adminPackages found", adminPackages: [] });
+      return res.status(200).json({ message: "No adminPackages found", adminPackages: [] });
     }
 
-    // For each package, fetch its associated cities, locations, and hotels
     for (const pkg of adminPackages) {
       const { package_id } = pkg;
 
-      // Fetch cities associated with the package
-      const citiesQuery = await pool.query(
-        `
+      // Fetch cities in the package
+      const citiesQuery = await pool.query(`
         SELECT 
           pc.package_city_id,
           pc.city_id,
@@ -396,19 +404,15 @@ const getAllPackages = async (req, res) => {
         LEFT JOIN cities ci ON pc.city_id = ci.city_id
         LEFT JOIN city_pictures cpic ON ci.city_id = cpic.city_id
         WHERE pc.package_id = $1
-      `,
-        [package_id]
-      );
+      `, [package_id]);
 
       const cities = citiesQuery.rows;
 
-      // Fetch locations and hotels for each city
       for (const city of cities) {
         const { package_city_id } = city;
 
-        // Fetch locations for the city
-        const locationsQuery = await pool.query(
-          `
+        // Fetch locations for this city
+        const locationsQuery = await pool.query(`
           SELECT 
             pl.location_id,
             l.location_name,
@@ -418,15 +422,12 @@ const getAllPackages = async (req, res) => {
           LEFT JOIN locations l ON pl.location_id = l.location_id
           LEFT JOIN location_pictures lp ON l.location_id = lp.location_id
           WHERE pl.package_city_id = $1
-        `,
-          [package_city_id]
-        );
+        `, [package_city_id]);
 
         city.locations = locationsQuery.rows;
 
-        // Fetch hotels for the city
-        const hotelsQuery = await pool.query(
-          `
+        // Fetch hotels for this city
+        const hotelsQuery = await pool.query(`
           SELECT 
             ph.hotel_id,
             h.hotel_name,
@@ -438,25 +439,26 @@ const getAllPackages = async (req, res) => {
           LEFT JOIN hotels h ON ph.hotel_id = h.hotel_id
           LEFT JOIN hotel_pictures hp ON h.hotel_id = hp.hotel_id
           WHERE ph.package_city_id = $1
-        `,
-          [package_city_id]
-        );
+        `, [package_city_id]);
 
         city.hotels = hotelsQuery.rows;
       }
 
-      // Attach cities to the package
       pkg.cities = cities;
     }
 
-    // Return all adminPackages with details
-    res
-      .status(200)
-      .json({ message: "Packages retrieved successfully", adminPackages });
+    res.status(200).json({
+      message: "Packages retrieved successfully",
+      adminPackages
+    });
   } catch (error) {
     console.error("Error fetching adminPackages:", error);
-    res.status(500).json({ message: "Error fetching adminPackages", error });
+    res.status(500).json({
+      message: "Error fetching adminPackages",
+      error: error.message
+    });
   }
 };
+
 
 export { createPackage, getPackageById, deletePackageById, getAllPackages };

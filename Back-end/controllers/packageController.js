@@ -163,7 +163,8 @@ const createPackage = async (req, res) => {
 
     res.status(201).json({
       message: "Tour package created successfully",
-      tour_package: updatePackage.rows[0],
+      package_id: package_id,
+      tour_package: updatePackage.rows[0]
     });
   } catch (error) {
     console.error("Error creating tour package:", error);
