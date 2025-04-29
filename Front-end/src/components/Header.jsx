@@ -75,15 +75,22 @@ const Header = () => {
       {/* Navbar Start */}
       <div className="container-fluid position-relative p-0">
         <nav
-          className={`navbar navbar-expand-lg fixed-top px-4 py-2 ${navbarClass}`}
-          style={{ background: "rgba(33, 37, 41, 0.85)" }}
+          className={`navbar navbar-expand-lg fixed-top px-4 py-1 ${navbarClass}`}
+          style={{ background: "rgba(74, 74, 74, 0.4)",height: "120px",             // control total navbar height
+            paddingTop: "10px",          // small top padding
+            paddingBottom: "10px"    }}
         >
           <Link to="/" className="navbar-brand p-0">
-            <img
-              src="/assets/img/LOGO1.png"
-              alt="Wander Luxe Logo"
-              style={{ height: "110px" }}
-            />
+          <img
+        src="/assets/img/logo1.svg"
+        alt="Wander Luxe Logo"
+        style={{
+          height: "150px",  // actual image size
+          width: "150px",
+          transform: "scale(2)",  // scales up visually
+          transformOrigin: "left center",
+        }}
+      />
           </Link>
           <button
             className="navbar-toggler"
