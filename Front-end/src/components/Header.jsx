@@ -8,7 +8,7 @@ import "./Header.css";
 
 const Header = () => {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
-  const [navbarClass, setNavbarClass] = useState("navbar-darkgrey-translucent");
+  const [isScrolled, setIsScrolled] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -22,9 +22,7 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setNavbarClass(
-        window.scrollY > 0 ? "navbar-black" : "navbar-darkgrey-translucent"
-      );
+      setIsScrolled(window.scrollY > 0);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -75,22 +73,24 @@ const Header = () => {
       {/* Navbar Start */}
       <div className="container-fluid position-relative p-0">
         <nav
-          className={`navbar navbar-expand-lg fixed-top px-4 py-1 ${navbarClass}`}
-          style={{ background: "rgba(74, 74, 74, 0.4)",height: "120px",             // control total navbar height
-            paddingTop: "10px",          // small top padding
-            paddingBottom: "10px"    }}
+          className={`navbar navbar-expand-lg fixed-top px-4 py-1 ${isScrolled ? 'navbar-scrolled' : 'navbar-transparent'}`}
+          style={{ 
+            height: "120px",
+            paddingTop: "10px",
+            paddingBottom: "10px"
+          }}
         >
           <Link to="/" className="navbar-brand p-0">
-          <img
-        src="/assets/img/logo1.svg"
-        alt="Wander Luxe Logo"
-        style={{
-          height: "150px",  // actual image size
-          width: "150px",
-          transform: "scale(2)",  // scales up visually
-          transformOrigin: "left center",
-        }}
-      />
+            <img
+              src="/assets/img/logo1.svg"
+              alt="Wander Luxe Logo"
+              style={{
+                height: "150px",
+                width: "150px",
+                transform: "scale(2)",
+                transformOrigin: "left center",
+              }}
+            />
           </Link>
           <button
             className="navbar-toggler"
@@ -102,19 +102,19 @@ const Header = () => {
           </button>
           <div className="collapse navbar-collapse" id="navbarCollapse">
             <div className="navbar-nav ms-auto py-0">
-              <Link to="/About" className="nav-item nav-link text-white">
+              <Link to="/About" className="nav-item nav-link">
                 About
               </Link>
-              <Link to="/Packages" className="nav-item nav-link text-white">
+              <Link to="/Packages" className="nav-item nav-link">
                 Packages
               </Link>
-              <Link to="/Destination" className="nav-item nav-link text-white">
+              <Link to="/Destination" className="nav-item nav-link">
                 Destination
               </Link>
-              <Link to="/Booking" className="nav-item nav-link text-white">
+              <Link to="/Booking" className="nav-item nav-link">
                 Booking
               </Link>
-              <Link to="/Contact" className="nav-item nav-link text-white">
+              <Link to="/Contact" className="nav-item nav-link">
                 Contact
               </Link>
             </div>
@@ -149,13 +149,12 @@ const Header = () => {
               </div>
             ) : (
               <>
-                <Button
-                  variant="warning"
-                  className="rounded-pill py-2 px-4 ms-3"
-                  onClick={handleShowRegister}
+                <Link
+                  to="/Register"
+                  className="btn btn-outline-light rounded-pill py-2 px-4 ms-3"
                 >
                   Register
-                </Button>
+                </Link>
                 <Link
                   to="/Login"
                   className="btn btn-outline-light rounded-pill py-2 px-4 ms-3"
@@ -169,85 +168,6 @@ const Header = () => {
       </div>
       {/* Navbar End */}
 
-      {/* Register Modal */}
-      <Modal
-        show={showRegisterModal}
-        onHide={handleCloseRegister}
-        centered
-        size="lg"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Sign in / Register</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="text-center mb-4">
-            <h2 className="fw-bold">Your Adventure Starts Now</h2>
-            <p className="text-muted">
-              Receive our exclusive travel deals now!
-            </p>
-          </div>
-          {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
-          <Form onSubmit={handleSubmit}>
-            <Form.Group controlId="formName" className="mb-3">
-              <Form.Control
-                type="text"
-                placeholder="Name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className="p-3 border-0 shadow-sm"
-              />
-            </Form.Group>
-            <Form.Group controlId="formEmail" className="mb-3">
-              <Form.Control
-                type="email"
-                placeholder="Email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="p-3 border-0 shadow-sm"
-              />
-            </Form.Group>
-            <Form.Group controlId="formPhoneNumber" className="mb-3">
-              <Form.Control
-                type="text"
-                placeholder="Phone Number"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleInputChange}
-                className="p-3 border-0 shadow-sm"
-              />
-            </Form.Group>
-            <Form.Group controlId="formPassword" className="mb-3">
-              <Form.Control
-                type="password"
-                placeholder="Password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                className="p-3 border-0 shadow-sm"
-              />
-            </Form.Group>
-            <Form.Group controlId="formConfirmPassword" className="mb-3">
-              <Form.Control
-                type="password"
-                placeholder="Confirm Password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                className="p-3 border-0 shadow-sm"
-              />
-            </Form.Group>
-            <Button
-              variant="primary"
-              className="w-100 py-3 mb-4 fw-bold shadow"
-              type="submit"
-            >
-              Submit
-            </Button>
-          </Form>
-        </Modal.Body>
-      </Modal>
     </div>
   );
 };

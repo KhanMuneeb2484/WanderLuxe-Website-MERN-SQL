@@ -100,6 +100,7 @@ const BookingPage = () => {
 
         if (!token) {
             setError("You must be logged in to book a package");
+            
             return;
         }
 
@@ -315,10 +316,10 @@ const BookingPage = () => {
                                         </div>
 
                                         {!token && (
-                                            <div className="alert alert-warning">
-                                                Please <a href="/login">log in</a> to book this package.
-                                            </div>
-                                        )}
+    <div className="alert alert-warning">
+        Please <a href="/login" onClick={() => navigate('/login', { state: { from: location } })}>log in</a> to book this package.
+    </div>
+)}
 
                                         <button 
                                             type="submit" 

@@ -1,7 +1,16 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
-import { Button, Card, CardContent, Container, Typography, Grid, Box, Avatar } from "@mui/material"
+import { useEffect } from "react";
+import {
+  Button,
+  Card,
+  CardContent,
+  Container,
+  Typography,
+  Grid,
+  Box,
+  Avatar,
+} from "@mui/material";
 import {
   LocationOn as MapPinIcon,
   Hotel as HotelIcon,
@@ -12,7 +21,7 @@ import {
   Apartment as BuildingIcon,
   VerifiedUser as UserCheckIcon,
   AccountCircle as UserCircleIcon,
-} from "@mui/icons-material"
+} from "@mui/icons-material";
 
 // Animation classes
 const animationClasses = {
@@ -49,44 +58,44 @@ const animationClasses = {
     opacity: 1,
     transform: "translateY(0) translateX(0) scale(1)",
   },
-}
+};
 
 // Custom hook for scroll animations
 const useScrollAnimation = () => {
   useEffect(() => {
-    const animatedElements = document.querySelectorAll(".animate-on-scroll")
+    const animatedElements = document.querySelectorAll(".animate-on-scroll");
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible")
+            entry.target.classList.add("is-visible");
             // Once the animation has played, we can stop observing
-            observer.unobserve(entry.target)
+            observer.unobserve(entry.target);
           }
-        })
+        });
       },
       {
         threshold: 0.15, // Trigger when at least 15% of the element is visible
         rootMargin: "0px 0px -50px 0px", // Slightly before the element enters the viewport
-      },
-    )
+      }
+    );
 
     animatedElements.forEach((element) => {
-      observer.observe(element)
-    })
+      observer.observe(element);
+    });
 
     return () => {
       animatedElements.forEach((element) => {
-        observer.unobserve(element)
-      })
-    }
-  }, [])
-}
+        observer.unobserve(element);
+      });
+    };
+  }, []);
+};
 
 const UserHome = () => {
   // Use the custom hook
-  useScrollAnimation()
+  useScrollAnimation();
 
   return (
     <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
@@ -98,12 +107,15 @@ const UserHome = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: 'url("/assets/img/pexels-pixabay-270756.jpg") no-repeat center center',
-          backgroundSize: 'cover',
+          background:
+            'url("/assets/img/pexels-pixabay-270756.jpg") no-repeat center center',
+          backgroundSize: "cover",
           overflow: "hidden",
         }}
       >
-        <Box sx={{ position: "absolute", inset: 0, bgcolor: "rgba(0,0,0,0.3)" }}></Box>
+        <Box
+          sx={{ position: "absolute", inset: 0, bgcolor: "rgba(0,0,0,0.3)" }}
+        ></Box>
         <Container maxWidth="lg" sx={{ position: "relative", zIndex: 10 }}>
           <Box sx={{ maxWidth: "800px", mx: "auto", textAlign: "center" }}>
             <Typography
@@ -133,8 +145,8 @@ const UserHome = () => {
                 transitionDelay: "0.3s",
               }}
             >
-              At Wanderluxe, we believe every journey should be more than just a trip; it should be a story waiting to
-              unfold.
+              At Wanderluxe, we believe every journey should be more than just a
+              trip; it should be a story waiting to unfold.
             </Typography>
             <Button
               variant="contained"
@@ -176,7 +188,8 @@ const UserHome = () => {
           >
             <Box
               sx={{
-                background: "linear-gradient(to right,rgb(21, 36, 120), #7e57c2)",
+                background:
+                  "linear-gradient(to right,rgb(21, 36, 120), #7e57c2)",
                 color: "white",
                 px: 3,
                 py: 5,
@@ -184,10 +197,26 @@ const UserHome = () => {
             >
               <Grid container spacing={4}>
                 {[
-                  { icon: <MapPinIcon fontSize="large" />, title: "50+ Destinations", delay: "0s" },
-                  { icon: <CreditCardIcon fontSize="large" />, title: "Best Price Guaranteed", delay: "0.2s" },
-                  { icon: <GlobeIcon fontSize="large" />, title: "Eco Friendly Tourism", delay: "0.4s" },
-                  { icon: <PlaneIcon fontSize="large" />, title: "Super Fast Booking", delay: "0.6s" },
+                  {
+                    icon: <MapPinIcon fontSize="large" />,
+                    title: "50+ Destinations",
+                    delay: "0s",
+                  },
+                  {
+                    icon: <CreditCardIcon fontSize="large" />,
+                    title: "Best Price Guaranteed",
+                    delay: "0.2s",
+                  },
+                  {
+                    icon: <GlobeIcon fontSize="large" />,
+                    title: "Eco Friendly Tourism",
+                    delay: "0.4s",
+                  },
+                  {
+                    icon: <PlaneIcon fontSize="large" />,
+                    title: "Super Fast Booking",
+                    delay: "0.6s",
+                  },
                 ].map((feature, index) => (
                   <Grid item xs={12} md={6} lg={3} key={index}>
                     <Box
@@ -254,18 +283,24 @@ const UserHome = () => {
                 transitionDelay: "0.2s",
               }}
             >
-              Discover breathtaking and amazing Pakistan with one of the best Travel and Tourism Companies in Pakistan.
-              We are offering valued touristy plans with complete travel services in affordable{" "}
+              Discover breathtaking and amazing Pakistan with one of the best
+              Travel and Tourism Companies in Pakistan. We are offering valued
+              touristy plans with complete travel services in affordable{" "}
               <Box
                 component="a"
-                href="#"
-                sx={{ color: "#3f51b5", fontWeight: 600, "&:hover": { textDecoration: "underline" } }}
+                href="/Packages"
+                sx={{
+                  color: "#3f51b5",
+                  fontWeight: 600,
+                  "&:hover": { textDecoration: "underline" },
+                }}
               >
                 tour packages
               </Box>{" "}
-              from Lahore, Islamabad, and Karachi. Our tour managers and guides organize thrilling and adventurous
-              journeys to bring unforgettable holidays to life. So, pack your bags and travel with Pakistan Travel
-              Places (PTP) to turn your travel dreams into reality.
+              from Lahore, Islamabad, and Karachi. Our tour managers and guides
+              organize thrilling and adventurous journeys to bring unforgettable
+              holidays to life. So, pack your bags and travel with Pakistan
+              Travel Places (PTP) to turn your travel dreams into reality.
             </Typography>
           </Box>
         </Container>
@@ -344,14 +379,19 @@ const UserHome = () => {
                 delay: "0.3s",
               },
               {
-                icon: <UserCircleIcon sx={{ fontSize: 35, color: "#3f51b5" }} />,
+                icon: (
+                  <UserCircleIcon sx={{ fontSize: 35, color: "#3f51b5" }} />
+                ),
                 title: "User Account Management",
-                description: "Travelers can create accounts, store preferences, and manage bookings.",
+                description:
+                  "Travelers can create accounts, store preferences, and manage bookings.",
                 animation: "fadeInUp",
                 delay: "0.4s",
               },
               {
-                icon: <CreditCardIcon sx={{ fontSize: 35, color: "#3f51b5" }} />,
+                icon: (
+                  <CreditCardIcon sx={{ fontSize: 35, color: "#3f51b5" }} />
+                ),
                 title: "Payment System",
                 description:
                   "Users can book and pay for the entire package, including hotels, locations, and guides, via a secure payment gateway.",
@@ -363,6 +403,14 @@ const UserHome = () => {
                 title: "Custom Itinerary Management",
                 description:
                   "The created package will include a detailed itinerary that users can manage and update if needed.",
+                animation: "fadeInUp",
+                delay: "0.6s",
+              },
+              {
+                icon: <GlobeIcon sx={{ fontSize: 35, color: "#3f51b5" }} />,
+                title: "Live Travel Updates",
+                description:
+                  "Get real-time notifications on itinerary changes, weather updates, and travel alerts during your journey.",
                 animation: "fadeInUp",
                 delay: "0.6s",
               },
@@ -382,7 +430,13 @@ const UserHome = () => {
                   }}
                 >
                   <CardContent sx={{ p: 3 }}>
-                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
                       <Avatar
                         sx={{
                           bgcolor: "#e8eaf6",
@@ -393,10 +447,19 @@ const UserHome = () => {
                       >
                         {service.icon}
                       </Avatar>
-                      <Typography variant="h6" fontWeight="bold" align="center" mb={1.5}>
+                      <Typography
+                        variant="h6"
+                        fontWeight="bold"
+                        align="center"
+                        mb={1.5}
+                      >
                         {service.title}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary" align="center">
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        align="center"
+                      >
                         {service.description}
                       </Typography>
                     </Box>
@@ -451,42 +514,52 @@ const UserHome = () => {
                 step: 1,
                 icon: <GlobeIcon sx={{ fontSize: 35, color: "#3f51b5" }} />,
                 title: "Select Country",
-                description: "Begin by selecting the country you want to explore.",
+                description:
+                  "Begin by selecting the country you want to explore.",
                 delay: "0s",
               },
               {
                 step: 2,
                 icon: <BuildingIcon sx={{ fontSize: 35, color: "#3f51b5" }} />,
                 title: "Select City",
-                description: "Choose the cities within the selected country to visit.",
+                description:
+                  "Choose the cities within the selected country to visit.",
                 delay: "0.15s",
               },
               {
                 step: 3,
                 icon: <UserCheckIcon sx={{ fontSize: 35, color: "#3f51b5" }} />,
                 title: "Optional Tour Guide",
-                description: "Opt to select a tour guide for your trip or proceed without one.",
+                description:
+                  "Opt to select a tour guide for your trip or proceed without one.",
                 delay: "0.3s",
               },
               {
                 step: 4,
                 icon: <HotelIcon sx={{ fontSize: 35, color: "#3f51b5" }} />,
                 title: "Select Hotels and Locations",
-                description: "Pick from available hotels and select popular travel locations to visit.",
+                description:
+                  "Pick from available hotels and select popular travel locations to visit.",
                 delay: "0.45s",
               },
               {
                 step: 5,
-                icon: <UserCircleIcon sx={{ fontSize: 35, color: "#3f51b5" }} />,
+                icon: (
+                  <UserCircleIcon sx={{ fontSize: 35, color: "#3f51b5" }} />
+                ),
                 title: "Create Account",
-                description: "Create an account to store preferences and manage your bookings easily.",
+                description:
+                  "Create an account to store preferences and manage your bookings easily.",
                 delay: "0.6s",
               },
               {
                 step: 6,
-                icon: <CreditCardIcon sx={{ fontSize: 35, color: "#3f51b5" }} />,
+                icon: (
+                  <CreditCardIcon sx={{ fontSize: 35, color: "#3f51b5" }} />
+                ),
                 title: "Make Payment",
-                description: "Book and pay for the entire package, including hotels, locations, and guides.",
+                description:
+                  "Book and pay for the entire package, including hotels, locations, and guides.",
                 delay: "0.75s",
               },
             ].map((step, index) => (
@@ -508,8 +581,8 @@ const UserHome = () => {
                     <Box
                       sx={{
                         position: "absolute",
-                        top: -12,
-                        left: -12,
+                        top: 8, // instead of -12
+                        left: 8,
                         width: 36,
                         height: 36,
                         borderRadius: "50%",
@@ -520,12 +593,20 @@ const UserHome = () => {
                         justifyContent: "center",
                         fontWeight: "bold",
                         fontSize: "1.2rem",
+                        zIndex: 1,
                       }}
                     >
                       {step.step}
                     </Box>
+
                     <CardContent sx={{ p: 4 }}>
-                      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                        }}
+                      >
                         <Avatar
                           sx={{
                             bgcolor: "#e8eaf6",
@@ -536,10 +617,19 @@ const UserHome = () => {
                         >
                           {step.icon}
                         </Avatar>
-                        <Typography variant="h6" fontWeight="bold" align="center" mb={1.5}>
+                        <Typography
+                          variant="h6"
+                          fontWeight="bold"
+                          align="center"
+                          mb={1.5}
+                        >
                           {step.title}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" align="center">
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          align="center"
+                        >
                           {step.description}
                         </Typography>
                       </Box>
@@ -552,7 +642,7 @@ const UserHome = () => {
         </Container>
       </Box>
     </Box>
-  )
-}
+  );
+};
 
-export default UserHome
+export default UserHome;

@@ -12,6 +12,7 @@ import Booking from "./pages/User/UserBookings";
 import { AuthContext } from "./context/AuthContext";
 import Destinations from "./pages/User/UserDestinations";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Contact from "./pages/User/UserContact";
 import Dashboard from "./pages/User/UserDashboard";
 import Cities from "./pages/User/UserCities";
@@ -52,6 +53,8 @@ const App = () => {
         <Route path="/services" element={<Services />} />
         <Route path="/Destination" element={<Destinations />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/AdminCountries" element={<AdminCountries />} />
         <Route path="/AdminCities" element={<AdminCities />} />

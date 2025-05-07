@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate ,useLocation} from "react-router-dom";
 import { Form, Button, Container, Alert, Card } from "react-bootstrap";
 import { AuthContext } from "../context/AuthContext";
 
@@ -10,6 +10,8 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  
 
   // Handle input field changes
   const handleInputChange = (e) => {
@@ -46,7 +48,9 @@ const Login = () => {
         login(userData); // Save user data in context
 
         // Navigate based on user role
-        navigate(userData.role === "admin" ? "/AdminHome" : "/");
+        const redirectTo = location.state?.from || (userData.role === "admin" ? "/AdminHome" : "/");
+        navigate(redirectTo);
+
       } else {
         const error = await response.json();
         setErrorMessage(error.message || "Invalid email or password.");
