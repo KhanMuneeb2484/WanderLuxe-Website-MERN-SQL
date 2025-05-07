@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate from react-router-dom
 import { Link } from "react-router-dom";
+import './aboutus.css'
+
 
 function Destinations() {
     // State to store fetched destinations

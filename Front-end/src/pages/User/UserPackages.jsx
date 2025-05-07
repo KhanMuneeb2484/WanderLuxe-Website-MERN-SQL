@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
+import './aboutus.css'
+
 
 const Packages = () => {
   const [countries, setCountries] = useState([]);
@@ -853,7 +855,7 @@ const Packages = () => {
       {/* Add CSS for custom styling */}
       <style jsx>{`
         .hero-header {
-          background-image: url('/images/travel-bg.jpg');
+          background-image: url('/public/assets/img/pexels-pixabay-270756.jpg') no-repeat center center;
           background-size: cover;
           background-position: center;
           margin-bottom: 0 !important; /* Double override to ensure it takes effect */

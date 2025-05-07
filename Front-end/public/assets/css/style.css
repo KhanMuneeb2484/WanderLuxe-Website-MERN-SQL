@@ -1,6 +1,6 @@
 /********** Template CSS **********/
 :root {
-    --primary: #86B817;
+    --primary: #2a5298; /* part of the blue gradient */
     --secondary: #FE8800;
     --light: #F5F5F5;
     --dark: #14141F;
@@ -19,8 +19,15 @@
     display: none;
     right: 45px;
     bottom: 45px;
-    z-index: 99;
-}
+    z-index: 999; /* Ensure it's on top of other elements */
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 45px;
+    font-size: 20px;
+  }
+  
 
 
 /*** Spinner ***/
@@ -375,8 +382,11 @@
     border-color: var(--primary);
 }
 
-
 /*** Footer ***/
+.footer {
+    background: linear-gradient(to right, #0D47A1, #42A5F5);
+}
+
 .footer .btn.btn-social {
     margin-right: 5px;
     width: 35px;

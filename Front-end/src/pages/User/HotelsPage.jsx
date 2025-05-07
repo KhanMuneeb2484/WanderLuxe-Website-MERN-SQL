@@ -130,13 +130,7 @@ function HotelPage() {
                       {hotel.availability ? "Available" : "Not Available"}
                     </p>
                     <p className="mb-2"><strong>Rooms Available:</strong> {hotel.number_of_rooms}</p>
-                    <a
-                      href={`/book-hotel/${hotel.hotel_id}`}
-                      className="btn btn-sm btn-primary"
-                      style={{ borderRadius: "30px" }}
-                    >
-                      Book Now
-                    </a>
+                    
                   </div>
                 </div>
               </div>

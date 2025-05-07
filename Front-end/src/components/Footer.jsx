@@ -26,7 +26,7 @@ const Footer = () => {
     <Box 
       component="footer" 
       sx={{
-        bgcolor: theme.palette.primary.main,
+        background: 'linear-gradient(to right, #0D47A1, #42A5F5)',
         color: '#fff',
         py: 6,
         mt: 4
@@ -110,7 +110,7 @@ const Footer = () => {
         >
           © 2024 Wander Luxe. All rights reserved. Designed and developed by{" "}
           <Link 
-            href="https://suavesolutions.com" 
+            href="" 
             color="inherit" 
             sx={{ 
               fontWeight: 500, 
@@ -118,7 +118,7 @@ const Footer = () => {
             }}
             target="_blank"
           >
-            Muneeb Ullah
+            Muneeb Maqsood Khan
           </Link>
         </Typography>
       </Container>

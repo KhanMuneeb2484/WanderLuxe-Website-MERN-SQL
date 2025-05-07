@@ -1,0 +1,23 @@
+.hero-header {
+    background: url('/public/assets/img/pexels-pixabay-270756.jpg') no-repeat center center;
+    background-size: cover;
+    margin-bottom: 0 !important;
+    position: relative;
+  }
+  
+  .hero-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* optional: dark overlay for contrast */
+    z-index: 0;
+  }
+  
+  .hero-header .container {
+    position: relative;
+    z-index: 1;
+  }
+  

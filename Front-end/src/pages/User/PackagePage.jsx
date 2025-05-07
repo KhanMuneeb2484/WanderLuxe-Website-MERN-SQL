@@ -1,126 +1,298 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Col, Row, Typography, Image, Spin, Divider } from 'antd';
-import { useParams } from 'react-router-dom';
+import { Button, Card, Col, Row, Typography, Image, Spin, Divider, Tag, Space, Carousel, Statistic } from 'antd';
+import { useParams, useNavigate } from 'react-router-dom';
+import { 
+  HomeOutlined, 
+  CalendarOutlined, 
+  TeamOutlined, 
+  DollarOutlined, 
+  StarOutlined,
+  CompassOutlined,
+  BankOutlined,
+  ShoppingCartOutlined
+} from '@ant-design/icons';
 import './PackagePage.css';
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 
 const PackagePage = () => {
   const { packageId } = useParams();
-  console.log(packageId);  // Get packageId from the URL
+  const navigate = useNavigate();
   const [packageData, setPackageData] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  const handleBookPackage = (packageId) => {
+    navigate(`/booking/${packageId}`, { state: { isCustomPackage: false } });
+  };
 
   useEffect(() => {
     // Fetch package data from API using packageId from the URL
     fetch(`http://localhost:3000/api/adminPackages/get-package-by-id/${packageId}`)
       .then((response) => response.json())
       .then((data) => {
-        console.log('this is package data ', data); // Log the response to see the structure
-        setPackageData(data.adminPackages[0]); // Access the first package in the array
+        setPackageData(data.adminPackages[0]);
         setLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching package data:', error);
         setLoading(false);
       });
-  }, [packageId]); // Re-fetch data when packageId changes
+  }, [packageId]);
 
   if (loading) {
-    return <Spin size="large" style={{ marginTop: '20px' }} />;
+    return (
+      <div className="loading-container">
+        <Spin size="large" />
+        <Text className="loading-text">Loading your dream destination...</Text>
+      </div>
+    );
   }
 
   if (!packageData) {
-    return <Text>No package data available</Text>;
+    return (
+      <div className="error-container">
+        <Title level={3}>Package Not Found</Title>
+        <Text>We couldn't find the package you're looking for. Please try again.</Text>
+      </div>
+    );
   }
 
-  const pkg = packageData; // Now packageData is a single object, no need to access `packageData.package`
+  const pkg = packageData;
 
   return (
     <div className="package-page">
-      <Title level={2} style={{ textAlign: 'center' }}>Package Details</Title>
-      <Row gutter={[16, 16]} justify="center">
-        {/* Main package card */}
-        <Col xs={24} sm={12} md={8} lg={6} key={pkg.package_id}>
-          <Card
-            hoverable
-            cover={<Image alt={pkg.country_name} src={pkg.country_picture} />}
-            style={{ width: '100%', marginBottom: '20px' }}
-          >
-            <Title level={4}>{pkg.country_name}</Title>
-            <Text><strong>Guide:</strong> {pkg.guide_name}</Text>
-            <Text> | <strong>Per Day Charge:</strong> ${pkg.per_day_charge}</Text>
-            <br />
-            <Text><strong>Total Price:</strong> ${pkg.total_price}</Text>
-            <br />
-            <Text><strong>Duration:</strong> {pkg.total_days_stayed} days</Text>
-            <br />
-            <Text><strong>People:</strong> {pkg.num_people}</Text>
+      {/* Hero Section */}
+      <div className="hero-section" style={{ 
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${pkg.country_picture})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        padding: '60px 0',
+        marginBottom: '30px'
+      }}>
+        <div className="hero-content">
+          <Title level={1} style={{ color: 'white', marginBottom: '5px' }}>{pkg.country_name}</Title>
+          <Title level={3} style={{ color: 'white', fontWeight: 'normal', margin: 0 }}>
+            {pkg.total_days_stayed} Days • {pkg.cities.length} Cities • Guided Tour
+          </Title>
+          <div className="hero-price">
+            <Tag color="gold" style={{ fontSize: '16px', padding: '5px 10px', margin: '10px 0' }}>
+              <DollarOutlined /> ${pkg.total_price}
+            </Tag>
+          </div>
+        </div>
+      </div>
 
-            {/* Divider for styling */}
-            <Divider />
-
-            {/* Cities and Locations */}
-            <div className="cities">
-              {pkg.cities.map((city) => (
-                <div key={city.package_city_id} className="city">
-                  <Image
-                    alt={city.city_name}
-                    src={city.city_picture || 'default-image.jpg'}
-                    width={300}
-                    height={200}
-                    style={{ objectFit: 'cover', borderRadius: '8px' }}
+      <div className="package-container">
+        {/* Overview Section */}
+        <Row gutter={[24, 24]} className="overview-section">
+          <Col xs={24} md={16}>
+            <Card className="overview-card">
+              <Title level={3}>Package Overview</Title>
+              <Paragraph>
+                Experience the beauty and culture of {pkg.country_name} with our exclusive guided tour.
+                Explore {pkg.cities.length} stunning cities over {pkg.total_days_stayed} unforgettable days.
+              </Paragraph>
+              
+              <Row gutter={[16, 16]} className="package-stats">
+                <Col xs={12} sm={6}>
+                  <Statistic 
+                    title="Duration" 
+                    value={pkg.total_days_stayed} 
+                    suffix="Days" 
+                    prefix={<CalendarOutlined />} 
                   />
-                  <Title level={5} style={{ textAlign: 'center' }}>{city.city_name}</Title>
-                  <Text><strong>Cost:</strong> ${city.city_cost}</Text>
-                  <div className="locations">
-                    <Text strong>Locations:</Text>
-                    {city.locations.map((location) => (
-                      <div key={location.location_id}>
-                        <Text>{location.location_name}</Text>
-                        <Text> | <strong>Price:</strong> ${location.location_price}</Text>
-                        {location.location_picture && (
-                          <Image
-                            alt={location.location_name}
-                            src={location.location_picture}
-                            width={120}
-                            height={80}
-                            style={{ borderRadius: '4px', marginTop: '10px' }}
-                          />
-                        )}
-                      </div>
-                    ))}
+                </Col>
+                <Col xs={12} sm={6}>
+                  <Statistic 
+                    title="Travelers" 
+                    value={pkg.num_people} 
+                    prefix={<TeamOutlined />} 
+                  />
+                </Col>
+                <Col xs={12} sm={6}>
+                  <Statistic 
+                    title="Per Day" 
+                    value={pkg.per_day_charge} 
+                    prefix={<DollarOutlined />} 
+                    precision={2} 
+                  />
+                </Col>
+                <Col xs={12} sm={6}>
+                  <Statistic 
+                    title="Cities" 
+                    value={pkg.cities.length} 
+                    prefix={<HomeOutlined />} 
+                  />
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+          
+          <Col xs={24} md={8}>
+            <Card className="guide-card">
+              <div className="guide-info">
+                <Title level={4}>Your Guide</Title>
+                <div className="guide-profile">
+                  <div className="guide-avatar">
+                    <div className="avatar-placeholder">
+                      {pkg.guide_name.charAt(0)}
+                    </div>
                   </div>
-                  <div className="hotels">
-                    <Text strong>Hotels:</Text>
-                    {city.hotels.map((hotel) => (
-                      <div key={hotel.hotel_id}>
-                        <Text>{hotel.hotel_name}</Text>
-                        <Text> | <strong>Rooms:</strong> {hotel.num_rooms}</Text>
-                        <Text> | <strong>Cost:</strong> ${hotel.hotel_cost}</Text>
-                        {hotel.hotel_picture && (
-                          <Image
-                            alt={hotel.hotel_name}
-                            src={hotel.hotel_picture}
-                            width={120}
-                            height={80}
-                            style={{ borderRadius: '4px', marginTop: '10px' }}
-                          />
-                        )}
-                      </div>
-                    ))}
+                  <div className="guide-details">
+                    <Text strong>{pkg.guide_name}</Text>
+                    <div>
+                      <Tag color="blue">Professional Guide</Tag>
+                    </div>
+                    <Rate disabled defaultValue={5} />
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            </Card>
+            
+            <Card className="booking-card" style={{ marginTop: '20px' }}>
+              <Title level={4}>Ready to book?</Title>
+              <Paragraph>Secure your spot now for this amazing journey!</Paragraph>
+              <Button 
+                type="primary" 
+                size="large" 
+                icon={<ShoppingCartOutlined />} 
+                block
+                onClick={() => handleBookPackage(packageId)}
+              >
+                Book This Package
+              </Button>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* Cities Section */}
+        <Title level={3} className="section-title">
+          <CompassOutlined /> Destinations
+        </Title>
+        
+        {pkg.cities.map((city, index) => (
+          <Card 
+            key={city.package_city_id} 
+            className="city-card"
+            style={{ marginBottom: '30px' }}
+          >
+            <Row gutter={[24, 24]}>
+              <Col xs={24} md={8}>
+                <Image
+                  alt={city.city_name}
+                  src={city.city_picture || 'default-image.jpg'}
+                  style={{ objectFit: 'cover', borderRadius: '8px', width: '100%', height: '220px' }}
+                />
+              </Col>
+              
+              <Col xs={24} md={16}>
+                <div className="city-details">
+                  <div className="city-header">
+                    <Title level={3}>{city.city_name}</Title>
+                    <Tag color="green" style={{ fontSize: '14px' }}>
+                      <DollarOutlined /> ${city.city_cost}
+                    </Tag>
+                  </div>
+                  
+                  <Divider orientation="left">
+                    <StarOutlined /> Attractions
+                  </Divider>
+                  
+                  <Row gutter={[16, 16]} className="locations-grid">
+                    {city.locations.map((location) => (
+                      <Col xs={24} sm={12} md={8} key={location.location_id}>
+                        <Card
+                          size="small"
+                          cover={
+                            <Image
+                              alt={location.location_name}
+                              src={location.location_picture || 'default-location.jpg'}
+                              style={{ height: '120px', objectFit: 'cover' }}
+                              preview={true}
+                            />
+                          }
+                        >
+                          <Card.Meta
+                            title={location.location_name}
+                            description={`$${location.location_price}`}
+                          />
+                        </Card>
+                      </Col>
+                    ))}
+                  </Row>
+                  
+                  <Divider orientation="left">
+                    <BankOutlined /> Accommodations
+                  </Divider>
+                  
+                  <Row gutter={[16, 16]} className="hotels-grid">
+                    {city.hotels.map((hotel) => (
+                      <Col xs={24} sm={12} key={hotel.hotel_id}>
+                        <Card size="small" className="hotel-card">
+                          <Row gutter={16} align="middle">
+                            <Col xs={24} sm={8}>
+                              <Image
+                                alt={hotel.hotel_name}
+                                src={hotel.hotel_picture || 'default-hotel.jpg'}
+                                style={{ borderRadius: '4px', width: '100%', height: '80px', objectFit: 'cover' }}
+                                preview={true}
+                              />
+                            </Col>
+                            <Col xs={24} sm={16}>
+                              <Title level={5} style={{ margin: '0 0 5px 0' }}>{hotel.hotel_name}</Title>
+                              <Space direction="vertical" size={0}>
+                                <Text><TeamOutlined /> {hotel.num_rooms} rooms</Text>
+                                <Text><DollarOutlined /> ${hotel.hotel_cost}</Text>
+                              </Space>
+                            </Col>
+                          </Row>
+                        </Card>
+                      </Col>
+                    ))}
+                  </Row>
+                </div>
+              </Col>
+            </Row>
           </Card>
-        </Col>
-      </Row>
-      
-      {/* Book Now Button */}
-      <div style={{ textAlign: 'center', marginTop: '20px' }}>
-        <Button type="primary" size="large">Book Now</Button>
+        ))}
+        
+        {/* Call to Action */}
+        <Card className="cta-card">
+          <Row justify="space-between" align="middle">
+            <Col xs={24} md={14}>
+              <Title level={3}>Book Your Dream {pkg.country_name} Adventure</Title>
+              <Paragraph>
+                Don't miss out on this incredible {pkg.total_days_stayed}-day journey through {pkg.country_name}!
+                Book now to secure your spot.
+              </Paragraph>
+            </Col>
+            <Col xs={24} md={8} style={{ textAlign: 'right' }}>
+              <Title level={4} style={{ margin: '0 0 10px 0' }}>
+                Total: ${pkg.total_price}
+              </Title>
+              <Button 
+                type="primary" 
+                size="large"
+                icon={<ShoppingCartOutlined />}
+                onClick={() => handleBookPackage(packageId)}
+              >
+                Book Now
+              </Button>
+            </Col>
+          </Row>
+        </Card>
       </div>
+    </div>
+  );
+};
+
+// Add Rate component needed in the code
+const Rate = ({ disabled, defaultValue }) => {
+  return (
+    <div className="rate">
+      {[...Array(5)].map((_, index) => (
+        <StarOutlined key={index} style={{ color: index < defaultValue ? '#fadb14' : '#d9d9d9' }} />
+      ))}
     </div>
   );
 };

@@ -62,7 +62,7 @@ const Register = () => {
   };
 
   return (
-    <Container className="mt-5 d-flex justify-content-center">
+    <Container className=" py-5 mt-5 d-flex justify-content-center">
       <Card
         className="p-4 shadow-lg"
         style={{ maxWidth: "500px", width: "100%", marginTop: "50px", marginBottom: "50px" }}

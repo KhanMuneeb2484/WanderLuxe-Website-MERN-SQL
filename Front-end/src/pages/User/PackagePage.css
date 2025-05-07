@@ -1,26 +1,151 @@
 .package-page {
-    padding: 20px;
-    background-color: #f9f9f9;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+}
+
+.loading-text {
+  margin-top: 16px;
+  font-size: 16px;
+  color: #555;
+}
+
+.error-container {
+  text-align: center;
+  padding: 50px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hero-section {
+  text-align: center;
+  border-radius: 0 0 10px 10px;
+  position: relative;
+}
+
+.hero-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.hero-price {
+  margin-top: 20px;
+}
+
+.package-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 50px;
+}
+
+.overview-card, .guide-card, .booking-card, .city-card, .cta-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: none;
+}
+
+.overview-section {
+  margin-bottom: 40px;
+}
+
+.package-stats {
+  margin-top: 24px;
+}
+
+.section-title {
+  margin: 40px 0 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.city-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.city-header h3 {
+  margin: 0;
+}
+
+.locations-grid, .hotels-grid {
+  margin-top: 16px;
+}
+
+.guide-profile {
+  display: flex;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.guide-avatar {
+  margin-right: 16px;
+}
+
+.avatar-placeholder {
+  width: 64px;
+  height: 64px;
+  background-color: #1890ff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  border-radius: 50%;
+}
+
+.guide-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rate {
+  display: flex;
+  gap: 4px;
+}
+
+.hotel-card {
+  height: 100%;
+}
+
+.cta-card {
+  margin-top: 40px;
+  background-color: #f6ffed;
+  border: 1px solid #b7eb8f;
+}
+
+@media (max-width: 768px) {
+  .city-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
   
-  .package-page .ant-card {
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  .city-header h3 {
+    margin-bottom: 10px;
   }
   
-  .package-page .city {
-    margin-bottom: 20px;
+  .guide-profile {
+    flex-direction: column;
+    align-items: flex-start;
   }
   
-  .package-page .locations,
-  .package-page .hotels {
-    margin-top: 10px;
+  .guide-avatar {
+    margin-right: 0;
+    margin-bottom: 16px;
   }
-  
-  .package-page .ant-btn {
-    padding: 10px 20px;
-    font-size: 16px;
-    width: 100%;
-    max-width: 200px;
-  }
-  
+}

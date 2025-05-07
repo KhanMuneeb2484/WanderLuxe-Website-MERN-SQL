@@ -187,14 +187,14 @@ const UserHome = () => {
             }}
           >
             <Box
-              sx={{
-                background:
-                  "linear-gradient(to right,rgb(21, 36, 120), #7e57c2)",
-                color: "white",
-                px: 3,
-                py: 5,
-              }}
-            >
+  sx={{
+    background: "linear-gradient(to right, #1e3c72, #2a5298)", // more modern blueish gradient
+    color: "white",
+    px: 3,
+    py: 5,
+  }}
+>
+
               <Grid container spacing={4}>
                 {[
                   {
