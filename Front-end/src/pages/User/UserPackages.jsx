@@ -245,6 +245,15 @@ const Packages = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!user) {
+      setErrorMessage("You need to login before creating a custom package.");
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500); // Delay to let user see the message
+      return;
+    }
+    
     
     // Basic validation
     if (!selectedCountry) {
