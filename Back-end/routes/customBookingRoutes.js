@@ -2,6 +2,7 @@ import express from "express";
 import {
   createBooking,
   deleteBooking,
+  getCustomBookingsByUserId,
 } from "../controllers/customBookingController.js";
 import { authenticateJWT, requireRole } from "../middleware/authMiddleware.js";
 const router = express.Router();
@@ -15,6 +16,14 @@ router.delete(
   authenticateJWT,
   requireRole(["admin"]),
   deleteBooking
+);
+
+// Get all custom bookings for the current user
+router.get(
+  "/user-bookings",
+  authenticateJWT,
+  requireRole(["user"]),
+  getCustomBookingsByUserId
 );
 
 export default router;

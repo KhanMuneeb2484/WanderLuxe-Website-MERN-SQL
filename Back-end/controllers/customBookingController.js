@@ -81,4 +81,24 @@ const deleteBooking = async (req, res) => {
   }
 };
 
-export { createBooking, deleteBooking };
+// ✅ Get all custom bookings for the current user
+const getCustomBookingsByUserId = async (req, res) => {
+  const { user_id } = req.user;
+
+  try {
+    const bookingsQuery = await pool.query(
+      `SELECT * FROM custombookings WHERE user_id = $1 ORDER BY start_date DESC`,
+      [user_id]
+    );
+
+    res.status(200).json({
+      message: "Custom bookings retrieved successfully",
+      bookings: bookingsQuery.rows,
+    });
+  } catch (error) {
+    console.error("Error fetching custom bookings:", error);
+    res.status(500).json({ message: "Error fetching custom bookings", error });
+  }
+};
+
+export { createBooking, deleteBooking, getCustomBookingsByUserId };
