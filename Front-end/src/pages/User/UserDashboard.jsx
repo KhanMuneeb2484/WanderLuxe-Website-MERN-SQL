@@ -1,31 +1,26 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { Container, Row, Col, Button, Form, Card, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 const API_URL_UPDATE = "http://localhost:3000/api/users/update-user";
 const API_URL_GET_USER = "http://localhost:3000/api/users/get-user";
+const API_URL_NORMAL_BOOKINGS = "http://localhost:3000/api/bookings/user-bookings";
+const API_URL_CUSTOM_BOOKINGS = "http://localhost:3000/api/customBookings/user-bookings";
 
 const UserDashboard = () => {
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
+
   const [userData, setUserData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", phone_number: "" });
   const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [userBookings, setUserBookings] = useState({ normalBookings: [], customBookings: [] });
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-    fetchUserData(token);
-  }, [navigate]);
-
-  const fetchUserData = async (token) => {
+  const fetchUserData = useCallback(async (token) => {
     setLoading(true);
     try {
       const response = await fetch(API_URL_GET_USER, {
@@ -52,7 +47,54 @@ const UserDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [logout, navigate]);
+
+  const fetchUserBookings = useCallback(async (token) => {
+    try {
+      const [normalRes, customRes] = await Promise.all([
+        fetch(API_URL_NORMAL_BOOKINGS, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+        fetch(API_URL_CUSTOM_BOOKINGS, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+      ]);
+
+      const normalData = await normalRes.json();
+      const customData = await customRes.json();
+
+      // Debugging line to check the combined data before setting the state
+      console.log('Combined Bookings Data:', { normalBookings: normalData.bookings, customBookings: customData.bookings });
+
+      setUserBookings({
+        normalBookings: Array.isArray(normalData.bookings) ? normalData.bookings : [],
+        customBookings: Array.isArray(customData.bookings) ? customData.bookings : [],
+      });
+
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+      setErrorMessage("Unable to fetch bookings. Please try again.");
+    }
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    fetchUserData(token);
+    fetchUserBookings(token);
+  }, [navigate, fetchUserData, fetchUserBookings]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -67,9 +109,8 @@ const UserDashboard = () => {
     }
 
     try {
-      // Remove email from the data being sent to the API
       const { email, ...dataToUpdate } = formData;
-      
+
       const response = await fetch(API_URL_UPDATE, {
         method: "PATCH",
         headers: {
@@ -122,12 +163,12 @@ const UserDashboard = () => {
               {errorMessage}
             </Alert>
           )}
-          
+
           <Card className="border-0 shadow-lg">
             <Card.Header className="bg-primary text-white p-4">
               <h3 className="mb-0">User Dashboard</h3>
             </Card.Header>
-            
+
             <Card.Body className="p-4">
               {!isEditing ? (
                 <div>
@@ -141,35 +182,51 @@ const UserDashboard = () => {
                       <p className="text-muted mb-0">{userData.phone_number || "No phone number added"}</p>
                     </div>
                   </div>
-                  
+
                   <hr className="my-4" />
-                  
+
                   <div className="mb-4">
                     <h5 className="text-primary mb-3">
                       <i className="bi bi-calendar-check me-2"></i>
                       Your Bookings
                     </h5>
-                    <Card className="bg-light border-0">
-                      <Card.Body className="p-3">
-                        <p className="mb-0 text-center text-muted">No booking details available at this moment.</p>
-                      </Card.Body>
-                    </Card>
+                    {userBookings.normalBookings.length === 0 && userBookings.customBookings.length === 0 ? (
+                      <p className="mb-0 text-center text-muted">No booking details available at this moment.</p>
+                    ) : (
+                      <>
+                        {userBookings.normalBookings.map((booking) => (
+                          <Card key={`normal-${booking.booking_id}`} className="mb-3">
+                            <Card.Body>
+                              <strong>Type:</strong> Normal<br />
+                              <strong>Package:</strong> {booking.admin_package_id}<br />
+                              <strong>Start:</strong> {new Date(booking.start_date).toLocaleDateString()}<br />
+                              <strong>End:</strong> {new Date(booking.end_date).toLocaleDateString()}<br />
+                              <strong>Status:</strong> {booking.status}
+                            </Card.Body>
+                          </Card>
+                        ))}
+
+                        {userBookings.customBookings.map((booking) => (
+                          <Card key={`custom-${booking.booking_id}`} className="mb-3">
+                            <Card.Body>
+                              <strong>Type:</strong> Custom<br />
+                              <strong>Package:</strong> {booking.package_name || booking.package_id}<br />
+                              <strong>Start:</strong> {new Date(booking.start_date).toLocaleDateString()}<br />
+                              <strong>End:</strong> {new Date(booking.end_date).toLocaleDateString()}<br />
+                              <strong>Status:</strong> {booking.status}
+                            </Card.Body>
+                          </Card>
+                        ))}
+                      </>
+                    )}
                   </div>
-                  
+
                   <div className="d-flex gap-2 mt-4">
-                    <Button 
-                      variant="outline-primary" 
-                      className="px-4" 
-                      onClick={() => setIsEditing(true)}
-                    >
+                    <Button variant="outline-primary" className="px-4" onClick={() => setIsEditing(true)}>
                       <i className="bi bi-pencil me-2"></i>
                       Edit Profile
                     </Button>
-                    <Button 
-                      variant="outline-danger" 
-                      className="px-4" 
-                      onClick={logout}
-                    >
+                    <Button variant="outline-danger" className="px-4" onClick={logout}>
                       <i className="bi bi-box-arrow-right me-2"></i>
                       Logout
                     </Button>
@@ -191,23 +248,21 @@ const UserDashboard = () => {
                     </Form.Group>
 
                     <Form.Group controlId="formEmail" className="mb-3">
-                      <Form.Label>Email Address</Form.Label>
+                      <Form.Label>Email</Form.Label>
                       <Form.Control
                         type="email"
                         name="email"
                         value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="Enter your email"
                         disabled
-                        className="bg-light"
                       />
-                      <Form.Text className="text-muted">
-                        Email address cannot be changed
-                      </Form.Text>
                     </Form.Group>
 
                     <Form.Group controlId="formPhone" className="mb-3">
                       <Form.Label>Phone Number</Form.Label>
                       <Form.Control
-                        type="tel"
+                        type="text"
                         name="phone_number"
                         value={formData.phone_number}
                         onChange={handleInputChange}
@@ -215,27 +270,9 @@ const UserDashboard = () => {
                       />
                     </Form.Group>
 
-                    <div className="d-flex gap-2 mt-4">
-                      <Button 
-                        variant="primary" 
-                        onClick={handleUpdateProfile}
-                      >
-                        Save Changes
-                      </Button>
-                      <Button 
-                        variant="light" 
-                        onClick={() => {
-                          setIsEditing(false);
-                          setFormData({ 
-                            name: userData.name, 
-                            email: userData.email, 
-                            phone_number: userData.phone_number 
-                          });
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
+                    <Button variant="primary" className="w-100" onClick={handleUpdateProfile}>
+                      Update Profile
+                    </Button>
                   </Form>
                 </div>
               )}
