@@ -81,4 +81,24 @@ const deleteBooking = async (req, res) => {
   }
 };
 
-export { createBooking, deleteBooking };
+// Get all bookings for a specific user
+const getBookingsByUserId = async (req, res) => {
+  const { user_id } = req.user; // Assuming JWT middleware populates req.user
+
+  try {
+    const bookingsQuery = await pool.query(
+      `SELECT * FROM bookings WHERE user_id = $1 ORDER BY start_date DESC`,
+      [user_id]
+    );
+
+    res.status(200).json({
+      message: "Bookings retrieved successfully",
+      bookings: bookingsQuery.rows,
+    });
+  } catch (error) {
+    console.error("Error fetching bookings:", error);
+    res.status(500).json({ message: "Error fetching bookings", error });
+  }
+};
+
+export { createBooking, deleteBooking, getBookingsByUserId };
